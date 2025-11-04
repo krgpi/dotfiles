@@ -20,6 +20,7 @@
       "Bash(mv:*)",
       "Bash(gh api:*)",
       "Bash(rg:*)",
+      "Bash(jq:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
@@ -63,11 +64,20 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Write",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "PROJECT_NAME=$(basename $(pwd)) && osascript -e 'display notification \"Claude Codeが書き込んでいます\" with title \"Claude Code\" subtitle \"'\"$PROJECT_NAME\"'\" sound name \"Glass\"'|| echo '❌ Hook PostToolUse.notification execution failed' >&2"
+            "command": "echo \"[$(date)] $USER: $(jq -r '.tool_input.command')\" >> ~/.claude/command_history.log"
+          }
+        ],
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path | select(endswith(\".js\") or endswith(\".ts\") or endswith(\".jsx\") or endswith(\".tsx\"))' | xargs -r prettier --write"
           },
           {
             "type": "command",
