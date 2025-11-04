@@ -1,0 +1,236 @@
+{
+  "[css,javascript,javascriptreact,json,typescriptreact,vue,html,yaml,typescript,mdx]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "workbench.editor.customLabels.patterns": {
+    "**/**.ts": "${dirname}/${filename}", // route.ts
+    "**/**.tsx": "${dirname}/${filename}" // layout.tsx, page.tsx, template.tsx
+  },
+  "[mdx]": {
+    "editor.codeActionsOnSave": {
+      "source.addMissingImports.ts": "never"
+    },
+    "editor.fontSize": 16
+  },
+  "[dart]": {
+    "editor.rulers": [
+      80
+    ],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  },
+  "[git-rebase]": {
+    "workbench.editor.restoreViewState": false
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "cSpell.userWords": [
+    "karaage",
+    "shadcn",
+    "supabase",
+    "tauri"
+  ],
+  "cmake.configureOnOpen": true,
+  "editor.accessibilitySupport": "off",
+  "editor.codeActionsOnSave": [
+    "source.fixAll",
+    "source.addMissingImports",
+    "source.organizeImports",
+    "source.fixAll.eslint"
+  ],
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.inlineSuggest.enabled": true,
+  "editor.largeFileOptimizations": false,
+  "editor.renderWhitespace": "all",
+  "editor.suggestSelection": "first",
+  "files.autoSave": "onWindowChange",
+  "files.insertFinalNewline": true,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false,
+    "mdx": false
+  },
+  "files.associations": {
+    "*.bqsql": "sql"
+  },
+  "go.formatTool": "goimports",
+  "go.toolsManagement.autoUpdate": true,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "update.showReleaseNotes": false,
+  "vsicons.dontShowNewVersionMessage": true,
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "workbench.preferredDarkColorTheme": "doom-one",
+  "workbench.preferredLightColorTheme": "doom-one",
+  "workbench.iconTheme": "vscode-icons",
+  "workbench.startupEditor": "none",
+  "yaml.customTags": [
+    "!And",
+    "!If",
+    "!Not",
+    "!Equals",
+    "!Or",
+    "!FindInMap sequence",
+    "!Base64",
+    "!Cidr",
+    "!Ref",
+    "!Sub",
+    "!GetAtt",
+    "!GetAZs",
+    "!ImportValue",
+    "!Select",
+    "!Select sequence",
+    "!Split",
+    "!Join sequence",
+    "!And sequence",
+    "!If sequence",
+    "!Not sequence",
+    "!Equals sequence",
+    "!Or sequence",
+    "!FindInMap",
+    "!Join",
+    "!Sub sequence",
+    "!ImportValue sequence",
+    "!Split sequence"
+  ],
+  "zenMode.centerLayout": false,
+  "zenMode.hideActivityBar": false,
+  "zenMode.hideLineNumbers": false,
+  "zenMode.hideStatusBar": false,
+  "editor.fontFamily": "JetBrains Mono, monospace",
+  "terminal.integrated.fontFamily": "HackGen35 Console NF, Menlo, Monaco, 'Courier New', monospace",
+  "terminal.integrated.fontSize": 13,
+  "errorLens.scrollbarHackEnabled": true,
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.fontSize": 16
+  },
+  "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+  "lldb.library": "/Applications/Xcode-14.3.1.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+  "lldb.launch.expressions": "native",
+  "[swift]": {},
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "workbench.editor.limit.enabled": true,
+  "accessibility.signals.noInlayHints": {
+    "sound": "off"
+  },
+  "workbench.editor.tabSizing": "fit",
+  "workbench.editor.wrapTabs": true,
+  "editor.guides.bracketPairs": true,
+  "githubPullRequests.fileListLayout": "tree",
+  "window.titleBarStyle": "custom",
+  "security.allowedUNCHosts": [
+    "wsl.localhost"
+  ],
+  "rust-analyzer.inlayHints.parameterHints.enable": false,
+  "rust-analyzer.inlayHints.chainingHints.enable": false,
+  "rust-analyzer.inlayHints.typeHints.enable": false,
+  "errorLens.alignMessage": {
+    "end": 0
+  },
+  "errorLens.codeLensOnClick": "showProblemsView",
+  "errorLens.messageTemplate": "$severity $message",
+  "errorLens.codeLensLength": {
+    "max": 1000
+  },
+  "terminal.integrated.defaultLocation": "view",
+  "github.copilot.editor.enableAutoCompletions": true,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.tabSize": 2,
+  "git.confirmSync": false,
+  "window.nativeTabs": true,
+  "window.autoDetectColorScheme": true,
+  "redhat.telemetry.enabled": false,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "security.promptForLocalFileProtocolHandling": false,
+  "editor.minimap.enabled": false,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "git.openRepositoryInParentFolders": "never",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    },
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [],
+      "icon": "terminal-cmd"
+    },
+    "Git Bash": {
+      "source": "Git Bash"
+    },
+    "Ubuntu (WSL)": {
+      "path": "C:\\WINDOWS\\System32\\wsl.exe",
+      "args": [
+        "-d",
+        "Ubuntu"
+      ]
+    }
+  },
+  "editor.formatOnSave": true,
+  "githubPullRequests.commentExpandState": "collapseAll",
+  "typescript.tsserver.enableTracing": true,
+  "deno.codeLens.references": true,
+  "deno.codeLens.referencesAllFunctions": true,
+  "javascript.referencesCodeLens.enabled": true,
+  "javascript.referencesCodeLens.showOnAllFunctions": true,
+  "typescript.implementationsCodeLens.enabled": true,
+  "typescript.implementationsCodeLens.showOnInterfaceMethods": true,
+  "typescript.referencesCodeLens.showOnAllFunctions": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "Lua.codeLens.enable": true,
+  "github.copilot.chat.languageContext.fix.typescript.enabled": true,
+  "github.copilot.chat.languageContext.inline.typescript.enabled": true,
+  "github.copilot.chat.languageContext.typescript.enabled": true,
+  "workbench.productIconTheme": "emoji-product-icons-fun",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "chat.commandCenter.enabled": false,
+  "workbench.layoutControl.enabled": false,
+  "window.commandCenter": false,
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "terminal.integrated.confirmOnKill": "always",
+  "terminal.integrated.enableVisualBell": true,
+  "gitlens.views.fileHistory.mode": "contributors",
+  "window.density.editorTabHeight": "compact",
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "geminicodeassist.displayInlineContextHint": false,
+  "docker.extension.enableComposeLanguageServer": false,
+  "geminicodeassist.inlineSuggestions.enableAuto": true,
+  "terminal.integrated.tabs.location": "left",
+  "terminal.integrated.tabs.title": "${shellPromptInput}",
+  "deno.codeLens.implementations": true,
+  "diffEditor.codeLens": true,
+}

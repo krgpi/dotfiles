@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(ls)",
+      "Bash(find)",
+      "Bash(tree:*)",
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run:*)",
+      "Bash(./scripts/lint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx tsc:*)",
+      "Bash(gh pr:*)",
+      "Bash(mv:*)",
+      "Bash(gh api:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(ls:*)",
+      "Bash(npx next build:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(sed:*)",
+      "Bash(npm test)",
+      "mcp__esa-mcp-server__search_esa_posts",
+      "mcp__esa-mcp-server__read_esa_multiple_posts",
+      "Bash(scripts/lint:*)",
+      "mcp__github-mcp-server__create_branch",
+      "mcp__github-mcp-server__push_files",
+      "mcp__github-mcp-server__create_pull_request"
+    ],
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)",
+      "Read(id_rsa)",
+      "Read(id_ed25519)",
+      "Read(**/*token*)",
+      "Read(**/*key*)",
+      "Read(.env*)",
+      "Write(.env*)",
+      "Bash(curl:*)",
+      "Bash(nc:*)",
+      "Bash(wget:*)",
+      "Bash(mongod:*)",
+      "Bash(mysql:*)",
+      "Bash(psql:*)",
+      "mcp__supabase__execute_sql"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_NAME=$(basename $(pwd)) && osascript -e 'display notification \"Claude Codeが書き込んでいます\" with title \"Claude Code\" subtitle \"'\"$PROJECT_NAME\"'\" sound name \"Glass\"'|| echo '❌ Hook PostToolUse.notification execution failed' >&2"
+          },
+          {
+            "type": "command",
+            "command": "npx ccusage@latest || echo '❌ Hook PostToolUse.ccusage execution failed' >&2"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_NAME=$(basename $(pwd)) && osascript -e 'display notification \"Claude Codeが許可を求めています\" with title \"Claude Code\" subtitle \"'\"$PROJECT_NAME\"'\" sound name \"Glass\"'|| echo '❌ Hook Notification.notification execution failed' >&2"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"タスクが完了しました\" with title \"Claude Code\" subtitle \"'\"$PROJECT_NAME\"'\" sound name \"Submarine\"'|| echo '❌ Hook Stop.notification execution failed' >&2"
+          }
+        ]
+      }
+    ]
+  },
+  "alwaysThinkingEnabled": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1754114821400
+  }
+}

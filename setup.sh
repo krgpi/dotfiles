@@ -1,0 +1,33 @@
+#!/bin/bash
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "Setting up dotfiles from $DOTFILES_DIR"
+
+create_symlink() {
+    local source="$1"
+    local target="$2"
+
+    if [ -e "$target" ] || [ -L "$target" ]; then
+        if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
+            echo "$target is already linked"
+            return
+        fi
+
+        echo "Backing up existing $target to ${target}.backup"
+        mv "$target" "${target}.backup"
+    fi
+
+    ln -s "$source" "$target"
+    echo "Created symlink: $target -> $source"
+}
+
+create_symlink "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
+create_symlink "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+create_symlink "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
+create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+
+
+echo ""
+echo "Done! Dotfiles setup complete."
