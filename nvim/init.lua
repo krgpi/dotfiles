@@ -29,7 +29,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 vim.api.nvim_create_autocmd("BufWritePre", {
-	pattern = "*.ts,*.tsx",
+	pattern = { "*.ts", "*.tsx" },
 	callback = function()
 		vim.lsp.buf.code_action({ context = { only = { "source.fixAll" } }, apply = true })
 		vim.lsp.buf.code_action({ context = { only = { "source.addMissingImports" } }, apply = true })
