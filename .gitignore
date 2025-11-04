@@ -31,3 +31,4 @@ nvim/plugin/packer_compiled.lua
 
 # System
 Thumbs.db
+.sensitive-words

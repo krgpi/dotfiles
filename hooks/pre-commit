@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# Pre-commit hook to prevent committing sensitive information
+# This hook checks for sensitive words defined in .sensitive-words file
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Get the root directory of the git repository
+REPO_ROOT=$(git rev-parse --show-toplevel)
+SENSITIVE_WORDS_FILE="$REPO_ROOT/.sensitive-words"
+
+# Check if .sensitive-words file exists
+if [ ! -f "$SENSITIVE_WORDS_FILE" ]; then
+    echo -e "${YELLOW}Warning: .sensitive-words file not found. Skipping sensitive word check.${NC}"
+    exit 0
+fi
+
+# Read sensitive words from file (ignore comments and empty lines)
+SENSITIVE_WORDS=$(grep -v '^#' "$SENSITIVE_WORDS_FILE" | grep -v '^[[:space:]]*$' | tr '\n' '|' | sed 's/|$//')
+
+if [ -z "$SENSITIVE_WORDS" ]; then
+    echo -e "${YELLOW}Warning: No sensitive words defined in .sensitive-words. Skipping check.${NC}"
+    exit 0
+fi
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# Flag to track if sensitive words were found
+FOUND_SENSITIVE=0
+
+echo "Checking for sensitive words in staged files..."
+
+# Check each staged file
+for FILE in $STAGED_FILES; do
+    # Skip binary files and the .sensitive-words file itself
+    if [ "$FILE" = ".sensitive-words" ] || [ "$FILE" = "hooks/pre-commit" ]; then
+        continue
+    fi
+
+    # Check if file exists (it might have been deleted)
+    if [ ! -f "$FILE" ]; then
+        continue
+    fi
+
+    # Check for sensitive words (case-insensitive)
+    MATCHES=$(git diff --cached "$FILE" | grep -E "^\+" | grep -Ei "$SENSITIVE_WORDS" || true)
+
+    if [ -n "$MATCHES" ]; then
+        if [ $FOUND_SENSITIVE -eq 0 ]; then
+            echo ""
+            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${RED}  ⚠️  COMMIT BLOCKED: Sensitive words detected!${NC}"
+            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo ""
+        fi
+        FOUND_SENSITIVE=1
+
+        echo -e "${YELLOW}In file: ${NC}$FILE"
+        echo -e "${RED}Found sensitive content in staged changes:${NC}"
+        echo "$MATCHES" | sed 's/^/  /'
+        echo ""
+    fi
+done
+
+if [ $FOUND_SENSITIVE -eq 1 ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}Please remove sensitive information before committing.${NC}"
+    echo ""
+    echo "Options:"
+    echo "  1. Remove the sensitive words from the files"
+    echo "  2. Add them to .gitignore if they're in config files"
+    echo "  3. Use environment variables instead of hardcoding"
+    echo ""
+    echo "Sensitive words are defined in: .sensitive-words"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    exit 1
+fi
+
+echo -e "${GREEN}✓ No sensitive words detected. Proceeding with commit.${NC}"
+exit 0
