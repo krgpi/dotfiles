@@ -6,11 +6,17 @@
     "**/**.ts": "${dirname}/${filename}", // route.ts
     "**/**.tsx": "${dirname}/${filename}" // layout.tsx, page.tsx, template.tsx
   },
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.fontSize": 14,
+    "editor.lineNumbers": "off",
+  },
   "[mdx]": {
     "editor.codeActionsOnSave": {
       "source.addMissingImports.ts": "never"
     },
-    "editor.fontSize": 16
+    "editor.fontSize": 16,
+    "editor.lineNumbers": "off"
   },
   "[dart]": {
     "editor.rulers": [
@@ -110,10 +116,6 @@
   "terminal.integrated.fontFamily": "HackGen35 Console NF, Menlo, Monaco, 'Courier New', monospace",
   "terminal.integrated.fontSize": 13,
   "errorLens.scrollbarHackEnabled": true,
-  "[markdown]": {
-    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
-    "editor.fontSize": 16
-  },
   "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
   "lldb.library": "/Applications/Xcode-14.3.1.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "lldb.launch.expressions": "native",
@@ -233,5 +235,7 @@
   "terminal.integrated.tabs.title": "${shellPromptInput}",
   "deno.codeLens.implementations": true,
   "diffEditor.codeLens": true,
-  "editor.glyphMargin": false
+  "editor.glyphMargin": false,
+  "breadcrumbs.enabled": false,
+  "claudeCode.useTerminal": true,
 }
