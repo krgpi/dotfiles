@@ -232,5 +232,6 @@
   "terminal.integrated.tabs.location": "left",
   "terminal.integrated.tabs.title": "${shellPromptInput}",
   "deno.codeLens.implementations": true,
-  "diffEditor.codeLens": true
+  "diffEditor.codeLens": true,
+  "editor.glyphMargin": false
 }
