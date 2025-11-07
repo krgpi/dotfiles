@@ -21,6 +21,8 @@
       "Bash(gh api:*)",
       "Bash(rg:*)",
       "Bash(jq:*)",
+      "Bash(tail:*)",
+      "Bash(echo:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
@@ -70,7 +72,7 @@
             "type": "command",
             "command": "echo \"[$(date)] $USER: $(jq -r '.tool_input.command')\" >> ~/.claude/command_history.log"
           }
-        ],
+        ]
       },
       {
         "matcher": "Write|Edit|MultiEdit",
