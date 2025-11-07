@@ -236,6 +236,5 @@
   "deno.codeLens.implementations": true,
   "diffEditor.codeLens": true,
   "editor.glyphMargin": false,
-  "breadcrumbs.enabled": false,
   "claudeCode.useTerminal": true,
 }
