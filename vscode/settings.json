@@ -76,7 +76,7 @@
   "vsicons.dontShowNewVersionMessage": true,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
   "workbench.preferredDarkColorTheme": "doom-one",
-  "workbench.preferredLightColorTheme": "doom-one",
+  "workbench.preferredLightColorTheme": "Kimbie Dark",
   "workbench.iconTheme": "vscode-icons",
   "workbench.startupEditor": "none",
   "yaml.customTags": [
