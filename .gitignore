@@ -12,6 +12,10 @@
 # Local configurations (not to be shared)
 .claude/settings.local.json
 
+# Environment files with secrets
+.env
+claude/.env
+
 # Neovim
 nvim/.netrwhist
 nvim/plugin/packer_compiled.lua
