@@ -1,5 +1,5 @@
 {
-  "[css,javascript,javascriptreact,json,typescriptreact,vue,html,yaml,typescript,mdx]": {
+  "[css,javascript,javascriptreact,json,jsonc,typescriptreact,vue,html,yaml,typescript,mdx]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "workbench.editor.customLabels.patterns": {
@@ -9,7 +9,7 @@
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one",
     "editor.fontSize": 14,
-    "editor.lineNumbers": "off",
+    "diffEditor.ignoreTrimWhitespace": false,
   },
   "[mdx]": {
     "editor.codeActionsOnSave": {
@@ -76,7 +76,7 @@
   "vsicons.dontShowNewVersionMessage": true,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
   "workbench.preferredDarkColorTheme": "doom-one",
-  "workbench.preferredLightColorTheme": "Kimbie Dark",
+  "workbench.preferredLightColorTheme": "Xcode Default (Light)",
   "workbench.iconTheme": "vscode-icons",
   "workbench.startupEditor": "none",
   "yaml.customTags": [
@@ -235,6 +235,11 @@
   "terminal.integrated.tabs.title": "${shellPromptInput}",
   "deno.codeLens.implementations": true,
   "diffEditor.codeLens": true,
+  "geminicodeassist.project": "",
+  "diffEditor.renderSideBySide": true,
+  "errorLens.enableOnDiffView": true,
   "editor.glyphMargin": false,
   "claudeCode.useTerminal": true,
+  "biome.suggestInstallingGlobally": false,
+  "terminal.integrated.tabs.enabled": false,
 }
