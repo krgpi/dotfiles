@@ -26,6 +26,8 @@
       "Bash(echo:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
+      "Bash(awk:*)",
+      "Bash(wc:*)",
       "Bash(cat:*)",
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
