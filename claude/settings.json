@@ -52,7 +52,6 @@
       "Read(**/*key*)",
       "Read(.env*)",
       "Write(.env*)",
-      "Bash(curl:*)",
       "Bash(nc:*)",
       "Bash(wget:*)",
       "Bash(mongod:*)",
@@ -70,7 +69,7 @@
             "type": "command",
             "command": "echo \"[$(date)] $USER: $(jq -r '.tool_input.command')\" >> ~/.claude/command_history.log"
           }
-        ],
+        ]
       },
       {
         "matcher": "Write|Edit|MultiEdit",
@@ -92,7 +91,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "PROJECT_NAME=$(basename $(pwd)) && osascript -e 'display notification \"Claude Codeが許可を求めています\" with title \"Claude Code\" subtitle \"'\"$PROJECT_NAME\"'\" sound name \"Glass\"'|| echo '❌ Hook Notification.notification execution failed' >&2"
+            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🔔 Claude Code - $PROJECT_NAME\\nClaude Codeが許可を求めています\\\"}]}\" 2>&1 || echo \"❌ Hook Notification.notification execution failed\" >&2'"
           }
         ]
       }
@@ -103,7 +102,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"タスクが完了しました\" with title \"Claude Code\" subtitle \"'\"$PROJECT_NAME\"'\" sound name \"Submarine\"'|| echo '❌ Hook Stop.notification execution failed' >&2"
+            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\nタスクが完了しました\\\"}]}\" 2>&1 || echo \"❌ Hook Stop.notification execution failed\" >&2'"
           }
         ]
       }
