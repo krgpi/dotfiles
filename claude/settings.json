@@ -96,7 +96,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🔔 Claude Code - $PROJECT_NAME\\nClaude Codeが許可を求めています\\\"}]}\" 2>&1 || echo \"❌ Hook Notification.notification execution failed\" >&2'"
+            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && MESSAGE=$(jq -r \".message // \\\"通知があります\\\"\") && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🔔 Claude Code - $PROJECT_NAME\\n$MESSAGE\\\"}]}\" 2>&1 || echo \"❌ Hook Notification.notification execution failed\" >&2'"
           }
         ]
       }
