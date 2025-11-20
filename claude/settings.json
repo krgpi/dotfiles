@@ -107,7 +107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\nタスクが完了しました\\\"}]}\" 2>&1 || echo \"❌ Hook Stop.notification execution failed\" >&2'"
+            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && TRANSCRIPT=$(jq -r \".transcript_path // empty\") && if [ -n \"$TRANSCRIPT\" ] && [ -f \"$TRANSCRIPT\" ]; then BASH_COUNT=$(grep -c \"\\\"tool\\\":\\\"Bash\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && EDIT_COUNT=$(grep -c \"\\\"tool\\\":\\\"Edit\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && WRITE_COUNT=$(grep -c \"\\\"tool\\\":\\\"Write\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && READ_COUNT=$(grep -c \"\\\"tool\\\":\\\"Read\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && SUMMARY=\"📊 セッションサマリー:\\nBash: ${BASH_COUNT}回\\n編集: ${EDIT_COUNT}回\\n作成: ${WRITE_COUNT}回\\n読取: ${READ_COUNT}回\"; else SUMMARY=\"タスクが完了しました\"; fi && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\n$SUMMARY\\\"}]}\" 2>&1 || echo \"❌ Hook Stop.notification execution failed\" >&2'"
           }
         ]
       }
