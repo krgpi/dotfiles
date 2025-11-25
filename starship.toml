@@ -1,0 +1,34 @@
+# ~/.config/starship.toml
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+[aws]
+format = '[$profile $region (\[$duration\] )]($style)'
+
+[gcloud]
+format = '[GCP(\($project\))]($style) '
+[gcloud.project_aliases]
+very-long-project-name = 'vlpn'
+
+[time]
+disabled = false
+format = '[\[ $time \]]($style) '
+time_format = '%T'
+utc_time_offset = '+9'
+
+[package]
+disabled = true
+
+[bun]
+format = '[$symbol($version )]($style)'
+
+[nodejs]
+format = 'via [🤖 $version](bold green) '
+
+[custom.supabase]
+command = "if [ -f supabase/config.toml ]; then grep '^project_id' supabase/config.toml | cut -d'\"' -f2; elif [ -f config.toml ]; then grep '^project_id' config.toml | cut -d'\"' -f2; fi"
+detect_files = ['supabase/config.toml']
+detect_folders = ['supabase']
+symbol = '🔰 '
+format = '[$symbol($output )]($style)'
+style = 'bold purple'
