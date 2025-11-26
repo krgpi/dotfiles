@@ -1,3 +1,9 @@
+# for wsl
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+export PATH="$HOME/.asdf/asdf.sh:$PATH"
+export PATH="$HOME/.asdf/completions/asdf.bash:$PATH"
+# end
+
 source $(brew --prefix)/share/google-cloud-sdk/path.zsh.inc
 source $(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc
 
@@ -7,6 +13,13 @@ export PATH="$(brew --prefix)/opt/openssl@3/bin:~/.local/bin:$PATH"
 export PATH="$HOME/go/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.asdf/shims:$PATH
+
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+
+export PATH=$(go env GOPATH)/bin:$PATH
 
 setopt prompt_subst
 # prompt
@@ -59,7 +72,6 @@ eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
 eval "$(gh completion -s zsh)"
 
-export PATH=$(go env GOPATH)/bin:$PATH
 
 source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
 
@@ -70,3 +82,4 @@ source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
 # }
 # zle -N my-fzf-tab
 # bindkey "^I" my-fzf-tab
+
