@@ -75,16 +75,3 @@ function _G.check_back_space()
 	local col = vim.fn.col(".") - 1
 	return col == 0 or vim.fn.getline("."):sub(col, col):match("%s") ~= nil
 end
-
--- telescope を使ってアクションプロンプトを表示する
-function ShowCopilotChatActionPrompt()
-	local actions = require("CopilotChat.actions")
-	require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())
-end
-
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>ccp",
-	"<cmd>lua ShowCopilotChatActionPrompt()<cr>",
-	{ noremap = true, silent = true }
-)
