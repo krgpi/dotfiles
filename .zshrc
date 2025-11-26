@@ -70,3 +70,7 @@ source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
 # }
 # zle -N my-fzf-tab
 # bindkey "^I" my-fzf-tab
+
+if [ -z "$TMUX" ]; then
+  tmux
+fi
