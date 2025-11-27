@@ -199,27 +199,23 @@ require("lazy").setup({
 					single_file_support = false,
 					settings = {},
 				},
-				gopls = {
-					on_attach = on_attach,
-				},
 			}
 
 			-- Masonで自動インストールするLSPサーバーのリスト
 			require("mason-lspconfig").setup({
-				ensure_installed = { "ts_ls", "gopls" },
+				ensure_installed = { "ts_ls" },
 				automatic_installation = true,
-			})
-
-			require("mason-lspconfig").setup_handlers({
-				function(server_name)
-					if servers[server_name] then
-						lspconfig[server_name].setup(servers[server_name])
-					else
-						lspconfig[server_name].setup({
-							on_attach = on_attach,
-						})
-					end
-				end,
+				handlers = {
+					function(server_name)
+						if servers[server_name] then
+							lspconfig[server_name].setup(servers[server_name])
+						else
+							lspconfig[server_name].setup({
+								on_attach = on_attach,
+							})
+						end
+					end,
+				},
 			})
 		end,
 	},
