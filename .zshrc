@@ -82,7 +82,7 @@ source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
 # }
 # zle -N my-fzf-tab
 # bindkey "^I" my-fzf-tab
-
+tmux source-file ~/.tmux.conf
 if [ -z "$TMUX" ] && [ -z "$SSH_CONNECTION" ] && [ -z "$KRGPI_FROM_TMUX" ]; then
   tmux
 fi
