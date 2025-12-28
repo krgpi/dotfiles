@@ -1,88 +1,72 @@
-# for wsl
-export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-export PATH="$HOME/.asdf/asdf.sh:$PATH"
-export PATH="$HOME/.asdf/completions/asdf.bash:$PATH"
-# end
+zmodload zsh/zprof
+source ~/Developer/zsh-defer/zsh-defer.plugin.zsh
+# 1. Homebrewのパスを判定
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  export BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+elif [[ -x /usr/local/bin/brew ]]; then
+  export BREW_PREFIX="/usr/local/bin"
+fi
 
-source $(brew --prefix)/share/google-cloud-sdk/path.zsh.inc
-source $(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc
+# 2. 補完システムの高速初期化
+PS1="%F{12}%~%f "
+RPS1="%F{240}loading%f"
+setopt promp_subst
 
-export PKG_CONFIG_PATH="$(brew --prefix)/opt/openssl@3/lib/pkgconfig"
-export PATH="$(brew --prefix)/bin:/usr/local/bin:$PATH"
-export PATH="$(brew --prefix)/opt/openssl@3/bin:~/.local/bin:$PATH"
-export PATH="$HOME/go/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH=$HOME/.asdf/shims:$PATH
+zsh-defer autoload -Uz compinit
+zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
 
-# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# セキュリティチェックをスキップし、かつ読み込みを高速化
+# -i: 不適切な権限のファイルを無視
+# -C: キャッシュが新しい場合はチェックをスキップ
+if [[ -f "$zcompdump" && $(date -r "$zcompdump" +%s) -gt $(( $(date +%s) - 86400 )) ]]; then
+  zsh-defer compinit -C -d "$zcompdump"
+else
+  zsh-defer compinit -i -d "$zcompdump"
+  touch "$zcompdump"
+fi
 
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-
-export PATH=$(go env GOPATH)/bin:$PATH
-
-setopt prompt_subst
-# prompt
-PROMPT='%F{red}%*%f:%F{magenta}$(uname -p)%f %F{cyan}%.%f $ '
+# 補完設定
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-HISTFILE=~/.zsh_history_macmini
-HISTSIZE=1000000
-SAVEHIST=1000000
-# resolve conflicts
-disable r
-# alias
-alias la='ls -a'
-alias ll='ls -l'
-alias lg='lazygit'
-# show git branch
+setopt prompt_subst
+
+# tmuxの設定
+if [ -z "$TMUX" ] && [ -z "$SSH_CONNECTION" ] && [ -z "$KRGPI_FROM_TMUX" ]; then
+  exec tmux
+fi
+
+# PATH設定
+export PATH="$BREW_PREFIX/bin:$PATH"
+export PATH="$HOME/.asdf/shims:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
+
+# prompt / vcs_info
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' check-for-changes true
 zstyle ':vcs_info:git:*' stagedstr "%F{yellow}!"
 zstyle ':vcs_info:git:*' unstagedstr "%F{red}+"
 zstyle ':vcs_info:*' formats "%F{green}%c%u[%b]%f"
-zstyle ':vcs_info:*' actionformats '[%b|%a]'
-precmd () { vcs_info }
-RPROMPT=$RPROMPT'${vcs_info_msg_0_}'
+precmd() { vcs_info }
+PROMPT='%F{red}%*%f:%F{magenta}$(uname -p)%f %F{cyan}%.%f $ '
+RPROMPT='${vcs_info_msg_0_}'
 
-#show current selected gcp project name
-is_first=true
-function gcp_project_id() {
-  if [ -f "$HOME/.config/gcloud/active_config" ]; then
-    gcp_profile=$(cat $HOME/.config/gcloud/active_config)
-    project_id=$(awk '/project/{print $3}' $HOME/.config/gcloud/configurations/config_$gcp_profile)
+# alias
+alias la='ls -a'
+alias ll='ls -l'
+alias lg='lazygit'
 
-    if "${is_first}"; then
-      is_first=false
-      RPROMPT=${RPROMPT}%F{039}'${project_id}'%f
-    fi
-  fi
-}
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd gcp_project_id
+# 3. asdf / Cargo (ファイル存在チェックを維持)
+[[ -f "$BREW_PREFIX/opt/asdf/libexec/asdf.sh" ]] && . "$BREW_PREFIX/opt/asdf/libexec/asdf.sh"
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"; fi
 
-# The next line enables shell command completion for gcloud.
-if [ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"; fi
+# gh completion の高速化（コマンド呼び出しを減らす）
+if (( $+commands[gh] )); then
+  # 補完関数が未定義の場合のみ読み込む、または簡易的に eval
+  compdef _gh gh 2>/dev/null || eval "$(gh completion -s zsh)"
+fi
 
-. $(brew --prefix)/opt/asdf/libexec/asdf.sh
-. "$HOME/.cargo/env"
+# 5. fzf-tab (最後に読み込む)
+[[ -f ~/Developer/fzf-tab/fzf-tab.plugin.zsh ]] && zsh-defer source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
+
 eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
-eval "$(gh completion -s zsh)"
-
-
-source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
-
-# zsh-autocompleteと組み合わせる場合、いい感じに補完をするために以下の設定を追加
-# my-fzf-tab() {
-#   functions[compadd]=$functions[-ftb-compadd]
-#   zle fzf-tab-complete
-# }
-# zle -N my-fzf-tab
-# bindkey "^I" my-fzf-tab
-tmux source-file ~/.tmux.conf
-if [ -z "$TMUX" ] && [ -z "$SSH_CONNECTION" ] && [ -z "$KRGPI_FROM_TMUX" ]; then
-  tmux
-fi
+zprof
