@@ -2,7 +2,6 @@ if [ -z "$TMUX" ] && [ -z "$SSH_CONNECTION" ] && [ -z "$KRGPI_FROM_TMUX" ]; then
   exec tmux
 fi
 
-zmodload zsh/zprof
 source ~/Developer/zsh-defer/zsh-defer.plugin.zsh
 
 if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
@@ -23,8 +22,9 @@ PROMPT='%F{red}%*%f:%F{magenta}$(uname -p)%f %F{cyan}%~%f $ '
 RPROMPT='${vcs_info_msg_0_}'
 
 
-my_deferred_settings() {
-    # 補完
+deferred_settings() {
+    zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
     autoload -Uz compinit
     local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
     if [[ -f "$zcompdump" && $(date -r "$zcompdump" +%s) -gt $(( $(date +%s) - 86400 )) ]]; then
@@ -34,29 +34,20 @@ my_deferred_settings() {
         touch "$zcompdump"
     fi
 
-    # 外部ツールの hook
     eval "$(direnv hook zsh)"
     
-    # asdf / Cargo
     [[ -f "$BREW_PREFIX/opt/asdf/libexec/asdf.sh" ]] && . "$BREW_PREFIX/opt/asdf/libexec/asdf.sh"
     [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
 
-    # gh completion
     if (( $+commands[gh] )); then
         eval "$(gh completion -s zsh)"
     fi
 
-    # fzf-tab
     [[ -f ~/Developer/fzf-tab/fzf-tab.plugin.zsh ]] && source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
-
 }
 
-# まとめて 1回だけ defer 実行
-zsh-defer my_deferred_settings
+zsh-defer deferred_settings
 
-
-# alias
 alias la='ls -a'
 alias ll='ls -l'
 alias lg='lazygit'
-zprof
