@@ -15,11 +15,14 @@ export PATH="$BREW_PREFIX/bin:$HOME/.asdf/shims:$HOME/.cargo/bin:$HOME/go/bin:$P
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' check-for-changes true
-zstyle ':vcs_info:*' formats "%F{green}[%b]%f"
+zstyle ':vcs_info:git:*' stagedstr "%F{yellow} %f"
+zstyle ':vcs_info:git:*' unstagedstr "%F{red} %f"
+zstyle ':vcs_info:*' formats "%F{green} %b%f%c%u"
+zstyle ':vcs_info:*' actionformats "%F{green} %b|%a%f%c%u"
 precmd() { vcs_info }
-
-PROMPT='%F{red}%*%f:%F{magenta}$(uname -p)%f %F{cyan}%~%f $ '
-RPROMPT='${vcs_info_msg_0_}'
+PROMPT='%F{red}%*%f %F{cyan}%1~%f ${vcs_info_msg_0_}
+ > '
+RPROMPT=''
 
 
 deferred_settings() {
