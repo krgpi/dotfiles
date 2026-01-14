@@ -47,6 +47,7 @@ deferred_settings() {
     fi
 
     [[ -f ~/Developer/fzf-tab/fzf-tab.plugin.zsh ]] && source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
+    eval "$(mise activate zsh)"    
 }
 
 zsh-defer deferred_settings
