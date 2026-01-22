@@ -29,5 +29,7 @@ create_symlink "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner
 create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
+create_symlink "$DOTFILES_DIR/hammerspoon.lua" "$HOME/.hammerspoon/init.lua"
+
 echo ""
 echo "Done! Dotfiles setup complete."
