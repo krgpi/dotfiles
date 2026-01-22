@@ -75,7 +75,7 @@
   "update.showReleaseNotes": false,
   "vsicons.dontShowNewVersionMessage": true,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
-  "workbench.preferredDarkColorTheme": "doom-one",
+  "workbench.preferredDarkColorTheme": "Monokai",
   "workbench.preferredLightColorTheme": "Xcode Default (Light)",
   "workbench.iconTheme": "vscode-icons",
   "workbench.startupEditor": "none",
