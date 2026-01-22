@@ -11,7 +11,7 @@ elif [[ -x /usr/local/bin/brew ]]; then
 fi
 
 setopt prompt_subst
-export PATH="$BREW_PREFIX/bin:$HOME/.asdf/shims:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
+export PATH="$BREW_PREFIX/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' check-for-changes true
@@ -39,7 +39,6 @@ deferred_settings() {
 
     eval "$(direnv hook zsh)"
     
-    [[ -f "$BREW_PREFIX/opt/asdf/libexec/asdf.sh" ]] && . "$BREW_PREFIX/opt/asdf/libexec/asdf.sh"
     [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
 
     if (( $+commands[gh] )); then
