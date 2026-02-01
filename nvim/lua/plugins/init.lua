@@ -248,6 +248,12 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
 			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
 			vim.keymap.set("n", "<leader>fr", builtin.lsp_references, { desc = "Telescope LSP references" })
+			vim.keymap.set(
+				"n",
+				"<leader>fe",
+				":Telescope file_browser path=%:p:h<CR>",
+				{ desc = "Telescope file browser" }
+			)
 		end,
 	},
 	{
@@ -339,9 +345,6 @@ require("lazy").setup({
 			-- animation = true,
 			-- insert_at_start = true,
 			-- …etc.
-			sidebar_filetypes = {
-				NvimTree = true,
-			},
 		},
 		version = "^1.0.0", -- optional: only update when a new 1.x version is released
 	},
