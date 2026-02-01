@@ -239,6 +239,12 @@ require("lazy").setup({
 							winblend = 0,
 						}),
 					},
+					file_browser = {
+						hijack_netrw = true,
+						hidden = true,
+						grouped = true,
+						respect_gitignore = false,
+					},
 				},
 			})
 			require("telescope").load_extension("file_browser")
