@@ -1,13 +1,15 @@
 if [ -z "$TMUX" ] && [ -z "$SSH_CONNECTION" ] && [ -z "$KRGPI_FROM_TMUX" ]; then
-  exec tmux
+#  exec tmux
 fi
 
 source ~/Developer/zsh-defer/zsh-defer.plugin.zsh
 
-if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    export BREW_PREFIX="/opt/homebrew"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
     export BREW_PREFIX="/home/linuxbrew/.linuxbrew"
 elif [[ -x /usr/local/bin/brew ]]; then
-    export BREW_PREFIX="/usr/local/bin"
+    export BREW_PREFIX="/usr/local"
 fi
 
 setopt prompt_subst
@@ -54,3 +56,5 @@ zsh-defer deferred_settings
 alias la='ls -a'
 alias ll='ls -l'
 alias lg='lazygit'
+alias cc='claude'
+alias nv='nvim'
