@@ -1,7 +1,3 @@
-if [ -z "$TMUX" ] && [ -z "$SSH_CONNECTION" ] && [ -z "$KRGPI_FROM_TMUX" ]; then
-#  exec tmux
-fi
-
 source ~/Developer/zsh-defer/zsh-defer.plugin.zsh
 
 if [[ -x /opt/homebrew/bin/brew ]]; then
@@ -59,6 +55,4 @@ alias lg='lazygit'
 alias cc='claude'
 alias nv='nvim'
 alias bu='brew upgrade'
-
-# 開発環境起動
 alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
