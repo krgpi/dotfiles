@@ -58,3 +58,7 @@ alias ll='ls -l'
 alias lg='lazygit'
 alias cc='claude'
 alias nv='nvim'
+alias bu='brew upgrade'
+
+# 開発環境起動
+alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
