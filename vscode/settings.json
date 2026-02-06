@@ -76,7 +76,7 @@
   "vsicons.dontShowNewVersionMessage": true,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
   "workbench.preferredDarkColorTheme": "Monokai",
-  "workbench.preferredLightColorTheme": "Xcode Default (Light)",
+  "workbench.preferredLightColorTheme": "Quiet Light",
   "workbench.iconTheme": "vscode-icons",
   "workbench.startupEditor": "none",
   "yaml.customTags": [
@@ -149,7 +149,7 @@
   "diffEditor.ignoreTrimWhitespace": false,
   "editor.tabSize": 2,
   "git.confirmSync": false,
-  "window.nativeTabs": true,
+  "window.nativeTabs": false,
   "window.autoDetectColorScheme": true,
   "redhat.telemetry.enabled": false,
   "[typescriptreact]": {
@@ -203,11 +203,9 @@
   "github.copilot.chat.languageContext.fix.typescript.enabled": true,
   "github.copilot.chat.languageContext.inline.typescript.enabled": true,
   "github.copilot.chat.languageContext.typescript.enabled": true,
-  "workbench.productIconTheme": "emoji-product-icons-fun",
   "typescript.preferences.importModuleSpecifier": "relative",
   "chat.commandCenter.enabled": false,
-  "workbench.layoutControl.enabled": false,
-  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": true,
   "javascript.preferences.importModuleSpecifier": "relative",
   "github.copilot.nextEditSuggestions.enabled": true,
   "terminal.integrated.confirmOnKill": "always",
@@ -239,7 +237,12 @@
   "diffEditor.renderSideBySide": true,
   "errorLens.enableOnDiffView": true,
   "editor.glyphMargin": false,
-  "claudeCode.useTerminal": true,
+  "claudeCode.useTerminal": false,
   "biome.suggestInstallingGlobally": false,
   "terminal.integrated.tabs.enabled": false,
+  "workbench.view.showQuietly": {
+    "workbench.panel.output": true
+  },
+  "scm.repositories.selectionMode": "single",
+  "claudeCode.preferredLocation": "panel",
 }
