@@ -56,3 +56,5 @@ alias cc='claude'
 alias nv='nvim'
 alias bu='brew upgrade'
 alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
+
+[[ -f "$HOME/Developer/dotfiles/.env" ]] && source "$HOME/Developer/dotfiles/.env"

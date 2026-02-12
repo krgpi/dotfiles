@@ -149,7 +149,7 @@
   "diffEditor.ignoreTrimWhitespace": false,
   "editor.tabSize": 2,
   "git.confirmSync": false,
-  "window.nativeTabs": false,
+  "window.nativeTabs": true,
   "window.autoDetectColorScheme": true,
   "redhat.telemetry.enabled": false,
   "[typescriptreact]": {
@@ -254,4 +254,5 @@
     "https://json-schema.org/": true,
     "https://biomejs.dev": true
   },
+  "window.customTitleBarVisibility": "never",
 }
