@@ -72,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && SUBAGENT_TYPE=$(cat | jq -r \".tool_input.subagent_type // \\\"unknown\\\"\") && DESCRIPTION=$(cat | jq -r \".tool_input.description // \\\"タスク実行中\\\"\") && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🚀 Claude Code - $PROJECT_NAME\\nサブエージェント起動: $SUBAGENT_TYPE\\n$DESCRIPTION\\\"}]}\" 2>&1 || echo \"❌ Hook PreToolUse.subagent-start execution failed\" >&2'"
+            "command": "bash -c 'source ~/Developer/dotfiles/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && SUBAGENT_TYPE=$(cat | jq -r \".tool_input.subagent_type // \\\"unknown\\\"\") && DESCRIPTION=$(cat | jq -r \".tool_input.description // \\\"タスク実行中\\\"\") && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🚀 Claude Code - $PROJECT_NAME\\nサブエージェント起動: $SUBAGENT_TYPE\\n$DESCRIPTION\\\"}]}\" 2>&1 || echo \"❌ Hook PreToolUse.subagent-start execution failed\" >&2'"
           }
         ]
       }
@@ -107,7 +107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && MESSAGE=$(cat | jq -r \".message // \\\"通知があります\\\"\") && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🔔 Claude Code - $PROJECT_NAME\\n$MESSAGE\\\"}]}\" 2>&1 || echo \"❌ Hook Notification.notification execution failed\" >&2'"
+            "command": "bash -c 'source ~/Developer/dotfiles/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && MESSAGE=$(cat | jq -r \".message // \\\"通知があります\\\"\") && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"🔔 Claude Code - $PROJECT_NAME\\n$MESSAGE\\\"}]}\" 2>&1 || echo \"❌ Hook Notification.notification execution failed\" >&2'"
           },
           {
             "type": "command",
@@ -122,7 +122,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && INPUT=$(cat) && TRANSCRIPT=$(echo \"$INPUT\" | jq -r \".transcript_path // empty\") && if [ -n \"$TRANSCRIPT\" ] && [ -f \"$TRANSCRIPT\" ]; then SUBAGENT_TYPE=$(tac \"$TRANSCRIPT\" | grep -m1 \"subagent_type\" | jq -r \".tool_input.subagent_type // \\\"unknown\\\"\" 2>/dev/null || echo \"unknown\"); else SUBAGENT_TYPE=\"unknown\"; fi && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\nサブエージェント完了: $SUBAGENT_TYPE\\\"}]}\" 2>&1 || echo \"❌ Hook SubagentStop.subagent-end execution failed\" >&2'"
+            "command": "bash -c 'source ~/Developer/dotfiles/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && INPUT=$(cat) && TRANSCRIPT=$(echo \"$INPUT\" | jq -r \".transcript_path // empty\") && if [ -n \"$TRANSCRIPT\" ] && [ -f \"$TRANSCRIPT\" ]; then SUBAGENT_TYPE=$(tac \"$TRANSCRIPT\" | grep -m1 \"subagent_type\" | jq -r \".tool_input.subagent_type // \\\"unknown\\\"\" 2>/dev/null || echo \"unknown\"); else SUBAGENT_TYPE=\"unknown\"; fi && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\nサブエージェント完了: $SUBAGENT_TYPE\\\"}]}\" 2>&1 || echo \"❌ Hook SubagentStop.subagent-end execution failed\" >&2'"
           },
           {
             "type": "command",
@@ -137,7 +137,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'source ~/Developer/dotfiles/claude/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && TRANSCRIPT=$(cat | jq -r \".transcript_path // empty\") && if [ -n \"$TRANSCRIPT\" ] && [ -f \"$TRANSCRIPT\" ]; then BASH_COUNT=$(grep -c \"\\\"tool\\\":\\\"Bash\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && EDIT_COUNT=$(grep -c \"\\\"tool\\\":\\\"Edit\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && WRITE_COUNT=$(grep -c \"\\\"tool\\\":\\\"Write\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && READ_COUNT=$(grep -c \"\\\"tool\\\":\\\"Read\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && SUMMARY=\"📊 セッションサマリー:\\nBash: ${BASH_COUNT}回\\n編集: ${EDIT_COUNT}回\\n作成: ${WRITE_COUNT}回\\n読取: ${READ_COUNT}回\"; else SUMMARY=\"タスクが完了しました\"; fi && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\n$SUMMARY\\\"}]}\" 2>&1 || echo \"❌ Hook Stop.notification execution failed\" >&2'"
+            "command": "bash -c 'source ~/Developer/dotfiles/.env 2>/dev/null && PROJECT_NAME=$(basename $(pwd)) && TRANSCRIPT=$(cat | jq -r \".transcript_path // empty\") && if [ -n \"$TRANSCRIPT\" ] && [ -f \"$TRANSCRIPT\" ]; then BASH_COUNT=$(grep -c \"\\\"tool\\\":\\\"Bash\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && EDIT_COUNT=$(grep -c \"\\\"tool\\\":\\\"Edit\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && WRITE_COUNT=$(grep -c \"\\\"tool\\\":\\\"Write\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && READ_COUNT=$(grep -c \"\\\"tool\\\":\\\"Read\\\"\" \"$TRANSCRIPT\" 2>/dev/null || echo 0) && SUMMARY=\"📊 セッションサマリー:\\nBash: ${BASH_COUNT}回\\n編集: ${EDIT_COUNT}回\\n作成: ${WRITE_COUNT}回\\n読取: ${READ_COUNT}回\"; else SUMMARY=\"タスクが完了しました\"; fi && curl -X POST https://api.line.me/v2/bot/message/push -H \"Content-Type: application/json\" -H \"Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN\" -d \"{\\\"to\\\":\\\"$LINE_USER_ID\\\",\\\"messages\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"✅ Claude Code - $PROJECT_NAME\\n$SUMMARY\\\"}]}\" 2>&1 || echo \"❌ Hook Stop.notification execution failed\" >&2'"
           },
           {
             "type": "command",
