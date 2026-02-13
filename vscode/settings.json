@@ -245,6 +245,7 @@
   },
   "scm.repositories.selectionMode": "single",
   "claudeCode.preferredLocation": "panel",
+  "claudeCode.useCtrlEnterToSend": true,
   "githubPullRequests.experimental.notificationsMarkPullRequests": "markAsRead",
   "json.schemaDownload.trustedDomains": {
     "https://schemastore.azurewebsites.net/": true,
