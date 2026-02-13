@@ -13,12 +13,13 @@ Gemini APIに質問を投げ、回答を取得してユーザーに提示する�
    Bashツールで以下のコマンドを実行し、Geminiに「$1」を問い合わせる。
 
    ```sh
+   source ~/Developer/dotfiles/.env 2>/dev/null
    curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" \
      -H "Content-Type: application/json" \
      -d '{"contents":[{"parts":[{"text":"<質問内容>"}]}]}'
    ```
 
-   - 環境変数 `GEMINI_API_KEY` が未設定の場合はユーザーに設定を促して中断する
+   - `.env` から `GEMINI_API_KEY` を読み込む。未設定の場合はユーザーに設定を促して中断する
 
 2. **回答の整理**
    APIレスポンスのJSONから `.candidates[0].content.parts[0].text` を抽出し、整形してユーザーに提示する。

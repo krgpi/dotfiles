@@ -9,7 +9,7 @@ X(Twitter)上の情報を検索・収集し、リサーチレポートを作成�
 
 ## 前提
 
-環境変数 `XAI_API_KEY` と `X_BEARER_TOKEN` が設定されていること。
+環境変数 `XAI_API_KEY` と `X_BEARER_TOKEN` が設定されていること（`~/Developer/dotfiles/.env` から読み込む）。
 
 ## ワークフロー
 
@@ -18,6 +18,7 @@ X(Twitter)上の情報を検索・収集し、リサーチレポートを作成�
 xAI の Grok API に `x_search` ツールを使わせて、トピック「$1」に関するX上の投稿をAI分析付きで取得する。
 
 ```sh
+source ~/Developer/dotfiles/.env 2>/dev/null
 curl -s https://api.x.ai/v1/chat/completions \
   -H "Authorization: Bearer $XAI_API_KEY" \
   -H "Content-Type: application/json" \
@@ -49,6 +50,7 @@ curl -s https://api.x.ai/v1/chat/completions \
 Grok の結果を補完するため、X API v2 で直接ツイートを検索する。エンゲージメント指標付きの生データが取れる。
 
 ```sh
+source ~/Developer/dotfiles/.env 2>/dev/null
 curl -s -G "https://api.twitter.com/2/tweets/search/recent" \
   --data-urlencode "query=$1 -is:retweet lang:ja" \
   --data-urlencode "tweet.fields=created_at,public_metrics,author_id" \
