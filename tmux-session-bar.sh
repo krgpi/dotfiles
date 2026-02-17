@@ -17,7 +17,7 @@ while IFS='|' read -r name attached; do
   while IFS='|' read -r pane_id cmd; do
     [ "$cmd" = "claude" ] || continue
     if [ -f "/tmp/claude-waiting-${pane_id}" ]; then
-      indicator+="#[blink,fg=yellow,bold]●#[noblink,default]"
+      indicator+="#[fg=yellow,bold]●#[default]"
     else
       indicator+="○"
     fi
