@@ -51,8 +51,17 @@ log_event() {
   fi
 }
 
+# このペインが現在アクティブ（フォーカス中）かどうかを判定
+is_pane_active() {
+  local active
+  active=$(tmux display-message -t "$PANE_ID" -p '#{pane_active}' 2>/dev/null)
+  [ "$active" = "1" ]
+}
+
 case "$ACTION" in
   set-waiting-silent)
+    # フォーカス中のペインなら通知不要（見ているので既読扱い）
+    is_pane_active && exit 0
     touch "$FLAG_FILE"
     ;;
   set-waiting-log)
