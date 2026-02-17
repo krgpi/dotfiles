@@ -11,6 +11,15 @@ printf '\033[?1000l\033[?1002l\033[?1003l\033[?1006l'
 
 session_count=0
 
+# セッション内に待機中ペインがあるか判定
+session_has_waiting() {
+  local session_name="$1"
+  while IFS= read -r pane_id; do
+    [ -f "/tmp/claude-waiting-${pane_id}" ] && return 0
+  done < <(tmux list-panes -t "$session_name" -F '#{pane_id}' 2>/dev/null)
+  return 1
+}
+
 render() {
   # clearの代わりにカーソルをホームへ移動+画面消去（タイトル変更を避ける）
   printf '\033[H\033[2J'
@@ -21,12 +30,19 @@ render() {
   session_count=0
   while IFS='|' read -r name attached; do
     ((session_count++))
-    if [ "$name" = "$current_session" ]; then
-      printf "\033[36;1m%d▶%s\033[0m\n" "$session_count" "$name"
-    elif [ "$attached" -ge 1 ] 2>/dev/null; then
-      printf "\033[90m%d\033[0m %s\n" "$session_count" "$name"
+    # セッション内の待機通知を確認
+    if session_has_waiting "$name"; then
+      notify=" \033[5;33;1m●\033[0m"
     else
-      printf "\033[90m%d %s\033[0m\n" "$session_count" "$name"
+      notify=""
+    fi
+
+    if [ "$name" = "$current_session" ]; then
+      printf "\033[36;1m%d▶%s\033[0m${notify}\n" "$session_count" "$name"
+    elif [ "$attached" -ge 1 ] 2>/dev/null; then
+      printf "\033[37m%d\033[0m %s${notify}\n" "$session_count" "$name"
+    else
+      printf "\033[2m%d %s\033[0m${notify}\n" "$session_count" "$name"
     fi
   done < <(tmux list-sessions -F '#{session_name}|#{session_attached}')
 
@@ -42,20 +58,20 @@ render() {
 
     if [ "$active" = "1" ]; then
       if [ "$waiting" = "1" ]; then
-        printf "\033[32;1m▶%s \033[33;1m!\033[0m\n" "$cmd"
+        printf "\033[32;1m▶%s \033[5;33;1m●\033[0m\n" "$cmd"
       else
         printf "\033[32;1m▶%s\033[0m\n" "$cmd"
       fi
     else
       if [ "$waiting" = "1" ]; then
-        printf " %s \033[33;1m!\033[0m\n" "$cmd"
+        printf " \033[37m%s\033[0m \033[5;33;1m●\033[0m\n" "$cmd"
       else
-        printf " %s\n" "$cmd"
+        printf " \033[37m%s\033[0m\n" "$cmd"
       fi
     fi
     # pane_title がコマンド名と異なる場合はステータスとして表示
     if [ -n "$title" ] && [ "$title" != "$cmd" ]; then
-      printf "\033[90m %.8s\033[0m\n" "$title"
+      printf "\033[2m %.8s\033[0m\n" "$title"
     fi
   done < <(tmux list-panes -t "$current_session" -F '#{pane_id}|#{pane_current_command}|#{pane_title}|#{pane_active}')
 }
