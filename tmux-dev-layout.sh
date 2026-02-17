@@ -27,4 +27,9 @@ claude_pane=$(tmux split-window -v -d -p 80 -t "$SESSION" -c "$WORK_DIR" -P -F '
 tmux send-keys -t "$lazygit_pane" 'lazygit' C-m
 tmux send-keys -t "$claude_pane" 'claude' C-m
 
-echo "セッション '$SESSION' を作成しました"
+# tmuxの外から実行された場合はセッションにアタッチする
+if [ -z "$TMUX" ]; then
+    tmux attach-session -t "$SESSION"
+else
+    echo "セッション '$SESSION' を作成しました"
+fi
