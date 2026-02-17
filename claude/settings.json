@@ -104,6 +104,19 @@
             "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting-log"
           }
         ]
+      },
+      {
+        "matcher": "elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/ccnotifier-hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting-silent"
+          }
+        ]
       }
     ],
     "PreToolUse": [
