@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # tmux セッション/ペイン一覧サイドバー
-# hookからのSIGUSR1で即座に再描画。フォールバック30秒。
+# hookからのSIGUSR1で即座に再描画。
 # 数字キーでセッション切り替え可能。
+# 左下にClaude Codeのイベントログを表示。
 
 # ペインタイトルを固定（pane-title-changed hookの無限ループ防止）
 printf '\033]2;sidebar\033\\'
@@ -74,6 +75,42 @@ render() {
       printf "\033[2m %.8s\033[0m\n" "$title"
     fi
   done < <(tmux list-panes -t "$current_session" -F '#{pane_id}|#{pane_current_command}|#{pane_title}|#{pane_active}')
+
+  # --- ログ表示（左下） ---
+  local pane_height
+  pane_height=$(tmux display-message -p '#{pane_height}' 2>/dev/null)
+
+  # 現在のセッションに属するペインのログファイルを集約
+  local merged_log="/tmp/claude-sidebar-merged-$$"
+  : > "$merged_log"
+  while IFS= read -r pane_id; do
+    local logfile="/tmp/claude-sidebar-log-${pane_id}"
+    [ -f "$logfile" ] && cat "$logfile" >> "$merged_log"
+  done < <(tmux list-panes -t "$current_session" -F '#{pane_id}' 2>/dev/null)
+
+  local log_total
+  log_total=$(wc -l < "$merged_log" 2>/dev/null)
+  log_total=${log_total// /}
+
+  if [ "$log_total" -gt 0 ] 2>/dev/null; then
+    # ログ表示に使える行数（ペイン高さの残り、最低1行）
+    local session_lines pane_lines total_used log_area
+    session_lines=$(tmux list-sessions 2>/dev/null | wc -l)
+    pane_lines=$(tmux list-panes -t "$current_session" 2>/dev/null | wc -l)
+    total_used=$((1 + session_lines + 2 + pane_lines * 2 + 1))
+    log_area=$((pane_height - total_used - 1))
+    [ "$log_area" -lt 1 ] && log_area=1
+
+    # 下部に配置
+    local log_start=$((pane_height - log_area))
+    printf '\033[%d;1H' "$log_start"
+    printf "\033[2m"
+    tail -"$log_area" "$merged_log" | while IFS= read -r line; do
+      printf "%.10s\n" "$line"
+    done
+    printf "\033[0m"
+  fi
+  rm -f "$merged_log"
 }
 
 # SIGUSR1 で read を中断して即座に再描画
@@ -81,8 +118,10 @@ trap '' USR1
 
 while true; do
   render
-  # 30秒待機（hookのSIGUSR1で即中断される）。数字キーでセッション切り替え。
-  if read -t 30 -n 1 key 2>/dev/null; then
+  # SIGUSR1 で即中断される無期限待機。数字キーでセッション切り替え。
+  # フォールバックポーリングは無効化（SIGUSR1のみで更新）
+  # if read -t 30 -n 1 key 2>/dev/null; then
+  if read -n 1 key 2>/dev/null; then
     if [[ "$key" =~ ^[0-9]$ ]] && [ "$key" -ge 1 ] && [ "$key" -le "$session_count" ]; then
       target=$(tmux list-sessions -F '#{session_name}' | sed -n "${key}p")
       [ -n "$target" ] && tmux switch-client -t "$target"

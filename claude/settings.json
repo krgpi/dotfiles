@@ -88,7 +88,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting Idle"
           }
         ]
       },
@@ -101,7 +101,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting Permit?"
           }
         ]
       }
@@ -115,7 +115,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting ToolUse"
           }
         ]
       }
@@ -129,7 +129,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting End"
           }
         ]
       }
@@ -153,7 +153,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting Prompt"
           }
         ]
       }

@@ -27,6 +27,9 @@ claude_pane=$(tmux split-window -v -d -p 80 -t "$SESSION" -c "$WORK_DIR" -P -F '
 tmux send-keys -t "$lazygit_pane" 'lazygit' C-m
 tmux send-keys -t "$claude_pane" 'claude' C-m
 
+# 既存セッションのサイドバーを即時更新（セッション一覧に反映）
+pkill -USR1 -f "[t]mux-session-sidebar" 2>/dev/null || true
+
 # tmuxの外から実行された場合はセッションにアタッチする
 if [ -z "$TMUX" ]; then
     tmux attach-session -t "$SESSION"
