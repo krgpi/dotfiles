@@ -27,7 +27,10 @@ while IFS='|' read -r name attached; do
   [ -n "$indicator" ] && indicator=" ${indicator}"
 
   if [ "$name" = "$current_session" ]; then
-    buf+="#[fg=cyan,bold] ${count} ▶${name}#[default]${indicator} "
+    # indicator内の色指定にも背景色を維持
+    active_indicator="${indicator//#\[default\]/#[bg=colour238]}"
+    active_indicator="${active_indicator//#\[fg=yellow,bold\]/#[bg=colour238,fg=yellow,bold]}"
+    buf+="#[bg=colour238,fg=cyan,bold] ${count} ${name}${active_indicator} #[default] "
   elif [ "$attached" -ge 1 ] 2>/dev/null; then
     buf+="#[fg=white] ${count} ${name}#[default]${indicator} "
   else
