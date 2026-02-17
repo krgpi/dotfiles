@@ -17,7 +17,10 @@ create_session() {
     local claude_pane
     claude_pane=$(tmux split-window -v -d -p 80 -t "$session" -c "$work_dir" -P -F '#{pane_id}')
 
-    tmux send-keys -t "$lazygit_pane" 'lazygit' C-m
+    # gitリポジトリの場合のみlazygitを起動
+    if git -C "$work_dir" rev-parse --is-inside-work-tree &>/dev/null; then
+        tmux send-keys -t "$lazygit_pane" 'lazygit' C-m
+    fi
     tmux send-keys -t "$claude_pane" 'claude' C-m
 
     tmux refresh-client -S 2>/dev/null || true
