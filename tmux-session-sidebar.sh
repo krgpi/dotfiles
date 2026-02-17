@@ -3,7 +3,6 @@
 # tmux セッション/ペイン一覧サイドバー
 # hookからのSIGUSR1で即座に再描画。
 # 数字キーでセッション切り替え可能。
-# 左下にClaude Codeのイベントログを表示。
 
 # ペインタイトルを固定（pane-title-changed hookの無限ループ防止）
 printf '\033]2;sidebar\033\\'
@@ -79,52 +78,11 @@ render() {
         buf+="$(printf "\033[2m %s\033[0m" "$cmd")\n"
       fi
     fi
-    # pane_title がコマンド名と異なる場合はステータスとして表示
+    # pane_title がコマンド名と異なる場合はステータスとして表示（イタリック+薄色で区別）
     if [ -n "$title" ] && [ "$title" != "$cmd" ]; then
-      buf+="$(printf "\033[2m %s\033[0m" "$title")\n"
+      buf+="$(printf "\033[2;3m  %s\033[0m" "$title")\n"
     fi
   done < <(tmux list-panes -t "$current_session" -F '#{pane_id}|#{pane_current_command}|#{pane_title}|#{pane_active}')
-
-  # --- ログ表示（左下） ---
-  local pane_height
-  pane_height=$(tmux display-message -p '#{pane_height}' 2>/dev/null)
-
-  # 現在のセッションに属するペインのログファイルを集約
-  local merged_log="/tmp/claude-sidebar-merged-$$"
-  : > "$merged_log"
-  while IFS= read -r pane_id; do
-    local logfile="/tmp/claude-sidebar-log-${pane_id}"
-    [ -f "$logfile" ] && cat "$logfile" >> "$merged_log"
-  done < <(tmux list-panes -t "$current_session" -F '#{pane_id}' 2>/dev/null)
-
-  local log_total
-  log_total=$(wc -l < "$merged_log" 2>/dev/null)
-  log_total=${log_total// /}
-
-  if [ "$log_total" -gt 0 ] 2>/dev/null; then
-    # ログ表示に使える行数（ペイン高さの残り、最低1行）
-    local session_lines pane_lines total_used log_area
-    session_lines=$(tmux list-sessions 2>/dev/null | wc -l)
-    pane_lines=$(tmux list-panes -t "$current_session" 2>/dev/null | wc -l)
-    total_used=$((1 + session_lines + 2 + pane_lines * 2 + 1))
-    log_area=$((pane_height - total_used - 1))
-    [ "$log_area" -lt 1 ] && log_area=1
-
-    # ペイン幅を取得してログ行を切り詰め
-    local pane_width
-    pane_width=$(tmux display-message -p '#{pane_width}' 2>/dev/null)
-    [ -z "$pane_width" ] && pane_width=30
-
-    # 下部に配置
-    local log_start=$((pane_height - log_area))
-    buf+="\033[${log_start};1H"
-    buf+="\033[2m"
-    while IFS= read -r line; do
-      buf+="${line:0:$pane_width}\n"
-    done < <(tail -"$log_area" "$merged_log")
-    buf+="\033[0m"
-  fi
-  rm -f "$merged_log"
 
   # カーソルをホームへ移動+画面消去してからバッファを一括出力（ちらつき軽減）
   printf '\033[H\033[2J'"$buf"
