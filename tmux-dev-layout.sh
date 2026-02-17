@@ -7,10 +7,8 @@ create_session() {
 
     tmux has-session -t "$session" 2>/dev/null && return 0
 
-    # セッション作成（after-new-session hookでサイドバーが左端に自動追加される）
     tmux new-session -d -s "$session" -c "$work_dir"
 
-    # hookにより サイドバー(左10列) + メイン(右) の状態。メインがactive。
     # メインを右に30%分割 → lazygit用（-d でフォーカスを変えない、-P でペインIDを取得）
     local lazygit_pane
     lazygit_pane=$(tmux split-window -h -d -p 30 -t "$session" -c "$work_dir" -P -F '#{pane_id}')
@@ -22,7 +20,7 @@ create_session() {
     tmux send-keys -t "$lazygit_pane" 'lazygit' C-m
     tmux send-keys -t "$claude_pane" 'claude' C-m
 
-    pkill -USR1 -f "[t]mux-session-sidebar" 2>/dev/null || true
+    tmux refresh-client -S 2>/dev/null || true
     echo "セッション '$session' を作成しました"
 }
 
@@ -76,7 +74,7 @@ fi
 
 if tmux has-session -t "$(basename "$WORK_DIR")" 2>/dev/null; then
     echo "セッション '$(basename "$WORK_DIR")' は既に存在します"
-    pkill -USR1 -f "[t]mux-session-sidebar" 2>/dev/null || true
+    tmux refresh-client -S 2>/dev/null || true
     # tmux外からの場合はアタッチ
     if [ -z "$TMUX" ]; then
         tmux attach-session -t "$(basename "$WORK_DIR")"

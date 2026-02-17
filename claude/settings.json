@@ -138,7 +138,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting-log End(Session)"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting-log 'End(Session)'"
           }
         ]
       }

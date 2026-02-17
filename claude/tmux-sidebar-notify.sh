@@ -26,7 +26,6 @@ PANE_ID="${TMUX_PANE:-}"
 [ -z "$PANE_ID" ] && exit 0
 
 FLAG_FILE="/tmp/claude-waiting-${PANE_ID}"
-READ_FILE="/tmp/claude-read-${PANE_ID}"
 LOG_FILE="/tmp/claude-sidebar-log-${PANE_ID}"
 
 # stdinのJSONからmessageを抽出
@@ -63,8 +62,6 @@ case "$ACTION" in
   set-waiting-silent)
     # フォーカス中のペインなら通知不要（見ているので既読扱い）
     is_pane_active && exit 0
-    # 一度既読にしたペインは、次にユーザーが操作するまで再通知しない
-    [ -f "$READ_FILE" ] && exit 0
     touch "$FLAG_FILE"
     ;;
   set-waiting-log)
@@ -73,10 +70,10 @@ case "$ACTION" in
     log_event "${msg:-$LABEL}"
     ;;
   clear-waiting-silent)
-    rm -f "$FLAG_FILE" "$READ_FILE"
+    rm -f "$FLAG_FILE"
     ;;
   clear-waiting-log)
-    rm -f "$FLAG_FILE" "$READ_FILE"
+    rm -f "$FLAG_FILE"
     log_event "$LABEL"
     ;;
   *)
@@ -84,5 +81,5 @@ case "$ACTION" in
     ;;
 esac
 
-# サイドバープロセスに SIGUSR1 を送って即時再描画
-pkill -USR1 -f "[t]mux-session-sidebar" 2>/dev/null || true
+# ステータスバーを即時更新
+tmux refresh-client -S 2>/dev/null || true
