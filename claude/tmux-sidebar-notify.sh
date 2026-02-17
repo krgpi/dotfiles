@@ -1,17 +1,25 @@
 #!/bin/bash
 # tmux サイドバー通知管理
-# Claude Code のフック（idle_prompt/permission_prompt/UserPromptSubmit等）から呼び出す
+# Claude Code のフックから呼び出す
 #
-# 使い方:
-#   tmux-sidebar-notify.sh set-waiting    # 待機フラグ + ログ追記
-#   tmux-sidebar-notify.sh clear-waiting  # 待機フラグ解除 + ログ追記
+# アクション:
+#   set-waiting-silent   待機フラグON（ログなし）
+#   set-waiting-log      待機フラグON + stdinのmessageをログに記録
+#   clear-waiting-silent 待機フラグOFF（ログなし）
+#   clear-waiting-log    待機フラグOFF + ラベルをログに記録
 #
 # ログは /tmp/claude-sidebar-log-{PANE_ID} に追記され、サイドバー左下に表示される
 
-# stdin を捨てる（Claude Code は常に JSON を stdin に送るため）
-cat > /dev/null &
+# stdinからJSONを読み取る（タイムアウト付き）
+STDIN_JSON=""
+if read -t 1 -r STDIN_JSON; then
+  while read -t 0.1 -r line; do
+    STDIN_JSON+="$line"
+  done
+fi
 
 ACTION="${1:-}"
+LABEL="${2:-}"
 PANE_ID="${TMUX_PANE:-}"
 
 # TMUX_PANE が未設定なら tmux 外なのでスキップ
@@ -20,28 +28,44 @@ PANE_ID="${TMUX_PANE:-}"
 FLAG_FILE="/tmp/claude-waiting-${PANE_ID}"
 LOG_FILE="/tmp/claude-sidebar-log-${PANE_ID}"
 
-# ログ追記（タイムスタンプ + イベント名）
+# stdinのJSONからmessageを抽出
+extract_message() {
+  if [ -n "$STDIN_JSON" ] && command -v jq &>/dev/null; then
+    jq -r '.message // empty' <<< "$STDIN_JSON" 2>/dev/null
+  fi
+}
+
+# ログ追記（タイムスタンプ + テキスト）
 log_event() {
-  local label="$1"
+  local text="$1"
+  [ -z "$text" ] && return
   local ts
-  ts=$(date '+%H:%M')
-  echo "${ts} ${label}" >> "$LOG_FILE"
+  ts=$(date '+%H:%M:%S')
+  echo "${ts} ${text}" >> "$LOG_FILE"
   # ログファイルが大きくなりすぎないよう最新50行に制限
-  if [ "$(wc -l < "$LOG_FILE" 2>/dev/null)" -gt 50 ]; then
+  local lines
+  lines=$(wc -l < "$LOG_FILE" 2>/dev/null)
+  lines=${lines// /}
+  if [ "$lines" -gt 50 ] 2>/dev/null; then
     tail -20 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
   fi
 }
 
-LABEL="${2:-}"
-
 case "$ACTION" in
-  set-waiting)
+  set-waiting-silent)
     touch "$FLAG_FILE"
-    log_event "${LABEL:-Waiting}"
     ;;
-  clear-waiting)
+  set-waiting-log)
+    touch "$FLAG_FILE"
+    msg=$(extract_message)
+    log_event "${msg:-$LABEL}"
+    ;;
+  clear-waiting-silent)
     rm -f "$FLAG_FILE"
-    log_event "${LABEL:-Working}"
+    ;;
+  clear-waiting-log)
+    rm -f "$FLAG_FILE"
+    log_event "$LABEL"
     ;;
   *)
     exit 1
