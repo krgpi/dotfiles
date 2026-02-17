@@ -13,7 +13,7 @@ printf '\033[?1000l\033[?1002l\033[?1003l\033[?1006l'
 session_count=0
 
 # セッション内のClaude Codeペインの状態インジケーターを生成
-# 動作中=○（白丸）、人間の入力待ち=●（黒丸、点滅黄色）
+# 既読/動作中=○、未読(回答完了/許可待ち)=●（点滅黄色）
 session_claude_indicators() {
   local session_name="$1"
   local indicators=""
@@ -59,7 +59,7 @@ render() {
   buf+="\n\033[1m${current_session}\033[0m\n"
 
   while IFS='|' read -r pane_id cmd title active; do
-    # Claude Code 入力待ちフラグの確認
+    # Claude Code 未読通知フラグの確認
     if [ -f "/tmp/claude-waiting-${pane_id}" ]; then
       waiting=1
     else
@@ -68,15 +68,15 @@ render() {
 
     if [ "$active" = "1" ]; then
       if [ "$waiting" = "1" ]; then
-        buf+="$(printf "\033[32;1m▶%s \033[5;33;1m●\033[0m" "$cmd")\n"
+        buf+="$(printf "\033[36;1m▶%s \033[5;33;1m●\033[0m" "$cmd")\n"
       else
-        buf+="$(printf "\033[32;1m▶%s\033[0m" "$cmd")\n"
+        buf+="$(printf "\033[36;1m▶%s\033[0m" "$cmd")\n"
       fi
     else
       if [ "$waiting" = "1" ]; then
-        buf+="$(printf " \033[37m%s\033[0m \033[5;33;1m●\033[0m" "$cmd")\n"
+        buf+="$(printf "\033[2m %s \033[0;5;33;1m●\033[0m" "$cmd")\n"
       else
-        buf+="$(printf " \033[37m%s\033[0m" "$cmd")\n"
+        buf+="$(printf "\033[2m %s\033[0m" "$cmd")\n"
       fi
     fi
     # pane_title がコマンド名と異なる場合はステータスとして表示
