@@ -11,6 +11,7 @@ SESSION="$(basename "$WORK_DIR")"
 tmux has-session -t "$SESSION" 2>/dev/null
 if [ $? -eq 0 ]; then
     echo "セッション '$SESSION' は既に存在します"
+    pkill -USR1 -f "[t]mux-session-sidebar" 2>/dev/null || true
     exit 0
 fi
 

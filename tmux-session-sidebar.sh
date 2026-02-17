@@ -113,15 +113,18 @@ render() {
   rm -f "$merged_log"
 }
 
-# SIGUSR1 で read を中断して即座に再描画
-trap '' USR1
+# SIGUSR1 で sleep & wait を中断して即座に再描画
+# bash 3.2 では read -n 1 がシグナルで中断されないため、sleep & wait を使う
+trap 'kill $sleep_pid 2>/dev/null; wait $sleep_pid 2>/dev/null' USR1
 
 while true; do
   render
-  # SIGUSR1 で即中断される無期限待機。数字キーでセッション切り替え。
-  # フォールバックポーリングは無効化（SIGUSR1のみで更新）
-  # if read -t 30 -n 1 key 2>/dev/null; then
-  if read -n 1 key 2>/dev/null; then
+  # シグナルで中断可能な待機（sleep をバックグラウンドで実行し wait で待つ）
+  sleep 86400 &
+  sleep_pid=$!
+  wait $sleep_pid 2>/dev/null
+  # キー入力チェック（ノンブロッキング）
+  if read -t 0.01 -n 1 key 2>/dev/null; then
     if [[ "$key" =~ ^[0-9]$ ]] && [ "$key" -ge 1 ] && [ "$key" -le "$session_count" ]; then
       target=$(tmux list-sessions -F '#{session_name}' | sed -n "${key}p")
       [ -n "$target" ] && tmux switch-client -t "$target"
