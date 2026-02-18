@@ -30,7 +30,7 @@ brew bundle dump --file=~/Developer/dotfiles/Brewfile --force
 
 - **zsh** (`.zshrc`): zsh-deferによる遅延読み込みでパフォーマンス最適化。compinit は1日1回のみ実行。環境変数は `.env` から読み込み（gitignore対象）
 - **Neovim** (`nvim/`): lazy.nvim でプラグイン管理。エントリポイントは `nvim/init.lua`、設定は `nvim/lua/options/`、プラグインは `nvim/lua/plugins/`
-- **Claude Code** (`claude/`): グローバル設定・カスタムコマンド（ask-gemini, mk-pr, x-search）・hooks（LINE通知, Prettier自動整形, ccusage）
+- **Claude Code** (`claude/`): グローバル設定・カスタムコマンド（ask-gemini, mk-pr, x-search）・hooks（tmux未読通知, Prettier自動整形, ccusage）
 - **tmux** (`.tmux.conf`): vim風キーバインド。`tmux-dev-layout.sh` で3ペイン開発環境を自動構築（エディタ + lazygit + claude）
 
 ### tmux × Claude Code 並列運用
@@ -40,7 +40,6 @@ brew bundle dump --file=~/Developer/dotfiles/Brewfile --force
 - **未読/既読インジケーター**: ステータスバーでどのセッションのClaudeが入力待ちかを一目で識別できる
 - **既読ロック**: 確認済みのセッションが再通知で光り直す問題を防止する仕組み
 - **高速セッション切り替え**: 数字キー・マウスクリックでセッション間を即座に移動
-- **外部通知**: tmuxを見ていないときもLINE等で入力待ちに気づける
 
 ### セキュリティ
 
