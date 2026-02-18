@@ -3,10 +3,11 @@
 # Claude Code のフックから呼び出す
 #
 # アクション:
-#   set-waiting-silent   待機フラグON（ログなし）
-#   set-waiting-log      待機フラグON + stdinのmessageをログに記録
-#   clear-waiting-silent 待機フラグOFF（ログなし）
-#   clear-waiting-log    待機フラグOFF + ラベルをログに記録
+#   set-waiting-silent   待機フラグON（ログなし）。既読ロック中はスキップ
+#   set-waiting-log      待機フラグON + stdinのmessageをログに記録。既読ロック中はスキップ
+#   clear-waiting-silent 待機フラグOFF + 既読ロックON（再通知を抑制）
+#   clear-waiting-log    待機フラグOFF + 既読ロックON + ラベルをログに記録
+#   reset-lock           待機フラグ・既読ロックの両方をクリア（UserPromptSubmit用）
 #
 # ログは /tmp/claude-sidebar-log-{PANE_ID} に追記され、サイドバー左下に表示される
 
@@ -26,6 +27,7 @@ PANE_ID="${TMUX_PANE:-}"
 [ -z "$PANE_ID" ] && exit 0
 
 FLAG_FILE="/tmp/claude-waiting-${PANE_ID}"
+READ_LOCK="/tmp/claude-read-${PANE_ID}"
 LOG_FILE="/tmp/claude-sidebar-log-${PANE_ID}"
 
 # stdinのJSONからmessageを抽出
@@ -51,37 +53,31 @@ log_event() {
   fi
 }
 
-# このペインをユーザーが実際に見ているかどうかを判定
-# pane_active だけでは不十分：別セッションを表示中でもペインはセッション内で active=1 になる
-# そのため、ペインが属するセッションが現在クライアントに表示されているかも確認する
-is_pane_visible() {
-  local pane_session current_session
-  # ペインが属するセッション名
-  pane_session=$(tmux display-message -t "$PANE_ID" -p '#{session_name}' 2>/dev/null) || return 1
-  # 現在クライアントが表示しているセッション名
-  current_session=$(tmux display-message -p '#{client_session}' 2>/dev/null) || return 1
-  # 同じセッション かつ ペインがアクティブ
-  [ "$pane_session" = "$current_session" ] && \
-    [ "$(tmux display-message -t "$PANE_ID" -p '#{pane_active}' 2>/dev/null)" = "1" ]
-}
-
 case "$ACTION" in
   set-waiting-silent)
-    # ユーザーが実際に見ているペインなら通知不要（既読扱い）
-    is_pane_visible && exit 0
+    # 既読ロックがあれば再通知しない（idle_promptの再発火対策）
+    [ -f "$READ_LOCK" ] && exit 0
     touch "$FLAG_FILE"
     ;;
   set-waiting-log)
+    [ -f "$READ_LOCK" ] && exit 0
     touch "$FLAG_FILE"
     msg=$(extract_message)
     log_event "${msg:-$LABEL}"
     ;;
   clear-waiting-silent)
+    # 既読にしたことを記録し、次のプロンプト送信までset-waitingを抑制
     rm -f "$FLAG_FILE"
+    touch "$READ_LOCK"
     ;;
   clear-waiting-log)
     rm -f "$FLAG_FILE"
+    touch "$READ_LOCK"
     log_event "$LABEL"
+    ;;
+  reset-lock)
+    # プロンプト送信時: 既読ロックとフラグの両方をクリア（次の完了で再通知可能にする）
+    rm -f "$FLAG_FILE" "$READ_LOCK"
     ;;
   *)
     exit 1

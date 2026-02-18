@@ -162,7 +162,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting-silent"
+            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh reset-lock"
           }
         ]
       }
