@@ -33,6 +33,15 @@ brew bundle dump --file=~/Developer/dotfiles/Brewfile --force
 - **Claude Code** (`claude/`): グローバル設定・カスタムコマンド（ask-gemini, mk-pr, x-search）・hooks（LINE通知, Prettier自動整形, ccusage）
 - **tmux** (`.tmux.conf`): vim風キーバインド。`tmux-dev-layout.sh` で3ペイン開発環境を自動構築（エディタ + lazygit + claude）
 
+### tmux × Claude Code 並列運用
+
+複数プロジェクトでClaude Codeを同時並行で動かし、人間の注意を最適配分するための仕組み。設計思想は「待っている → 気づく → 切り替える → 対応する」のループを最小認知負荷で回すこと。
+
+- **未読/既読インジケーター**: ステータスバーでどのセッションのClaudeが入力待ちかを一目で識別できる
+- **既読ロック**: 確認済みのセッションが再通知で光り直す問題を防止する仕組み
+- **高速セッション切り替え**: 数字キー・マウスクリックでセッション間を即座に移動
+- **外部通知**: tmuxを見ていないときもLINE等で入力待ちに気づける
+
 ### セキュリティ
 
 - `.env` ファイルはgitignore対象。APIキーやトークンはすべて `.env` で管理
