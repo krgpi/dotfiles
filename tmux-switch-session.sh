@@ -7,4 +7,4 @@ num="${1:-}"
 [ -z "$num" ] && exit 1
 
 target=$(tmux list-sessions -F '#{session_name}' | sed -n "${num}p")
-[ -n "$target" ] && tmux switch-client -t "$target"
+[ -n "$target" ] && tmux switch-client -t "$target" \; refresh-client -S

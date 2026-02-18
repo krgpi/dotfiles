@@ -51,17 +51,24 @@ log_event() {
   fi
 }
 
-# このペインが現在アクティブ（フォーカス中）かどうかを判定
-is_pane_active() {
-  local active
-  active=$(tmux display-message -t "$PANE_ID" -p '#{pane_active}' 2>/dev/null)
-  [ "$active" = "1" ]
+# このペインをユーザーが実際に見ているかどうかを判定
+# pane_active だけでは不十分：別セッションを表示中でもペインはセッション内で active=1 になる
+# そのため、ペインが属するセッションが現在クライアントに表示されているかも確認する
+is_pane_visible() {
+  local pane_session current_session
+  # ペインが属するセッション名
+  pane_session=$(tmux display-message -t "$PANE_ID" -p '#{session_name}' 2>/dev/null) || return 1
+  # 現在クライアントが表示しているセッション名
+  current_session=$(tmux display-message -p '#{client_session}' 2>/dev/null) || return 1
+  # 同じセッション かつ ペインがアクティブ
+  [ "$pane_session" = "$current_session" ] && \
+    [ "$(tmux display-message -t "$PANE_ID" -p '#{pane_active}' 2>/dev/null)" = "1" ]
 }
 
 case "$ACTION" in
   set-waiting-silent)
-    # フォーカス中のペインなら通知不要（見ているので既読扱い）
-    is_pane_active && exit 0
+    # ユーザーが実際に見ているペインなら通知不要（既読扱い）
+    is_pane_visible && exit 0
     touch "$FLAG_FILE"
     ;;
   set-waiting-log)
