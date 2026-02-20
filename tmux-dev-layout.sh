@@ -76,20 +76,19 @@ else
     WORK_DIR="$(pwd)"
 fi
 
-if tmux has-session -t "$(basename "$WORK_DIR")" 2>/dev/null; then
-    echo "セッション '$(basename "$WORK_DIR")' は既に存在します"
+session_name="$(basename "$WORK_DIR")"
+
+if tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "セッション '$session_name' は既に存在します"
     tmux refresh-client -S 2>/dev/null || true
-    # tmux外からの場合はリンクセッションでアタッチ（ウィンドウ選択を独立にする）
-    if [ -z "$TMUX" ]; then
-        tmux new-session -t "$(basename "$WORK_DIR")"
-    fi
-    exit 0
+else
+    create_session "$WORK_DIR"
 fi
 
-create_session "$WORK_DIR"
-
-# tmuxの外から実行された場合はセッションにアタッチする
-# new-session -t でリンクセッションを作成し、ウィンドウ選択を独立にする
-if [ -z "$TMUX" ]; then
-    tmux new-session -t "$(basename "$WORK_DIR")"
+# 現在のセッションと異なる場合はアタッチ/切り替え
+current_session="$(tmux display-message -p '#{session_name}' 2>/dev/null)"
+if [ "$current_session" != "$session_name" ]; then
+    # attach-sessionを試行し、ネストエラー時はswitch-clientにフォールバック
+    tmux attach-session -t "$session_name" 2>/dev/null \
+        || tmux switch-client -t "$session_name"
 fi
