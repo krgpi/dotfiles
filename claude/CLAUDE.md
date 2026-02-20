@@ -27,6 +27,12 @@
 - Chrome拡張のMCPブラウザツールが利用可能な場合のみ使用する
 - 使い方: `Skill` ツールで `skill: "karaage-tools:debug-ui"`, `args: "<問題の説明 or URL or CSSセレクタ>"` を呼び出す
 
+### vanta
+- ユーザーが「Vanta」「セキュリティテスト」「コンプライアンス」「SOC2」「ISO27001」などVanta関連の話題に言及したとき
+- コンテキストにVantaのURL（app.vanta.com）が含まれているとき
+- セキュリティテストの状況、ポリシー、ベンダー管理、脆弱性情報などを確認したいとき
+- 使い方: `Skill` ツールで `skill: "karaage-tools:vanta"`, `args: "<質問や操作内容>"` を呼び出す
+
 ### 判断基準
 - WebSearchで十分な場合はWebSearchを優先する
 - Geminiは技術的な質問や最新情報の確認に使う
@@ -34,3 +40,4 @@
 - PR作成時は常にmk-prスキルを使う
 - 複数のソースを組み合わせて精度を上げることを推奨する
 - UI/CSSの問題報告がありMCPブラウザツールが利用可能ならdebug-uiを使う
+- Vanta関連の話題やapp.vanta.comのURLがコンテキストにあればvantaスキルを使う
