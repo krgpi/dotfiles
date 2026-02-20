@@ -5,7 +5,7 @@
       "Read",
       "Write",
       "Edit",
-        "Bash(*)",
+      "Bash(*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(head:*)",
@@ -61,12 +61,10 @@
       "Bash(nkf:*)",
       "Bash(iconv:*)",
       "Bash(base64:*)",
-
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "Bash(mv:*)",
       "Bash(rm:*)",
-
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git diff:*)",
@@ -84,12 +82,10 @@
       "Bash(git checkout:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-
       "Bash(gh pr:*)",
       "Bash(gh api:*)",
       "Bash(gh issue:*)",
       "Bash(gh issue comment:*)",
-
       "Bash(npm run lint:*)",
       "Bash(npm run test:*)",
       "Bash(npm run build:*)",
@@ -106,13 +102,11 @@
       "Bash(npx next build:*)",
       "Bash(./scripts/lint:*)",
       "Bash(scripts/lint:*)",
-
       "Bash(aws sts get-caller-identity:*)",
       "Bash(aws configure list-profiles:*)",
       "Read(/$HOME/.aws/**)",
       "Bash(aws sso login:*)",
       "Bash(aws s3api list-buckets:*)",
-
       "mcp__ide__getDiagnostics",
       "mcp__esa-mcp-server__search_esa_posts",
       "mcp__esa-mcp-server__read_esa_multiple_posts",
