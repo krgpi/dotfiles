@@ -7,6 +7,31 @@
 SOCKET="/tmp/ccn-501.sock"
 INPUT=$(cat)
 
+# idle_prompt の再発火を抑制
+# session_id ベースのロックファイルで同じアイドル状態での重複通知を防ぐ
+# hook_event_name で正確にイベント種別を判別する
+_CCN_PARSED=$(echo "$INPUT" | /usr/bin/python3 -c "
+import sys,json
+d=json.loads(sys.stdin.read())
+print(d.get('hook_event_name',''), d.get('notification_type',''), d.get('session_id',''))
+" 2>/dev/null)
+_CCN_EVENT=$(echo "$_CCN_PARSED" | cut -d' ' -f1)
+_CCN_NOTIF_TYPE=$(echo "$_CCN_PARSED" | cut -d' ' -f2)
+_CCN_SESSION_ID=$(echo "$_CCN_PARSED" | cut -d' ' -f3)
+
+if [ -n "$_CCN_SESSION_ID" ]; then
+  _CCN_LOCK="/tmp/ccn-idle-sent-${_CCN_SESSION_ID}"
+  if [ "$_CCN_NOTIF_TYPE" = "idle_prompt" ]; then
+    # 既に通知済みならスキップ
+    [ -f "$_CCN_LOCK" ] && exit 0
+    touch "$_CCN_LOCK"
+  elif [ "$_CCN_EVENT" = "UserPromptSubmit" ]; then
+    # ユーザーがプロンプトを送信 → ロックをクリアして次のidleで再通知可能にする
+    rm -f "$_CCN_LOCK" 2>/dev/null
+  fi
+  # PreToolUse等の他イベントではロックに触らない
+fi
+
 # Try to enrich with terminal context and extract prompt using python
 # Pass input via stdin to avoid shell escaping issues
 ENRICHED=$(echo "$INPUT" | /usr/bin/python3 -c "import sys, json, os
