@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "karaage-dotfiles",
+  "description": "個人用 Claude Code ツール（コマンド・スクリプト）",
+  "owner": {
+    "name": "karaage"
+  },
+  "plugins": [
+    {
+      "name": "karaage-tools",
+      "source": "./karaage-tools",
+      "description": "ask-gemini, mk-pr, x-search, debug-ui コマンドと通知スクリプト"
+    }
+  ]
+}

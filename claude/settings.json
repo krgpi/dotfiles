@@ -5,7 +5,7 @@
       "Read",
       "Write",
       "Edit",
-
+        "Bash(*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(head:*)",
@@ -90,11 +90,19 @@
       "Bash(gh issue:*)",
       "Bash(gh issue comment:*)",
 
-      "Bash(npm run:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run start:*)",
+      "Bash(npm run check:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run typecheck:*)",
       "Bash(npm test)",
       "Bash(npx eslint:*)",
       "Bash(npx prettier:*)",
       "Bash(npx tsc:*)",
+      "Bash(npx textlint:*)",
       "Bash(npx next build:*)",
       "Bash(./scripts/lint:*)",
       "Bash(scripts/lint:*)",
@@ -144,11 +152,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting-silent"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-silent"
           }
         ]
       },
@@ -157,11 +165,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting-log"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-log"
           }
         ]
       },
@@ -170,11 +178,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh set-waiting-silent"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-silent"
           }
         ]
       }
@@ -184,7 +192,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           }
         ]
       }
@@ -194,11 +202,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh clear-waiting-log 'End(Session)'"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh clear-waiting-log 'End(Session)'"
           }
         ]
       }
@@ -208,7 +216,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           }
         ]
       }
@@ -218,11 +226,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/ccnotifier-hook.sh"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           },
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude/tmux-sidebar-notify.sh reset-lock"
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh reset-lock"
           }
         ]
       }
@@ -231,7 +239,8 @@
   "enabledPlugins": {
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true
+    "pr-review-toolkit@claude-plugins-official": true,
+    "karaage-tools@karaage-dotfiles": true
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": false,

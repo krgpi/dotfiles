@@ -63,8 +63,9 @@ if [ "$1" = "restart" ]; then
     done < "$session_file"
     rm -f "$session_file"
 
-    # 最初のセッションにアタッチ
-    tmux attach-session 2>/dev/null
+    # 最初のセッションにリンクセッションでアタッチ
+    first_session=$(tmux list-sessions -F '#{session_name}' 2>/dev/null | head -1)
+    tmux new-session -t "$first_session" 2>/dev/null
     exit 0
 fi
 
@@ -78,9 +79,9 @@ fi
 if tmux has-session -t "$(basename "$WORK_DIR")" 2>/dev/null; then
     echo "セッション '$(basename "$WORK_DIR")' は既に存在します"
     tmux refresh-client -S 2>/dev/null || true
-    # tmux外からの場合はアタッチ
+    # tmux外からの場合はリンクセッションでアタッチ（ウィンドウ選択を独立にする）
     if [ -z "$TMUX" ]; then
-        tmux attach-session -t "$(basename "$WORK_DIR")"
+        tmux new-session -t "$(basename "$WORK_DIR")"
     fi
     exit 0
 fi
@@ -88,6 +89,7 @@ fi
 create_session "$WORK_DIR"
 
 # tmuxの外から実行された場合はセッションにアタッチする
+# new-session -t でリンクセッションを作成し、ウィンドウ選択を独立にする
 if [ -z "$TMUX" ]; then
-    tmux attach-session -t "$(basename "$WORK_DIR")"
+    tmux new-session -t "$(basename "$WORK_DIR")"
 fi
