@@ -27,6 +27,11 @@
 - Chrome拡張のMCPブラウザツールが利用可能な場合のみ使用する
 - 使い方: `Skill` ツールで `skill: "karaage-tools:debug-ui"`, `args: "<問題の説明 or URL or CSSセレクタ>"` を呼び出す
 
+### save-report
+- Claudeが調査結果や回答を生成した後、ユーザーが「保存して」「レポートにして」「Obsidianに残して」などと依頼したとき
+- 長い調査や分析の会話が一段落したとき、ユーザーに保存を提案してもよい
+- 使い方: `Skill` ツールで `skill: "karaage-tools:save-report"`, `args: "<トピック or タイトル>"` を呼び出す
+
 ### 判断基準
 - WebSearchで十分な場合はWebSearchを優先する
 - Geminiは技術的な質問や最新情報の確認に使う
@@ -34,3 +39,4 @@
 - PR作成時は常にmk-prスキルを使う
 - 複数のソースを組み合わせて精度を上げることを推奨する
 - UI/CSSの問題報告がありMCPブラウザツールが利用可能ならdebug-uiを使う
+- 長い調査・分析が一段落した後、ユーザーに「Obsidianに保存しますか？」と提案してもよい

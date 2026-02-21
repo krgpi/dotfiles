@@ -9,7 +9,7 @@
     {
       "name": "karaage-tools",
       "source": "./karaage-tools",
-      "description": "ask-gemini, mk-pr, x-search, debug-ui コマンドと通知スクリプト"
+      "description": "ask-gemini, mk-pr, x-search, debug-ui, save-report コマンドと通知スクリプト"
     }
   ]
 }
