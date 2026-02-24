@@ -116,7 +116,8 @@
       "Skill(code-review:code-review)",
       "Skill(code-review:code-review:*)",
       "Task(code-simplifier:*)",
-      "Task(pr-review-toolkit:*)"
+      "Task(pr-review-toolkit:*)",
+      "mcp__plugin_slack_slack__*"
     ],
     "deny": [
       "Bash(sudo:*)",
