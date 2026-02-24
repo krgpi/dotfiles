@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 # CCNotifier Hook Script
 # Enriches Claude Code hook data with terminal context for remote response capability
 # Also extracts the actual prompt from the transcript for idle_prompt notifications
@@ -260,8 +260,8 @@ except:
     pass" 2>/dev/null)
 
 if [ -n "$ENRICHED" ]; then
-    echo "$ENRICHED" | /usr/bin/nc -U "$SOCKET"
+    echo "$ENRICHED" | /usr/bin/nc -U "$SOCKET" 2>/dev/null || true
 else
     # Fallback: send raw data without enrichment
-    echo "$INPUT" | /usr/bin/nc -U "$SOCKET"
+    echo "$INPUT" | /usr/bin/nc -U "$SOCKET" 2>/dev/null || true
 fi

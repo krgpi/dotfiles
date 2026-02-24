@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 # tmux サイドバー通知管理
 # Claude Code のフックから呼び出す
 #
