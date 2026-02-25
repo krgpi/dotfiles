@@ -145,10 +145,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
-          },
-          {
-            "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-silent"
           }
         ]
@@ -156,10 +152,6 @@
       {
         "matcher": "permission_prompt",
         "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
-          },
           {
             "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-log"
@@ -171,21 +163,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
-          },
-          {
-            "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-silent"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           }
         ]
       }
@@ -195,21 +173,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
-          },
-          {
-            "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh clear-waiting-log 'End(Session)'"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
           }
         ]
       }
@@ -217,10 +181,6 @@
     "UserPromptSubmit": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/ccnotifier-hook.sh"
-          },
           {
             "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh reset-lock"
