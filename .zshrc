@@ -58,3 +58,5 @@ alias bu='brew upgrade'
 alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
 
 [[ -f "$HOME/Developer/dotfiles/.env" ]] && source "$HOME/Developer/dotfiles/.env"
+alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+
