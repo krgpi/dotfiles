@@ -194,17 +194,11 @@ require("lazy").setup({
 					single_file_support = false,
 					settings = {},
 				},
-				ts_ls = {
-					on_attach = on_attach,
-					root_dir = lspconfig.util.root_pattern({ "package.json", "tsconfig.json" }),
-					single_file_support = false,
-					settings = {},
-				},
-			}
+				}
 
 			-- Masonで自動インストールするLSPサーバーのリスト
 			require("mason-lspconfig").setup({
-				ensure_installed = { "ts_ls" },
+				ensure_installed = { "vtsls" },
 				automatic_installation = true,
 				handlers = {
 					function(server_name)
@@ -216,6 +210,8 @@ require("lazy").setup({
 							})
 						end
 					end,
+					-- ts_lsを無効化（vtslsに一本化）
+					ts_ls = function() end,
 				},
 			})
 		end,
@@ -253,7 +249,23 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
 			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
 			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
-			vim.keymap.set("n", "<leader>fr", builtin.lsp_references, { desc = "Telescope LSP references" })
+			vim.keymap.set("n", "<leader>fd", function()
+				builtin.lsp_definitions({
+					layout_strategy = "vertical",
+					layout_config = {
+						preview_height = 0.5,
+					},
+				})
+			end, { desc = "Telescope LSP definitions" })
+			vim.keymap.set("n", "<leader>fr", function()
+				builtin.lsp_references({
+					layout_strategy = "vertical",
+					layout_config = {
+						preview_height = 0.5,
+					},
+					show_line = false,
+				})
+			end, { desc = "Telescope LSP references" })
 			vim.keymap.set(
 				"n",
 				"<leader>fe",
