@@ -448,7 +448,25 @@ require("lazy").setup({
 		cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
 		keys = {
 			{ "<leader>dv", "<cmd>DiffviewOpen<cr>", desc = "Diffview: working changes" },
-			{ "<leader>dm", "<cmd>DiffviewOpen origin/main<cr>", desc = "Diffview: diff against main" },
+			{
+				"<leader>dm",
+				function()
+					require("telescope.builtin").git_branches({
+						prompt_title = "Diff against branch",
+						attach_mappings = function(_, map)
+							map("i", "<CR>", function(prompt_bufnr)
+								local selection = require("telescope.actions.state").get_selected_entry(prompt_bufnr)
+								require("telescope.actions").close(prompt_bufnr)
+								if selection then
+									vim.cmd("DiffviewOpen " .. selection.value)
+								end
+							end)
+							return true
+						end,
+					})
+				end,
+				desc = "Diffview: select branch and diff",
+			},
 			{ "<leader>dc", "<cmd>DiffviewClose<cr>", desc = "Diffview: close" },
 			{ "<leader>dh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
 		},
