@@ -345,7 +345,14 @@ require("lazy").setup({
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
-		opts = {},
+		opts = {
+			win = {
+				border = "rounded",
+				wo = {
+					winblend = 0,
+				},
+			},
+		},
 	},
 	{
 		"tpope/vim-commentary",
