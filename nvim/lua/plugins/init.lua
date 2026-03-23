@@ -443,6 +443,18 @@ require("lazy").setup({
 		},
 	},
 	{
+		"sindrets/diffview.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
+		keys = {
+			{ "<leader>dv", "<cmd>DiffviewOpen<cr>", desc = "Diffview: working changes" },
+			{ "<leader>dm", "<cmd>DiffviewOpen origin/main<cr>", desc = "Diffview: diff against main" },
+			{ "<leader>dc", "<cmd>DiffviewClose<cr>", desc = "Diffview: close" },
+			{ "<leader>dh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
+		},
+		opts = {},
+	},
+	{
 		"brenoprata10/nvim-highlight-colors",
 		config = function()
 			require("nvim-highlight-colors").setup({})
