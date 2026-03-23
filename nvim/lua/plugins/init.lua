@@ -1,3 +1,7 @@
+-- netrwを無効化（起動時にファイルブラウザが開くのを防止）
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -236,7 +240,7 @@ require("lazy").setup({
 						}),
 					},
 					file_browser = {
-						hijack_netrw = true,
+						hijack_netrw = false,
 						hidden = true,
 						grouped = true,
 						respect_gitignore = false,
