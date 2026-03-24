@@ -61,3 +61,7 @@ alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
 alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
 export PATH="$HOME/.deno/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
