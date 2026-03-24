@@ -30,6 +30,7 @@ create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json
 create_symlink "$DOTFILES_DIR/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
+create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
 
 echo ""
 echo "Done! Dotfiles setup complete."

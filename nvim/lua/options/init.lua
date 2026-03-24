@@ -3,6 +3,12 @@ vim.keymap.set("x", "<M-j>", ":move '>+1<CR>gv=gv")
 vim.keymap.set("n", "<M-k>", "<Cmd>move .-2<CR>==")
 vim.keymap.set("x", "<M-k>", ":move '<-2<CR>gv=gv")
 
+-- 外部でファイルが変更されたときにバッファを自動更新
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+	command = "silent! checktime",
+})
+
 -- editor options
 vim.opt.list = true
 vim.opt.listchars = {
