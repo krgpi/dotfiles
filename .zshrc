@@ -53,6 +53,7 @@ alias la='ls -a'
 alias ll='ls -l'
 alias lg='lazygit'
 alias cc='claude'
+alias cl='claude'
 alias nv='nvim'
 alias bu='brew upgrade'
 alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
