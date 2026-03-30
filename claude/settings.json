@@ -116,8 +116,7 @@
       "Skill(code-review:code-review)",
       "Skill(code-review:code-review:*)",
       "Task(code-simplifier:*)",
-      "Task(pr-review-toolkit:*)",
-      "mcp__plugin_slack_slack__*"
+      "Task(pr-review-toolkit:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -136,7 +135,12 @@
       "Bash(mongod:*)",
       "Bash(mysql:*)",
       "Bash(psql:*)",
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "mcp__plugin_slack_slack__slack_send_message",
+      "mcp__plugin_slack_slack__slack_send_message_draft",
+      "mcp__plugin_slack_slack__slack_schedule_message",
+      "mcp__plugin_slack_slack__slack_create_canvas",
+      "mcp__plugin_slack_slack__slack_update_canvas"
     ],
     "additionalDirectories": [
       "/tmp"
@@ -199,9 +203,11 @@
     "code-simplifier@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
     "karaage-tools@karaage-dotfiles": true,
-    "slack@claude-plugins-official": true,
+    "slack@claude-plugins-official": false,
     "feature-dev@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true
+    "security-guidance@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "Notion@claude-plugins-official": false
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": false,
