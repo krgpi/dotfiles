@@ -173,9 +173,7 @@ require("lazy").setup({
 				vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, opts)
 				vim.keymap.set({ "n", "v" }, "<space>ca", vim.lsp.buf.code_action, opts)
 				vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-				vim.keymap.set("n", "<space>f", function()
-					vim.lsp.buf.format({ async = true })
-				end, opts)
+				vim.keymap.set("n", "<space>f", "<cmd>Prettier<cr>", opts)
 
 				-- 診断関連のキーマップ
 				vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
@@ -193,7 +191,12 @@ require("lazy").setup({
 					settings = {},
 				},
 				vtsls = {
-					on_attach = on_attach,
+					on_attach = function(client, bufnr)
+						-- LSPのフォーマットを無効化（Prettierを使用）
+						client.server_capabilities.documentFormattingProvider = false
+						client.server_capabilities.documentRangeFormattingProvider = false
+						on_attach(client, bufnr)
+					end,
 					root_dir = lspconfig.util.root_pattern({ "package.json", "tsconfig.json" }),
 					single_file_support = false,
 					settings = {},
@@ -364,6 +367,9 @@ require("lazy").setup({
 	},
 	{
 		"prettier/vim-prettier",
+		config = function()
+			vim.g["prettier#config#config_precedence"] = "prefer-file"
+		end,
 	},
 	{
 		"romgrk/barbar.nvim",
