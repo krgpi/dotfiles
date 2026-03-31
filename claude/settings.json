@@ -146,7 +146,7 @@
       "/tmp"
     ]
   },
-  "model": "opus[1m]",
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -207,12 +207,12 @@
     "feature-dev@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "github@claude-plugins-official": true,
-    "Notion@claude-plugins-official": false
+    "Notion@claude-plugins-official": false,
+    "gopls-lsp@claude-plugins-official": false
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
-  },
-  "model": "opus"
+  }
 }
