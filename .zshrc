@@ -10,6 +10,7 @@ fi
 
 setopt prompt_subst
 export PATH="$BREW_PREFIX/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
+export EDITOR="nvim"
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' check-for-changes true

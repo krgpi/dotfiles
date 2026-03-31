@@ -1,3 +1,7 @@
+os:
+  edit: 'nvim {{filename}}'
+  editAtLine: 'nvim +{{line}} {{filename}}'
+  editAtLineAndWait: 'nvim +{{line}} {{filename}}'
 customCommands:
   - key: '<c-a>'
     description: 'Claude でコミットメッセージを生成'
