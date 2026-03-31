@@ -38,6 +38,10 @@
 - 長い調査や分析の会話が一段落したとき、ユーザーに保存を提案してもよい
 - 使い方: `Skill` ツールで `skill: "karaage-tools:save-report"`, `args: "<トピック or タイトル>"` を呼び出す
 
+### pr-review-toolkit:review-pr
+- PRが未作成・未Pushでも、ローカルのmainとのdiffを対象にレビューを実行する
+- `gh pr view` が失敗した場合は `git diff main...HEAD` を使う
+
 ### 判断基準
 - WebSearchで十分な場合はWebSearchを優先する
 - Geminiは技術的な質問や最新情報の確認に使う
