@@ -154,6 +154,19 @@ require("lazy").setup({
 				},
 			})
 
+			-- ホバーウィンドウにパディングを追加（open_floating_previewをラップ）
+			local orig_open_floating_preview = vim.lsp.util.open_floating_preview
+			vim.lsp.util.open_floating_preview = function(contents, syntax, opts)
+				local padded = { "" }
+				for _, line in ipairs(contents) do
+					table.insert(padded, "  " .. line .. "  ")
+				end
+				table.insert(padded, "")
+				opts = opts or {}
+				opts.border = opts.border or "rounded"
+				return orig_open_floating_preview(padded, syntax, opts)
+			end
+
 			-- LSPがアタッチされたときのキーマッピング
 			local on_attach = function(client, bufnr)
 				local opts = { noremap = true, silent = true, buffer = bufnr }
