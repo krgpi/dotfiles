@@ -208,7 +208,8 @@
     "security-guidance@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "Notion@claude-plugins-official": false,
-    "gopls-lsp@claude-plugins-official": false
+    "gopls-lsp@claude-plugins-official": false,
+    "notion@claude-plugins-official": true
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": false,
