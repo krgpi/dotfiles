@@ -36,6 +36,8 @@
 ### save-report
 - Claudeが調査結果や回答を生成した後、ユーザーが「保存して」「レポートにして」「Obsidianに残して」などと依頼したとき
 - 長い調査や分析の会話が一段落したとき、ユーザーに保存を提案してもよい
+- レポート内の記述にはできるだけWeb上のソース（URL）を根拠として明示すること
+- 新しいフォルダを作成せず、Obsidian vault内の既存の適切なフォルダ（1階層まで）を選択して配置すること
 - 使い方: `Skill` ツールで `skill: "karaage-tools:save-report"`, `args: "<トピック or タイトル>"` を呼び出す
 
 ### pr-review-toolkit:review-pr
