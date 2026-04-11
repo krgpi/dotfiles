@@ -15,35 +15,22 @@ X(Twitter)上の情報を検索・収集し、リサーチレポートを作成�
 
 ### Step 1: xAI Grok で X 検索（メイン）
 
-xAI の Grok API に `x_search` ツールを使わせて、トピック「$1」に関するX上の投稿をAI分析付きで取得する。
+xAI の Responses API に `x_search` ビルトインツールを使わせて、トピック「$1」に関するX上の投稿をAI分析付きで取得する。
 
 ```sh
 source ~/Developer/dotfiles/.env 2>/dev/null
-curl -s https://api.x.ai/v1/chat/completions \
+curl -s https://api.x.ai/v1/responses \
   -H "Authorization: Bearer $XAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "grok-3-mini",
-    "search_parameters": {
-      "mode": "on",
-      "sources": ["x"],
-      "recency": "week",
-      "max_search_results": 20
-    },
-    "messages": [
-      {
-        "role": "system",
-        "content": "You are an X/Twitter research analyst. Search X for the given topic and provide: 1) Key opinions and trends (positive/negative), 2) Notable tweets with high engagement, 3) Expert perspectives, 4) Counterarguments and concerns. Include tweet URLs, usernames, and engagement metrics where available. Respond in Japanese."
-      },
-      {
-        "role": "user",
-        "content": "X上で「$1」について調査してください。主要な意見、注目ツイート、賛否両論を整理してください。"
-      }
-    ]
+    "model": "grok-4-0709",
+    "tools": [{"type": "x_search"}],
+    "instructions": "You are an X/Twitter research analyst. Search X for the given topic and provide: 1) Key opinions and trends (positive/negative), 2) Notable tweets with high engagement, 3) Expert perspectives, 4) Counterarguments and concerns. Include tweet URLs, usernames, and engagement metrics where available. Respond in Japanese.",
+    "input": "X上で「$1」について調査してください。主要な意見、注目ツイート、賛否両論を整理してください。"
   }'
 ```
 
-レスポンスの `choices[0].message.content` を取得し、引用されたソースURLも抽出する。
+レスポンスの `output[]` 配列から `type: "message"` のアイテムを探し、`content[0].text` を取得する。`content[0].annotations` にツイートURLの引用情報が含まれる。
 
 ### Step 2: X API v2 で生データ補完
 
