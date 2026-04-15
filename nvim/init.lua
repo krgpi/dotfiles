@@ -23,14 +23,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	end,
 })
 
--- cheatsheet
-require("cheatsheet").setup({
-	bundled_cheatsheets = {
-		disabled = { "nerd-fonts" },
-	},
-})
-
-
 -- terminal window title
 -- タイトルをフォルダ名に設定する
 
