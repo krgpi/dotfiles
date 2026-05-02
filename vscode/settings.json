@@ -256,4 +256,5 @@
     "https://biomejs.dev": true
   },
   "window.customTitleBarVisibility": "never",
+  "chat.disableAIFeatures": true,
 }
