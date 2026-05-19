@@ -87,6 +87,14 @@ alias nv='nvim'
 alias bu='brew upgrade'
 alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
 
+cd() {
+    if [[ $# -eq 0 ]]; then
+        builtin cd ~/Developer
+    else
+        builtin cd "$@"
+    fi
+}
+
 [[ -f "$HOME/Developer/dotfiles/.env" ]] && source "$HOME/Developer/dotfiles/.env"
 alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
