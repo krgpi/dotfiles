@@ -90,6 +90,29 @@ require("lazy").setup({
 		end,
 		config = function()
 			vim.cmd.colorscheme("doom-one")
+
+			-- diff系ハイライトを弱め、Treesitterの色を透けさせる
+			-- 既定の DiffAdd/DiffDelete は fg が緑/赤＋bold で塗られるため、
+			-- 新規追加ファイルや削除ファイルで全行が単色になり構文色が消える。
+			-- bg だけ残して fg と bold を外し、構文ハイライトを上に通す。
+			local diff_hl = {
+				DiffAdd = { bg = "#23341f" },
+				DiffDelete = { bg = "#3a1f1f" },
+				DiffChange = { bg = "#1f2a3a" },
+				DiffText = { bg = "#2d4a6b", bold = true },
+			}
+			for group, opts in pairs(diff_hl) do
+				vim.api.nvim_set_hl(0, group, opts)
+			end
+
+			-- カラースキーム再適用時にも上書きが効くようにする
+			vim.api.nvim_create_autocmd("ColorScheme", {
+				callback = function()
+					for group, opts in pairs(diff_hl) do
+						vim.api.nvim_set_hl(0, group, opts)
+					end
+				end,
+			})
 		end,
 	},
 	{
@@ -413,7 +436,9 @@ require("lazy").setup({
 			{ "<leader>dc", "<cmd>DiffviewClose<cr>", desc = "Diffview: close" },
 			{ "<leader>dh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
 		},
-		opts = {},
+		opts = {
+			enhanced_diff_hl = true,
+		},
 	},
 	{
 		"brenoprata10/nvim-highlight-colors",
