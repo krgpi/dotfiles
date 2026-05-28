@@ -155,7 +155,6 @@
       "/tmp"
     ]
   },
-  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -222,7 +221,14 @@
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": false,
+  "awaySummaryEnabled": false,
+  "editorMode": "vim",
+  "preferredNotifChannel": "iterm2",
+  "autoCompactEnabled": false,
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
-  }
+  },
+  "inputNeededNotifEnabled": true
 }
