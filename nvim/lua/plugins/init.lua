@@ -402,11 +402,45 @@ require("lazy").setup({
 		version = "^1.0.0", -- optional: only update when a new 1.x version is released
 	},
 	{
+		-- treesitterによるシンタックスハイライト本体。masterブランチが安定版で
+		-- ensure_installed が使える従来の作法（mainブランチはAPIが大きく変わるため避ける）
+		"nvim-treesitter/nvim-treesitter",
+		branch = "master",
+		build = ":TSUpdate",
+		config = function()
+			require("nvim-treesitter.configs").setup({
+				ensure_installed = {
+					"markdown",
+					"markdown_inline",
+					"javascript",
+					"typescript",
+					"tsx",
+					"lua",
+				},
+				auto_install = true,
+				highlight = { enable = true },
+				indent = { enable = true },
+			})
+		end,
+	},
+	{
+		-- .mdx を mdx ファイルタイプとして扱い、JSX/import文を含むMDXをハイライト
+		"davidmh/mdx.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		ft = { "markdown", "mdx" },
+		init = function()
+			vim.filetype.add({ extension = { mdx = "mdx" } })
+		end,
+		config = function()
+			require("mdx").setup({})
+		end,
+	},
+	{
 		"MeanderingProgrammer/render-markdown.nvim",
 		opts = {
-			file_types = { "markdown" },
+			file_types = { "markdown", "mdx" },
 		},
-		ft = { "markdown" },
+		ft = { "markdown", "mdx" },
 	},
 	{
 		"sindrets/diffview.nvim",
