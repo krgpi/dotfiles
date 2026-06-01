@@ -118,7 +118,7 @@
       "Task(code-simplifier:*)",
       "Task(pr-review-toolkit:*)",
       "WebSearch",
-      "mcp__chrome-devtools__*",
+      "mcp__chrome-devtools__*"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -159,7 +159,6 @@
       "/tmp"
     ]
   },
-  "model": "opus",
   "hooks": {
     "Notification": [
       {
