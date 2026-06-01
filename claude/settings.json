@@ -116,7 +116,9 @@
       "Skill(code-review:code-review)",
       "Skill(code-review:code-review:*)",
       "Task(code-simplifier:*)",
-      "Task(pr-review-toolkit:*)"
+      "Task(pr-review-toolkit:*)",
+      "WebSearch",
+      "mcp__chrome-devtools__*",
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -151,6 +153,8 @@
       "Bash(gws gmail users drafts send:*)",
       "Bash(gws chat +send:*)"
     ],
+    "ask": [],
+    "defaultMode": "acceptEdits",
     "additionalDirectories": [
       "/tmp"
     ]
@@ -207,6 +211,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "enabledPlugins": {
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
@@ -218,11 +225,21 @@
     "github@claude-plugins-official": true,
     "Notion@claude-plugins-official": false,
     "gopls-lsp@claude-plugins-official": false,
-    "notion@claude-plugins-official": true
+    "notion@claude-plugins-official": true,
+    "searchfit-seo@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
-  "alwaysThinkingEnabled": false,
+  "awaySummaryEnabled": false,
+  "editorMode": "vim",
+  "preferredNotifChannel": "iterm2_with_bell",
+  "autoCompactEnabled": false,
+  "remoteControlAtStartup": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
-  }
+  },
+  "effortLevel": "xhigh"
 }
