@@ -14,7 +14,7 @@ Gemini APIに質問を投げ、回答を取得してユーザーに提示する�
 
    ```sh
    source ~/Developer/dotfiles/.env 2>/dev/null
-   curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" \
+   curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}" \
      -H "Content-Type: application/json" \
      -d '{"contents":[{"parts":[{"text":"<質問内容>"}]}]}'
    ```
@@ -33,7 +33,7 @@ Gemini APIに質問を投げ、回答を取得してユーザーに提示する�
    [回答内容]
 
    ---
-   *Model: gemini-2.0-flash*
+   *Model: gemini-2.5-flash*
    ```
 
 ## 注意事項
