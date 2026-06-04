@@ -402,24 +402,21 @@ require("lazy").setup({
 		version = "^1.0.0", -- optional: only update when a new 1.x version is released
 	},
 	{
-		-- treesitterによるシンタックスハイライト本体。masterブランチが安定版で
-		-- ensure_installed が使える従来の作法（mainブランチはAPIが大きく変わるため避ける）
+		-- nvim-treesitter mainブランチはnvim 0.12+専用の書き直し版。
+		-- query_predicatesを持たずパーサー管理のみ担い、ハイライト/インデントは
+		-- nvimビルトインのtreesitter APIに委譲する。lazy=falseが必須。
 		"nvim-treesitter/nvim-treesitter",
-		branch = "master",
+		branch = "main",
+		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter.configs").setup({
-				ensure_installed = {
-					"markdown",
-					"markdown_inline",
-					"javascript",
-					"typescript",
-					"tsx",
-					"lua",
-				},
-				auto_install = true,
-				highlight = { enable = true },
-				indent = { enable = true },
+			-- ビルトインtreesitterによるハイライトとインデントを全filetypeで有効化
+			-- js/ts/tsx等の追加パーサーは tree-sitter-cli インストール後に :TSUpdate で導入
+			vim.api.nvim_create_autocmd("FileType", {
+				callback = function(args)
+					pcall(vim.treesitter.start, args.buf)
+					vim.bo[args.buf].indentexpr = "v:lua.require('nvim-treesitter').indentexpr()"
+				end,
 			})
 		end,
 	},
@@ -430,9 +427,6 @@ require("lazy").setup({
 		ft = { "markdown", "mdx" },
 		init = function()
 			vim.filetype.add({ extension = { mdx = "mdx" } })
-		end,
-		config = function()
-			require("mdx").setup({})
 		end,
 	},
 	{
