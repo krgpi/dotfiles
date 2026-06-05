@@ -69,12 +69,34 @@ if [ "$1" = "restart" ]; then
     exit 0
 fi
 
-# 通常のセッション作成
-if [ -n "$1" ]; then
-    WORK_DIR="$(cd "$1" 2>/dev/null && pwd)" || { echo "エラー: ディレクトリが見つかりません: $1" >&2; exit 1; }
-else
-    WORK_DIR="$(pwd)"
+# 引数なし: 新規作成せず、直近にアタッチされた既存セッションへ即アタッチ
+if [ -z "$1" ]; then
+    if [ -n "$TMUX" ]; then
+        current_session="$(tmux display-message -p '#{session_name}' 2>/dev/null)"
+    else
+        current_session=""
+    fi
+
+    # session_last_attached の降順に並べ、現在のセッションを除いた直近を選ぶ
+    target_session="$(tmux list-sessions -F '#{session_last_attached} #{session_name}' 2>/dev/null \
+        | sort -rn \
+        | awk -v cur="$current_session" '{ line=$0; sub(/^[0-9]+ /, "", line); if (line != cur) { print line; exit } }')"
+
+    if [ -z "$target_session" ]; then
+        echo "アタッチできる既存セッションがありません（'dev .' で現在のディレクトリのセッションを作成できます）" >&2
+        exit 1
+    fi
+
+    if [ -n "$TMUX" ]; then
+        tmux switch-client -t "$target_session"
+    else
+        tmux attach-session -t "$target_session"
+    fi
+    exit 0
 fi
+
+# パス指定: セッション作成（既存ならそのまま）
+WORK_DIR="$(cd "$1" 2>/dev/null && pwd)" || { echo "エラー: ディレクトリが見つかりません: $1" >&2; exit 1; }
 
 session_name="$(basename "$WORK_DIR")"
 
