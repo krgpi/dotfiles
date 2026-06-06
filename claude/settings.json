@@ -229,6 +229,7 @@
     "swift-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
+  "effortLevel": "xhigh",
   "awaySummaryEnabled": false,
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2_with_bell",
@@ -240,5 +241,5 @@
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
   },
-  "effortLevel": "xhigh"
+  "model": "opus"
 }
