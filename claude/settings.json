@@ -159,6 +159,7 @@
       "/tmp"
     ]
   },
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -229,7 +230,7 @@
     "swift-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
-  "effortLevel": "xhigh",
+  "effortLevel": "medium",
   "awaySummaryEnabled": false,
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2_with_bell",
@@ -240,6 +241,5 @@
   "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
-  },
-  "model": "opus"
+  }
 }
