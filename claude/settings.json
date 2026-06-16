@@ -159,7 +159,7 @@
       "/tmp"
     ]
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "Notification": [
       {
@@ -230,11 +230,15 @@
     "swift-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "awaySummaryEnabled": false,
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2_with_bell",
   "autoCompactEnabled": false,
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
+  },
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
