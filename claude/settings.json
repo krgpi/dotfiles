@@ -214,6 +214,10 @@
   "worktree": {
     "baseRef": "fresh"
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
+  },
   "enabledPlugins": {
     "code-review@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
@@ -235,15 +239,12 @@
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2_with_bell",
   "autoCompactEnabled": false,
-  "statusLine": {
-    "type": "command",
-    "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
-  },
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
-  }
+  },
+  "tui": "fullscreen"
 }
