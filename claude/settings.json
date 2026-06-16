@@ -231,11 +231,13 @@
     "gopls-lsp@claude-plugins-official": false,
     "notion@claude-plugins-official": true,
     "searchfit-seo@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true
+    "swift-lsp@claude-plugins-official": true,
+    "stripe@claude-plugins-official": true
   },
   "language": "Japanese",
   "effortLevel": "xhigh",
   "awaySummaryEnabled": false,
+  "tui": "fullscreen",
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2_with_bell",
   "autoCompactEnabled": false,
@@ -245,6 +247,5 @@
   "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
-  },
-  "tui": "fullscreen"
+  }
 }
