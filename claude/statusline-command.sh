@@ -2,6 +2,9 @@
 input=$(cat)
 
 model=$(echo "$input" | jq -r '.model.display_name // empty')
+cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
+branch=""
+[ -n "$cwd" ] && branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 effort=$(echo "$input" | jq -r '.effort.level // empty')
 five_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
@@ -31,6 +34,11 @@ out=""
 
 if [ -n "$model" ]; then
     out="\033[36m${model}\033[0m"
+fi
+
+if [ -n "$branch" ]; then
+    branch_str="\033[34m⎇ ${branch}\033[0m"
+    [ -n "$out" ] && out="${out}  ${branch_str}" || out="${branch_str}"
 fi
 
 if [ -n "$used_pct" ]; then
