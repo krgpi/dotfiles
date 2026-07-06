@@ -159,7 +159,7 @@
       "/tmp"
     ]
   },
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -232,7 +232,8 @@
     "notion@claude-plugins-official": true,
     "searchfit-seo@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "stripe@claude-plugins-official": true
+    "stripe@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
   "effortLevel": "xhigh",
