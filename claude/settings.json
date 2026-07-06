@@ -223,7 +223,7 @@
     "code-simplifier@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
     "karaage-tools@karaage-dotfiles": true,
-    "slack@claude-plugins-official": false,
+    "slack@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "github@claude-plugins-official": true,
