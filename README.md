@@ -44,6 +44,5 @@ git clone https://github.com/Aloxaf/fzf-tab.git ~/Developer/fzf-tab
 
 | 変数名           | 用途                                           | 取得先                                           |
 | ---------------- | ---------------------------------------------- | ------------------------------------------------ |
-| `GEMINI_API_KEY` | Claude Code の `/ask-gemini` コマンド          | [Google AI Studio](https://aistudio.google.com/) |
 | `XAI_API_KEY`    | Claude Code の `/x-search` コマンド (Grok API) | [xAI Console](https://console.x.ai/)             |
 | `X_BEARER_TOKEN` | Claude Code の `/x-search` コマンド (X API v2) | [X Developer Portal](https://developer.x.com/)   |
