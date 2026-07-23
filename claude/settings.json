@@ -131,7 +131,7 @@
       "Read(id_rsa)",
       "Read(id_ed25519)",
       "Read(.env*)",
-      "Write(.env*)",
+      "Edit(.env*)",
       "Bash(nc:*)",
       "Bash(wget:*)",
       "Bash(mongod:*)",
@@ -159,7 +159,7 @@
       "/tmp"
     ]
   },
-  "model": "opus",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "Notification": [
       {
