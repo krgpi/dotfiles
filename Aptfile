@@ -6,6 +6,7 @@ gh
 git
 git-lfs
 jq
+lazygit
 neovim
 ripgrep
 tmux
