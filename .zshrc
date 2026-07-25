@@ -59,7 +59,15 @@ deferred_settings() {
 
     autoload -Uz compinit
     local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-    if [[ -f "$zcompdump" && $(date -r "$zcompdump" +%s) -gt $(( $(date +%s) - 86400 )) ]]; then
+    local zcompdump_age=0
+    if [[ -f "$zcompdump" ]]; then
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+            zcompdump_age=$(date -r "$zcompdump" +%s)
+        else
+            zcompdump_age=$(stat -c %Y "$zcompdump")
+        fi
+    fi
+    if [[ -f "$zcompdump" && $zcompdump_age -gt $(( $(date +%s) - 86400 )) ]]; then
         compinit -C -d "$zcompdump"
     else
         compinit -i -d "$zcompdump"
@@ -85,7 +93,9 @@ alias ll='ls -l'
 alias lg='lazygit'
 alias cl='claude'
 alias nv='nvim'
-alias bu='brew upgrade'
+if (( $+commands[brew] )); then
+    alias bu='brew upgrade'
+fi
 alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
 
 cd() {
@@ -97,10 +107,12 @@ cd() {
 }
 
 [[ -f "$HOME/Developer/dotfiles/.env" ]] && source "$HOME/Developer/dotfiles/.env"
-alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+    test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+fi
 
 export PATH="$HOME/.deno/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 

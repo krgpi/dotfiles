@@ -1,0 +1,15 @@
+bat
+cmake
+direnv
+fzf
+gh
+git
+git-lfs
+jq
+neovim
+ripgrep
+tmux
+tree
+wget
+zsh
+xclip
