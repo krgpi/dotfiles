@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## リポジトリ概要
 
-macOS開発環境のdotfilesリポジトリ。シンボリックリンクベースで設定ファイルを管理する。
+macOS / Ubuntu 両対応の dotfiles リポジトリ。シンボリックリンクベースで設定ファイルを管理する。OS判定（`uname -s`）で macOS 固有の設定（Karabiner, pbcopy, iTerm2 等）を分岐する。
 
 ## よく使うコマンド
 
@@ -12,11 +12,14 @@ macOS開発環境のdotfilesリポジトリ。シンボリックリンクベー�
 # シンボリックリンクの作成・更新
 ./setup.sh
 
-# Homebrewパッケージの一括インストール
+# macOS: Homebrewパッケージの一括インストール
 brew bundle --file=~/Developer/dotfiles/Brewfile
 
-# Brewfileの更新（現在インストール済みのものをダンプ）
+# macOS: Brewfileの更新（現在インストール済みのものをダンプ）
 brew bundle dump --file=~/Developer/dotfiles/Brewfile --force
+
+# Ubuntu: aptパッケージの一括インストール
+sudo apt update && xargs -a ~/Developer/dotfiles/Aptfile sudo apt install -y
 ```
 
 ## アーキテクチャ
@@ -49,5 +52,6 @@ brew bundle dump --file=~/Developer/dotfiles/Brewfile --force
 ### 規約
 
 - ドキュメント・コメントは日本語で記述する
-- Homebrew の追加・削除は `Brewfile` を直接編集したあとに、homebrewのコマンドを実行する
+- macOS: Homebrew の追加・削除は `Brewfile` を直接編集したあとに、homebrewのコマンドを実行する
+- Ubuntu: apt パッケージの追加・削除は `Aptfile` を直接編集する
 - 新しい設定ファイルを追加する場合は `setup.sh` にシンボリックリンクの定義も追加する
