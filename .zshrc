@@ -49,7 +49,7 @@ precmd() {
     _git_fetch_bg
     _GIT_REMOTE_STATUS=$(_git_remote_status)
 }
-PROMPT='%F{red}%*%f %F{cyan}%1~%f ${vcs_info_msg_0_}${_GIT_REMOTE_STATUS}
+PROMPT='%F{red}%*%f %F{cyan}%1~%f ${vcs_info_msg_0_}${_GIT_REMOTE_STATUS}%F{yellow}%m%f
  > '
 RPROMPT=''
 
