@@ -233,7 +233,16 @@
     "searchfit-seo@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
     "stripe@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "bento-slides@bento": true
+  },
+  "extraKnownMarketplaces": {
+    "bento": {
+      "source": {
+        "source": "github",
+        "repo": "nyblnet/bento"
+      }
+    }
   },
   "language": "Japanese",
   "effortLevel": "xhigh",
