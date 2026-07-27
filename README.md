@@ -38,7 +38,14 @@ git clone https://github.com/Aloxaf/fzf-tab.git ~/Developer/fzf-tab
 ~/Developer/dotfiles/setup.sh
 ```
 
-### 7. 環境変数の設定
+### 7. Claude Code プラグインの追加
+
+```sh
+cd ~/Developer/dotfiles
+claude /plugin marketplace add ./claude-marketplace
+```
+
+### 8. 環境変数の設定
 
 以下の環境変数を `.env` ファイルを作って設定する:
 
