@@ -57,6 +57,11 @@ Apple Mail を AppleScript 経由で操作する（`karaage-tools:mail`）。メ
 - PRが未作成・未Pushでも、ローカルのmainとのdiffを対象にレビューを実行する
 - `gh pr view` が失敗した場合は `git diff main...HEAD` を使う
 
+### mock-ui
+- ユーザーが「UIのキャプチャ」「スクリーンショットを作って」「モックアップ画像が欲しい」「LP用の画像」などUI画像の生成を依頼したとき
+- アプリを起動せずにUI画像が必要な場合
+- 使い方: `Skill` ツールで `skill: "karaage-tools:mock-ui"`, `args: "<生成したい画面の説明>"` を呼び出す
+
 ## コード生成のルール
 
 - コードにコメントを書かない。プロジェクトの CLAUDE.md で明示的に指定がある場合のみ例外
@@ -73,3 +78,4 @@ Apple Mail を AppleScript 経由で操作する（`karaage-tools:mail`）。メ
 - Vanta関連の話題やapp.vanta.comのURLがコンテキストにあればvantaスキルを使う
 - 長い調査・分析が一段落した後、ユーザーに「Obsidianに保存しますか？」と提案してもよい
 - メール操作（読み取り・検索・下書き・返信下書き）の依頼があれば mail スキルを使う。送信はせず下書きまでとし、作成前に内容確認を取る
+- UIモックアップ画像の生成依頼があればmock-uiスキルを使う。アプリのソースコードからデザインを読み取りPlaywrightでPNG化する
