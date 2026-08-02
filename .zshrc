@@ -111,6 +111,9 @@ cd() {
 if [[ "$(uname -s)" == "Darwin" ]]; then
     alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
     test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+else
+    alias pbcopy="xclip -selection clipboard"
+    alias pbpaste="xclip -selection clipboard -o"
 fi
 
 export PATH="$HOME/.deno/bin:$PATH"
