@@ -92,6 +92,8 @@ alias la='ls -a'
 alias ll='ls -l'
 alias lg='lazygit'
 alias cl='claude'
+alias clt='CLAUDE_CONFIG_DIR=~/.claude-work claude'
+paseo-work() { paseo run --env "CLAUDE_CONFIG_DIR=$HOME/.claude-work" "$@"; }
 alias nv='nvim'
 if (( $+commands[brew] )); then
     alias bu='brew upgrade'

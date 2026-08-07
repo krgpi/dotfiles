@@ -33,7 +33,11 @@ fmt_remaining() {
 out=""
 
 if [ -n "$model" ]; then
-    out="\033[36m${model}\033[0m"
+    if [ "$CLAUDE_CONFIG_DIR" = "$HOME/.claude-work" ]; then
+        out="\033[48;2;150;115;57m\033[97;1m WORK \033[0m \033[36m${model}\033[0m"
+    else
+        out="\033[48;2;80;80;80m\033[97;1m DEFAULT \033[0m \033[36m${model}\033[0m"
+    fi
 fi
 
 if [ -n "$branch" ]; then
