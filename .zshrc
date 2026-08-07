@@ -119,3 +119,5 @@ fi
 export PATH="$HOME/.deno/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
+[[ -f "$HOME/Developer/dotfiles/.zshrc.local" ]] && source "$HOME/Developer/dotfiles/.zshrc.local"
+

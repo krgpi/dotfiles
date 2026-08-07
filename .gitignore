@@ -11,6 +11,7 @@
 
 # Local configurations (not to be shared)
 .claude/settings.local.json
+.zshrc.local
 
 # Environment files with secrets
 .env
