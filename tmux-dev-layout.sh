@@ -21,7 +21,7 @@ create_session() {
     if git -C "$work_dir" rev-parse --is-inside-work-tree &>/dev/null; then
         tmux send-keys -t "$lazygit_pane" 'lazygit' C-m
     fi
-    tmux send-keys -t "$claude_pane" 'claude' C-m
+    tmux send-keys -t "$claude_pane" "${TMUX_DEV_CLAUDE_CMD:-claude}" C-m
 
     tmux refresh-client -S 2>/dev/null || true
     echo "セッション '$session' を作成しました"
