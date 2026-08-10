@@ -264,7 +264,7 @@
   "effortLevel": "xhigh",
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
-  "editorMode": "vim",
+  "editorMode": "normal",
   "preferredNotifChannel": "iterm2_with_bell",
   "autoCompactEnabled": false,
   "remoteControlAtStartup": true,
