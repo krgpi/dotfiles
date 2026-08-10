@@ -159,7 +159,7 @@
       "/tmp"
     ]
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -206,6 +206,22 @@
           {
             "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh reset-lock"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_name' | { read -r t; case \"$t\" in *notion-fetch|*notion-get-comments|*notion-query-database-view|*notion-search) ;; *) printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"Notion書き込み操作は承認が必要です\"}}' ;; esac; }",
+            "if": "mcp__plugin_Notion_notion__*"
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_name' | { read -r t; case \"$t\" in *authenticate|*complete_authentication) ;; *) printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"Notion書き込み操作は承認が必要です\"}}' ;; esac; }",
+            "if": "mcp__claude_ai_Notion__*"
           }
         ]
       }
