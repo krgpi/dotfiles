@@ -9,7 +9,7 @@
     {
       "name": "karaage-tools",
       "source": "./karaage-tools",
-      "description": "ask-gemini, mk-pr, x-search, debug-ui, save-report, mail, vanta, triage-review コマンドと通知スクリプト"
+      "description": "ask-gemini, mk-pr, x-search, debug-ui, save-report, vanta, triage-review コマンドと通知スクリプト"
     }
   ]
 }
