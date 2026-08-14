@@ -11,7 +11,6 @@ fi
 setopt prompt_subst
 export PATH="$BREW_PREFIX/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
 export EDITOR="nvim"
-export ANTHROPIC_MODEL="claude-opus-4-6"
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' check-for-changes true
