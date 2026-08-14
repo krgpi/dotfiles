@@ -97,7 +97,9 @@ alias nv='nvim'
 if (( $+commands[brew] )); then
     alias bu='brew upgrade'
 fi
-alias dev="~/Developer/dotfiles/tmux-dev-layout.sh"
+dev() {
+    ~/Developer/dotfiles/tmux-dev-layout.sh "$@"
+}
 
 cd() {
     if [[ $# -eq 0 ]]; then
