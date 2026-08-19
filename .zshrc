@@ -53,6 +53,12 @@ PROMPT='%F{red}%*%f %F{cyan}%1~%f ${vcs_info_msg_0_}${_GIT_REMOTE_STATUS} %F{yel
 RPROMPT=''
 
 
+# 前回のバックグラウンド更新の結果を一度だけ表示する
+if [[ -f ~/.cache/dotfiles-update/summary ]]; then
+    cat ~/.cache/dotfiles-update/summary
+    rm -f ~/.cache/dotfiles-update/summary
+fi
+
 deferred_settings() {
     zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
@@ -83,6 +89,8 @@ deferred_settings() {
 
     [[ -f ~/Developer/fzf-tab/fzf-tab.plugin.zsh ]] && source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
     eval "$(mise activate zsh)"    
+
+    ~/Developer/dotfiles/dotfiles-update.sh &>/dev/null &!
 }
 
 zsh-defer deferred_settings
@@ -97,6 +105,7 @@ alias nv='nvim'
 if (( $+commands[brew] )); then
     alias bu='brew upgrade'
 fi
+alias up='~/Developer/dotfiles/dotfiles-update.sh --force'
 dev() {
     ~/Developer/dotfiles/tmux-dev-layout.sh "$@"
 }
