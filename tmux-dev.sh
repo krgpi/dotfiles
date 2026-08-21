@@ -19,7 +19,7 @@
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 SIDEBAR_SCRIPT="$DOTFILES_DIR/tmux-sidebar.sh"
-SIDEBAR_WIDTH="${TMUX_SIDEBAR_WIDTH:-28}"
+SIDEBAR_WIDTH="${TMUX_SIDEBAR_WIDTH:-36}"
 CLAUDE_CMD="${TMUX_DEV_CLAUDE_CMD:-claude}"
 EDITOR_CMD="${TMUX_DEV_EDITOR_CMD:-nvim .}"
 DEV_ROOTS="${TMUX_DEV_ROOTS:-$HOME/Developer}"
@@ -151,11 +151,9 @@ create_folder() {
         [ "$#" = "1" ] && [ "$(kind_of "$1")" = "unknown" ] && wins=""
     fi
 
-    if [ -z "$wins" ]; then
-        wins="claude1"
-        git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null && wins="$wins lg"
-        wins="$wins nv"
-    fi
+    # 既定は Claude 1 つと空のターミナル 2 つ。lazygit やエディタは
+    # 空のターミナルで好きに起動すればよく、サイドバーにはその中身が出る
+    [ -z "$wins" ] && wins="claude1 sh1 sh2"
 
     for name in $wins; do
         cmd="$(cmd_of "$(kind_of "$name")")"
