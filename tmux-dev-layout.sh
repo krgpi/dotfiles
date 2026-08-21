@@ -78,9 +78,12 @@ if [ -z "$1" ]; then
     fi
 
     # session_last_attached の降順に並べ、現在のセッションを除いた直近を選ぶ
-    target_session="$(tmux list-sessions -F '#{session_last_attached} #{session_name}' 2>/dev/null \
+    # 未アタッチのセッションでは session_last_attached が空になるため0として扱う
+    target_session="$(tmux list-sessions -F "#{session_last_attached}"$'\t'"#{session_name}" 2>/dev/null \
+        | awk -F'\t' -v cur="$current_session" '$2 != cur { printf "%d\t%s\n", $1, $2 }' \
         | sort -rn \
-        | awk -v cur="$current_session" '{ line=$0; sub(/^[0-9]+ /, "", line); if (line != cur) { print line; exit } }')"
+        | head -1 \
+        | cut -f2-)"
 
     if [ -z "$target_session" ]; then
         echo "アタッチできる既存セッションがありません（'dev .' で現在のディレクトリのセッションを作成できます）" >&2
@@ -108,9 +111,12 @@ else
 fi
 
 # 現在のセッションと異なる場合はアタッチ/切り替え
-current_session="$(tmux display-message -p '#{session_name}' 2>/dev/null)"
-if [ "$current_session" != "$session_name" ]; then
-    # attach-sessionを試行し、ネストエラー時はswitch-clientにフォールバック
-    tmux attach-session -t "$session_name" 2>/dev/null \
-        || tmux switch-client -t "$session_name"
+# tmux外では display-message が直近のセッション名を返すため、$TMUX で判定する
+if [ -n "$TMUX" ]; then
+    current_session="$(tmux display-message -p '#{session_name}' 2>/dev/null)"
+    if [ "$current_session" != "$session_name" ]; then
+        tmux switch-client -t "$session_name"
+    fi
+else
+    tmux attach-session -t "$session_name"
 fi
