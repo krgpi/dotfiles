@@ -33,9 +33,14 @@ sanitize() {
     printf '%s' "$1" | tr '.: ' '___'
 }
 
+# サイドバーを即座に描き直す
+# 画面に出ているのは今いるウィンドウのサイドバーだけなので、そこにだけシグナルを送る
+# （pkill で全部に送ると裏のウィンドウのぶんまで起きて無駄に重くなる）
 refresh_sidebar() {
-    # [t] のブラケットトリックで pkill が自分自身にマッチするのを防ぐ
-    pkill -USR1 -f "[t]mux-sidebar.sh" 2>/dev/null || true
+    local pid
+    pid="$(tmux list-panes -t "$(current_window)" -F '#{pane_pid}|#{@sidebar}' 2>/dev/null \
+        | awk -F'|' '$2 == "1" { print $1; exit }')"
+    [ -n "$pid" ] && kill -USR1 "$pid" 2>/dev/null
     tmux refresh-client -S 2>/dev/null || true
 }
 
@@ -275,25 +280,23 @@ cmd_fix_width() {
 
 # Claude ペインの未読を消す。既読ロックは idle_prompt の再発火を抑えるためのもので、
 # 次のプロンプト送信時に UserPromptSubmit フックがクリアする
+# 既読にできたときだけ 0 を返す（呼び出し側が再描画の要否を判断できるように）
 mark_read() {
     local pane="$1"
-    [ -f "/tmp/claude-waiting-${pane}" ] || return 0
+    [ -f "/tmp/claude-waiting-${pane}" ] || return 1
     rm -f "/tmp/claude-waiting-${pane}"
     touch "/tmp/claude-read-${pane}"
+    return 0
 }
 
-# after-select-pane フック: サイドバーからフォーカスを追い出しつつ Claude を既読にする
+# after-select-pane フック: Claude ペインを開いたら既読にする
+# （サイドバーからのフォーカス追い出しは .tmux.conf 側で tmux だけで済ませている）
+# 未読を消したときだけ描き直す。ただのペイン移動で起こすと再描画が頻繁すぎるので、
+# 表示の追従は 1 秒ポーリングに任せる
 cmd_on_select_pane() {
-    local pane="${1:-}" is_sidebar="${2:-}"
-
-    if [ "$is_sidebar" = "1" ]; then
-        tmux select-pane -t :.+ 2>/dev/null
-        return 0
-    fi
-
+    local pane="${1:-}"
     [ -n "$pane" ] || return 0
-    mark_read "$pane"
-    refresh_sidebar
+    mark_read "$pane" && refresh_sidebar
 }
 
 # after-select-window フック: 開いたセッション内の Claude をまとめて既読にする
@@ -305,6 +308,7 @@ cmd_on_select_window() {
     while IFS= read -r pane; do
         [ -n "$pane" ] && mark_read "$pane"
     done < <(tmux list-panes -t "$win" -F '#{pane_id}|#{@sidebar}' 2>/dev/null | awk -F'|' '$2 != "1" { print $1 }')
+    # セッションを移るとアクティブ表示が変わるので、こちらは常に描き直す
     refresh_sidebar
 }
 
@@ -420,7 +424,7 @@ case "${1:-}" in
     toggle-sidebar)  cmd_toggle_sidebar ;;
     ensure-sidebar)  ensure_sidebar "$2" ;;
     fix-width)       cmd_fix_width "$2" ;;
-    on-select-pane)  cmd_on_select_pane "$2" "$3" ;;
+    on-select-pane)  cmd_on_select_pane "$2" ;;
     on-select-window) cmd_on_select_window ;;
     sidebar-click)   cmd_sidebar_click "$2" ;;
     refresh)         refresh_sidebar ;;
