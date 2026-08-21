@@ -43,6 +43,9 @@ C_UNREAD="${ESC}[5;33;1m"
 C_IDLE="${ESC}[2m"
 C_HINT="${ESC}[2;37m"
 
+# 行頭で出して1行ぶん消す。画面を消してから書くと、その間サイドバーが真っ暗になる
+EL="${ESC}[K"
+
 printf '%s]2;sidebar%s\\' "$ESC" "$ESC"   # ペインタイトルを固定
 printf '%s[?25l' "$ESC"                    # カーソル非表示
 printf '%s[?7l' "$ESC"                     # 行の折り返しを止める（幅の計算がずれても崩さない）
@@ -186,7 +189,7 @@ render() {
 
         if [ "$sess" != "$prev_sess" ]; then
             if [ -n "$prev_sess" ]; then
-                buf="${buf}"$'\n'
+                buf="${buf}${EL}"$'\n'
                 row=$(( row + 1 ))
             fi
             prev_sess="$sess"
@@ -195,9 +198,9 @@ render() {
 
             trunc "$sess" $(( width - 4 ))
             if [ "$sess" = "$cur_session" ]; then
-                buf="${buf}${C_FOLDER_CUR} ${si} ${TRUNC}${C_RESET}"$'\n'
+                buf="${buf}${EL}${C_FOLDER_CUR} ${si} ${TRUNC}${C_RESET}"$'\n'
             else
-                buf="${buf}${C_FOLDER} ${si}${C_RESET}${C_DIM} ${TRUNC}${C_RESET}"$'\n'
+                buf="${buf}${EL}${C_FOLDER} ${si}${C_RESET}${C_DIM} ${TRUNC}${C_RESET}"$'\n'
             fi
             rows="${rows}${row}|s|${sess}"$'\n'
             row=$(( row + 1 ))
@@ -227,11 +230,11 @@ render() {
         printf -v pad_str "%${pad}s" ''
 
         if [ "$wid" = "$cur_window" ]; then
-            buf="${buf}${C_WIN_CUR}${label}${pad_str}${C_RESET}${right}"$'\n'
+            buf="${buf}${EL}${C_WIN_CUR}${label}${pad_str}${C_RESET}${right}"$'\n'
         elif [ "$sess" = "$cur_session" ]; then
-            buf="${buf}${label}${C_RESET}${pad_str}${right}"$'\n'
+            buf="${buf}${EL}${label}${C_RESET}${pad_str}${right}"$'\n'
         else
-            buf="${buf}${C_DIM}${label}${C_RESET}${pad_str}${right}"$'\n'
+            buf="${buf}${EL}${C_DIM}${label}${C_RESET}${pad_str}${right}"$'\n'
         fi
 
         rows="${rows}${row}|w|${wid}"$'\n'
@@ -240,15 +243,18 @@ render() {
 
     printf '%s' "$rows" > "${ROWS_FILE}.$$" 2>/dev/null && mv -f "${ROWS_FILE}.$$" "$ROWS_FILE" 2>/dev/null
 
+    # 行数が減ったときに下へ残る古い行を消す
+    buf="${buf}${ESC}[J"
+
     # フッタ（キーヒント）は下端に固定する。本文と重なる高さしかないときは出さない
     local footer_rows=4 sep
     if [ "$row" -lt $(( height - footer_rows )) ]; then
         printf -v sep "%${width}s" ''
         sep="${sep// /-}"
-        buf="${buf}${ESC}[$(( height - footer_rows + 1 ));1H${C_HINT}${sep}${C_RESET}"$'\n'
-        buf="${buf}${C_HINT} 1-9 folder / then N win${C_RESET}"$'\n'
-        buf="${buf}${C_HINT} c claude  t term  g lg${C_RESET}"$'\n'
-        buf="${buf}${C_HINT} e editor  o open  x kill${C_RESET}"
+        buf="${buf}${ESC}[$(( height - footer_rows + 1 ));1H${EL}${C_HINT}${sep}${C_RESET}"$'\n'
+        buf="${buf}${EL}${C_HINT} 1-9 folder / then N win${C_RESET}"$'\n'
+        buf="${buf}${EL}${C_HINT} c claude  t term  g lg${C_RESET}"$'\n'
+        buf="${buf}${EL}${C_HINT} e editor  o open  x kill${C_RESET}"
     fi
 
     RENDERED="$buf"
@@ -262,13 +268,13 @@ while :; do
         RENDERED=""
         render
         if [ -n "$RENDERED" ] && [ "$RENDERED" != "$last" ]; then
-            printf '%s[H%s[2J%s' "$ESC" "$ESC" "$RENDERED"
+            printf '%s[H%s' "$ESC" "$RENDERED"
             last="$RENDERED"
         fi
         read -t 1 -n 1 _discard 2>/dev/null
     else
-        # 画面に出ていないので描画しない。次にアクティブになったとき必ず描き直す
-        last=""
+        # 画面に出ていないので描画しない。tmux がペインの内容を持っているので
+        # last は捨てず、次にアクティブになったとき変化ぶんだけ書き直す
         read -t 2 -n 1 _discard 2>/dev/null
     fi
 done
