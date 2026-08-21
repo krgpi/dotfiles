@@ -131,5 +131,7 @@ fi
 export PATH="$HOME/.deno/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
+[[ -f "$HOME/.orbstack/shell/init.zsh" ]] && source "$HOME/.orbstack/shell/init.zsh"
+
 [[ -f "$HOME/Developer/dotfiles/.zshrc.local" ]] && source "$HOME/Developer/dotfiles/.zshrc.local"
 
