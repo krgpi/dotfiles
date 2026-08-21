@@ -107,7 +107,7 @@ if (( $+commands[brew] )); then
 fi
 alias up='~/Developer/dotfiles/dotfiles-update.sh --force'
 dev() {
-    ~/Developer/dotfiles/tmux-dev-layout.sh "$@"
+    ~/Developer/dotfiles/tmux-dev.sh "$@"
 }
 
 cd() {

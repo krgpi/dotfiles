@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ペイン切り替えバーのクリック位置からペインを切り替える
-# tmux-status-click.sh（ディスパッチャ）から mouse_x を受け取って呼ばれる
+# ステータスバー2行目のクリックから mouse_x を受け取って呼ばれる
 # 使い方: tmux-click-pane.sh <mouse_x>
 
 mouse_x="${1:-}"
@@ -10,7 +10,7 @@ mouse_x="${1:-}"
 posfile="/tmp/tmux-pane-positions"
 [ -f "$posfile" ] || exit 1
 
-WIDTH_THRESHOLD=100  # tmux-responsive-layout.sh と揃える
+WIDTH_THRESHOLD=120  # tmux-responsive-layout.sh と揃える
 
 while IFS='|' read -r pane_id start end; do
   [ -z "$pane_id" ] && continue
