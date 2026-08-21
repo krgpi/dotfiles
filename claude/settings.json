@@ -154,12 +154,12 @@
       "Bash(gws chat +send:*)"
     ],
     "ask": [],
-    "defaultMode": "acceptEdits",
+    "defaultMode": "auto",
     "additionalDirectories": [
       "/tmp"
     ]
   },
-  "model": "opus-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -264,13 +264,13 @@
   "effortLevel": "xhigh",
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
+  "theme": "dark",
   "editorMode": "normal",
   "preferredNotifChannel": "iterm2_with_bell",
   "autoCompactEnabled": false,
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
   }
