@@ -25,7 +25,9 @@ CLAUDE_IDLE='Claude Code'
 
 # SIGUSR1 のハンドラは何よりも先に張る
 # （既定の動作はプロセス終了なので、起動直後に再描画シグナルが飛んでくると死んでしまう）
-trap ':' USR1
+# WINCH も拾う。まだ表示していないウィンドウは 80x24 のままなので、初めて開いた
+# 瞬間にクライアントの大きさへ伸びる。すぐ描き直さないと増えた行が空で残る
+trap ':' USR1 WINCH
 
 # 自ペインをサイドバーとして識別できるようにする
 # @sidebar: ペイン単位（フォーカス追い出し判定用）
@@ -262,7 +264,10 @@ render() {
 
 last=""
 while :; do
-    if [ "$(tmux display-message -p -t "$TMUX_PANE" '#{window_active}' 2>/dev/null)" = "1" ]; then
+    # 画面に出ていないウィンドウでも、まだ何も描いていないうちは描いておく。
+    # 空のまま置くと、そのウィンドウを初めて開いた瞬間サイドバーが真っ暗に見える
+    if [ -z "$last" ] \
+        || [ "$(tmux display-message -p -t "$TMUX_PANE" '#{window_active}' 2>/dev/null)" = "1" ]; then
         DATA="$(tmux list-panes -a -F \
             '#{session_name}|#{window_id}|#{window_name}|#{pane_id}|#{pane_current_command}|#{@sidebar}|#{pane_active}|#{pane_title}' 2>/dev/null)"
         RENDERED=""
