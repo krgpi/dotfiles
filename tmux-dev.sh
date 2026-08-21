@@ -10,7 +10,9 @@
 # 使い方:
 #   dev              直近に使っていたフォルダへ戻る
 #   dev <path>       フォルダを開く（無ければ作る）
-#   dev restart      全フォルダを保存してから tmux を再起動し、同じ構成で復元する
+#   dev restart      tmux 設定とサイドバーを読み直す（作業中のペインはそのまま）
+#   dev restart --full
+#                    全フォルダを保存してから tmux を再起動し、同じ構成で復元する
 #   dev pick         fzf でフォルダを選んで開く（prefix + o のポップアップから呼ばれる）
 #
 # 以下は .tmux.conf のキーバインド/フックから呼ばれる内部サブコマンド:
@@ -338,7 +340,36 @@ cmd_pick() {
     TMUX_DEV_ROOTS="$DEV_ROOTS" ZDOTDIR="$DOTFILES_DIR/dev-pick" exec zsh -i
 }
 
+# ガワ（tmux 設定とサイドバー）だけ読み直す。作業ペインには触らないので
+# Claude や nvim は動いたまま。構成から作り直したいときは --full
 cmd_restart() {
+    local win pane
+
+    if [ "${1:-}" = "--full" ]; then
+        cmd_rebuild
+        return
+    fi
+
+    if ! tmux has-session 2>/dev/null; then
+        echo "エラー: tmux が起動していません" >&2
+        return 1
+    fi
+
+    tmux source-file "$HOME/.tmux.conf" 2>/dev/null
+
+    # サイドバーはスクリプトを書き換えても走り続けるので、ペインごと入れ替える
+    while IFS= read -r win; do
+        pane="$(sidebar_pane "$win")"
+        [ -n "$pane" ] && tmux kill-pane -t "$pane"
+        ensure_sidebar "$win"
+    done < <(tmux list-windows -a -F '#{window_id}' 2>/dev/null)
+
+    "$DOTFILES_DIR/tmux-responsive-layout.sh" 2>/dev/null
+
+    echo "設定とサイドバーを読み直しました"
+}
+
+cmd_rebuild() {
     local session path wins dir
 
     : > "$STATE_FILE"
@@ -360,7 +391,7 @@ cmd_restart() {
 
     # tmux 内から実行された場合は detach して元のシェルに制御を戻し、そこで再実行する
     if [ -n "$TMUX" ]; then
-        tmux detach-client -E "exec '$DOTFILES_DIR/tmux-dev.sh' restart"
+        tmux detach-client -E "exec '$DOTFILES_DIR/tmux-dev.sh' restart --full"
         return 0
     fi
 
@@ -413,7 +444,7 @@ cmd_last() {
 
 case "${1:-}" in
     '')              cmd_last ;;
-    restart)         cmd_restart ;;
+    restart)         cmd_restart "$2" ;;
     pick)            cmd_pick ;;
     new)             cmd_new "$2" ;;
     jump-folder)     cmd_jump_folder "$2" ;;

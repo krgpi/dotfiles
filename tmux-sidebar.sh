@@ -99,14 +99,15 @@ trunc() {
 #   出力: <フォルダ名>|<window_id>|<state>|<表示ラベル>
 #   state: ! = 未読、. = 動作中/既読、空 = Claude なし
 #
-# 表示ラベルは「そこで何が動いているか」:
-#   Claude Code はペインタイトルの ✳ に続く作業概要、それ以外はアクティブペインの
-#   コマンド名（シェルのままなら dev が付けたウィンドウ名）
+# 表示ラベルは「そこで何が動いているか」。ウィンドウ名（claude1, sh1 …）は出さない:
+#   Claude Code はペインタイトルの ✳ に続く作業概要、まだ何もしていなければ claude、
+#   それ以外はアクティブペインのコマンド名（シェルのままなら zsh）
 #
 # Claude Code はプロセス名がバージョン番号（例 2.1.238）になるため
 # pane_current_command では判別できない。タイトル頭の ✳ で見分ける
 summarize() {
     printf '%s\n' "$DATA" | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v waiting="$WAITING" '
+    BEGIN { shell = "^(sh|bash|zsh|fish|login)$" }
     $6 == "1" { next }   # サイドバー自身は並べない
     {
         title = $8
@@ -123,10 +124,14 @@ summarize() {
             acmd[wid] = ""
         }
 
-        if (index(waiting, " " $4 " ") > 0) state[wid] = "!"
+        # Claude を抜けたあともペインタイトルの ✳ が残ることがあるので、
+        # シェルに戻っているペインは動いていないものとして扱う
+        alive = ($5 !~ shell)
+
+        if (alive && index(waiting, " " $4 " ") > 0) state[wid] = "!"
 
         t = title
-        if (sub("^" mark " ", "", t)) {
+        if (alive && sub("^" mark " ", "", t)) {
             if (state[wid] != "!") state[wid] = "."
             if (t != idle && summary[wid] == "") summary[wid] = t
         }
@@ -137,14 +142,18 @@ summarize() {
         for (i = 1; i <= n; i++) {
             wid = order[i]
             # 起動直後などタイトルがまだ出ていないこともあるので、dev が付けた名前も見る
-            if (state[wid] == "" && wname[wid] ~ /^claude/) state[wid] = "."
+            # （ただしシェルに戻っていれば Claude は終了しているので補わない）
+            if (state[wid] == "" && wname[wid] ~ /^claude/ && acmd[wid] != "" && acmd[wid] !~ shell) state[wid] = "."
 
-            label = wname[wid]
             if (summary[wid] != "") {
                 label = summary[wid]
-            } else if (state[wid] == "") {
-                c = acmd[wid]
-                if (c != "" && c !~ /^(sh|bash|zsh|fish|login)$/) label = c
+            } else if (state[wid] != "") {
+                # Claude Code はプロセス名がバージョン番号になるので名前で出す
+                label = "claude"
+            } else if (acmd[wid] != "") {
+                label = acmd[wid]
+            } else {
+                label = wname[wid]
             }
             print wsess[wid] "|" wid "|" state[wid] "|" label
         }
