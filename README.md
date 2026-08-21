@@ -59,7 +59,7 @@ claude /plugin marketplace add ./claude-marketplace
 `dev` は tmux 上に「フォルダ → セッション」の2階層で開発環境を組み立てる。左端には全フォルダ・全セッションを一覧するサイドバーが常駐する。
 
 ```sh
-dev ~/Developer/myapp   # フォルダを開く（claude1 / lg / nv が立ち上がる）
+dev ~/Developer/myapp   # フォルダを開く（claude1 と空のターミナル2つ）
 dev                     # 直近に使っていたフォルダへ戻る
 dev restart             # 全フォルダを同じ構成で作り直す
 ```
@@ -80,4 +80,4 @@ dev restart             # 全フォルダを同じ構成で作り直す
 | `TMUX_DEV_ROOTS` | `~/Developer` | `prefix o` で候補にするディレクトリ（`:` 区切りで複数指定可） |
 | `TMUX_DEV_CLAUDE_CMD` | `claude` | `claudeN` セッションで起動するコマンド |
 | `TMUX_DEV_EDITOR_CMD` | `nvim .` | `nv` セッションで起動するコマンド |
-| `TMUX_SIDEBAR_WIDTH` | `28` | サイドバーの幅（カラム数） |
+| `TMUX_SIDEBAR_WIDTH` | `36` | サイドバーの幅（カラム数） |
