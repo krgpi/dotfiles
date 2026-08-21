@@ -154,12 +154,12 @@
       "Bash(gws chat +send:*)"
     ],
     "ask": [],
-    "defaultMode": "acceptEdits",
+    "defaultMode": "auto",
     "additionalDirectories": [
       "/tmp"
     ]
   },
-  "model": "opus-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -250,7 +250,8 @@
     "swift-lsp@claude-plugins-official": true,
     "stripe@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "bento-slides@bento": true
+    "bento-slides@bento": true,
+    "kagisuru-tools@ideoj": true
   },
   "extraKnownMarketplaces": {
     "bento": {
@@ -258,19 +259,25 @@
         "source": "github",
         "repo": "nyblnet/bento"
       }
+    },
+    "ideoj": {
+      "source": {
+        "source": "github",
+        "repo": "ideoj/claude-plugins"
+      }
     }
   },
   "language": "Japanese",
   "effortLevel": "xhigh",
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
+  "theme": "dark",
   "editorMode": "normal",
   "preferredNotifChannel": "iterm2_with_bell",
   "autoCompactEnabled": false,
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754114821400
   }
