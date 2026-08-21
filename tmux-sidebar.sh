@@ -11,10 +11,20 @@
 # 幅の計算やパディングでコマンド置換を使うと、1 文字ごとに fork が走って
 # 描画が数百 ms 単位で重くなるため、これらはグローバル変数で値を返している。
 #
+# フォルダ名の右にはそのフォルダの git 状態（ブランチと変更ファイル数）を出す。
+# git status を定期的に回すことはしない。Claude のステータスや未読が変われば
+# 表示が動くので、そのついでに自分のフォルダのぶんだけバックグラウンドで数え直す。
+# 結果はファイルに置き、描画側は読むだけなので status が遅くてもサイドバーは止まらない。
+#
 # クリック判定用の行マップ（行番号|種別|対象）を /tmp/tmux-sidebar-rows に書き出す
 # （tmux-dev.sh sidebar-click が参照する）
 
 ROWS_FILE="/tmp/tmux-sidebar-rows"
+
+# フォルダごとの git 状態（"<ブランチ>|<変更ファイル数>"）を 1 ファイルずつ置く
+GIT_DIR="/tmp/tmux-sidebar-git"
+# 表示が続けて動くあいだ、git status を回す間隔の下限（秒）
+GIT_MIN_INTERVAL=3
 
 # Claude Code がペインタイトルの頭に付けるマーク（"✳ 作業概要" の形で出る）
 CLAUDE_MARK='✳'
@@ -27,7 +37,9 @@ CLAUDE_IDLE='Claude Code'
 # （既定の動作はプロセス終了なので、起動直後に再描画シグナルが飛んでくると死んでしまう）
 # WINCH も拾う。まだ表示していないウィンドウは 80x24 のままなので、初めて開いた
 # 瞬間にクライアントの大きさへ伸びる。すぐ描き直さないと増えた行が空で残る
-trap ':' USR1 WINCH
+# USR1 は再描画要求でもあるので、git もこのタイミングで数え直す
+trap 'GIT_DUE=1' USR1
+trap ':' WINCH
 
 # 自ペインをサイドバーとして識別できるようにする
 # @sidebar: ペイン単位（フォーカス追い出し判定用）
@@ -44,6 +56,8 @@ C_WIN_CUR="${ESC}[48;5;238m${ESC}[36;1m"
 C_UNREAD="${ESC}[5;33;1m"
 C_IDLE="${ESC}[2m"
 C_HINT="${ESC}[2;37m"
+C_GIT="${ESC}[2;36m"
+C_GIT_DIRTY="${ESC}[33m"
 
 # 行頭で出して1行ぶん消す。画面を消してから書くと、その間サイドバーが真っ暗になる
 EL="${ESC}[K"
@@ -54,6 +68,13 @@ printf '%s[?7l' "$ESC"                     # 行の折り返しを止める（�
 printf '%s[?1000l%s[?1002l%s[?1003l%s[?1006l' "$ESC" "$ESC" "$ESC" "$ESC"  # マウスレポート無効
 
 trap 'printf "%s[?25h%s[?7h" "$ESC" "$ESC"' EXIT
+
+mkdir -p "$GIT_DIR" 2>/dev/null
+GIT_DUE=1
+GIT_AT=$(( 0 - GIT_MIN_INTERVAL ))
+GIT_PID=""
+GIT_KEYS=()
+GIT_VALS=()
 
 # 以下 3 つは戻り値をグローバル変数に置く（$() を使うと 1 文字ごとに fork してしまうため）
 
@@ -98,6 +119,111 @@ trunc() {
         w=$(( w + CHAR_W ))
     done
     TRUNC="$s"
+}
+
+# 自分のフォルダの git 状態を数えてキャッシュへ書く（バックグラウンドで呼ぶ）
+# 各サイドバーは自分のフォルダのぶんしか見ないので、フォルダをまたいで重複実行にならない
+update_git() {
+    local dir="$1" out="$2" line branch="" dirty=0
+    while IFS= read -r line; do
+        case "$line" in
+            '## No commits yet on '*) branch="${line#\#\# No commits yet on }" ;;
+            '## '*)
+                branch="${line#\#\# }"
+                branch="${branch%% *}"
+                branch="${branch%%'...'*}"
+                ;;
+            '') ;;
+            *) dirty=$(( dirty + 1 )) ;;
+        esac
+    done < <(git -C "$dir" --no-optional-locks status --porcelain -b -unormal 2>/dev/null)
+
+    if [ -n "$branch" ]; then
+        printf '%s|%s\n' "$branch" "$dirty" > "$out.tmp" 2>/dev/null && mv -f "$out.tmp" "$out" 2>/dev/null
+    else
+        rm -f "$out" 2>/dev/null
+    fi
+}
+
+# git を数え直すのは「サイドバーの表示が動いたついで」だけ。
+# Claude のステータス（✳ のタイトルや未読）が変われば描画が変わるので、そこに相乗りする。
+# 何も起きていないあいだは git status を1回も走らせない
+maybe_update_git() {
+    [ "$GIT_DUE" = "1" ] || return
+    [ "$WIN_ACTIVE" = "1" ] || return
+    [ -d "$SESS_PATH" ] || return
+    # 変化が続いているあいだ毎秒走らせない
+    [ $(( SECONDS - GIT_AT )) -ge "$GIT_MIN_INTERVAL" ] || return
+    [ -n "$GIT_PID" ] && kill -0 "$GIT_PID" 2>/dev/null && return
+
+    GIT_DUE=0
+    GIT_AT=$SECONDS
+    # 子で EXIT トラップを外す（親のカーソル復帰がサイドバーへ流れてしまうため）
+    ( trap - EXIT; update_git "$SESS_PATH" "$GIT_DIR/${CUR_SESSION//\//_}" ) &
+    GIT_PID=$!
+}
+
+# キャッシュを読み込む（glob と read だけなのでプロセスは起きない）
+load_git() {
+    local f line
+    GIT_KEYS=()
+    GIT_VALS=()
+    for f in "$GIT_DIR"/*; do
+        [ -f "$f" ] || continue
+        line=""
+        IFS= read -r line < "$f" 2>/dev/null
+        [ -n "$line" ] || continue
+        GIT_KEYS+=("${f##*/}")
+        GIT_VALS+=("$line")
+    done
+}
+
+# フォルダ行の右に出す git 表示を組む（フォルダ名と合わせて表示幅 max に収める）
+#   GIT_PLAIN   幅の計算用
+#   GIT_COLORED 実際に出す色付きの文字列
+# 幅が足りないときはブランチ名から削る。変更ファイル数は最後まで残す
+git_parts() {
+    local sess="$1" max="$2" i info branch dirty dtext dw bmax
+    GIT_PLAIN=""
+    GIT_COLORED=""
+
+    info=""
+    for (( i = 0; i < ${#GIT_KEYS[@]}; i++ )); do
+        [ "${GIT_KEYS[i]}" = "$sess" ] || continue
+        info="${GIT_VALS[i]}"
+        break
+    done
+    [ -n "$info" ] || return
+
+    branch="${info%%|*}"
+    dirty="${info##*|}"
+    dtext=""
+    case "$dirty" in '' | 0 | *[!0-9]*) ;; *) dtext="*${dirty}" ;; esac
+    str_width "$dtext"
+    dw=$STR_W
+
+    # フォルダ名に最低 8 幅は残す
+    max=$(( max - 9 ))
+    [ "$max" -gt 16 ] && max=16
+    [ "$max" -lt "$dw" ] && return
+
+    bmax=$(( max - dw ))
+    [ "$dw" -gt 0 ] && bmax=$(( bmax - 1 ))
+    if [ "$bmax" -ge 3 ]; then
+        trunc "$branch" "$bmax"
+        branch="$TRUNC"
+    else
+        branch=""
+    fi
+
+    if [ -n "$branch" ]; then
+        GIT_PLAIN="$branch"
+        GIT_COLORED="${C_GIT}${branch}${C_RESET}"
+    fi
+    if [ -n "$dtext" ]; then
+        GIT_PLAIN="${GIT_PLAIN:+$GIT_PLAIN }${dtext}"
+        GIT_COLORED="${GIT_COLORED:+$GIT_COLORED }${C_GIT_DIRTY}${dtext}${C_RESET}"
+    fi
 }
 
 # tmux から取ったペイン一覧を、セッション（ウィンドウ）ごとの 1 行にまとめる
@@ -166,10 +292,12 @@ summarize() {
 }
 
 render() {
-    local cur_session cur_window width height
-    IFS='|' read -r cur_session cur_window width height < <(
+    local cur_window width height
+    # session_path は | を含みうるので最後に置く（read が残り全部を受ける）
+    # フォルダ名・パス・アクティブ判定は git の更新でも使うのでグローバルに置く
+    IFS='|' read -r CUR_SESSION cur_window width height WIN_ACTIVE SESS_PATH < <(
         tmux display-message -p -t "$TMUX_PANE" \
-            '#{session_name}|#{window_id}|#{pane_width}|#{pane_height}' 2>/dev/null
+            '#{session_name}|#{window_id}|#{pane_width}|#{pane_height}|#{window_active}|#{session_path}' 2>/dev/null
     )
     [ -n "$cur_window" ] || return 1
     case "$width" in '' | *[!0-9]*) width=36 ;; esac
@@ -183,8 +311,10 @@ render() {
         WAITING="${WAITING}${f#/tmp/claude-waiting-} "
     done
 
+    load_git
+
     local buf="" rows="" row=0 si=0 wi=0 prev_sess=""
-    local sess wid state label head avail mark right pad pad_str
+    local sess wid state label head avail mark right pad pad_str name gw
 
     while IFS='|' read -r sess wid state label; do
         [ -n "$wid" ] || continue
@@ -198,11 +328,30 @@ render() {
             si=$(( si + 1 ))
             wi=0
 
-            trunc "$sess" $(( width - 4 ))
-            if [ "$sess" = "$cur_session" ]; then
-                buf="${buf}${EL}${C_FOLDER_CUR} ${si} ${TRUNC}${C_RESET}"$'\n'
+            # フォルダ名の右端に git（ブランチと変更ファイル数）を右寄せで置く。
+            # セッション行の ○ と列を揃えたいので、こちらは最終列まで使う
+            avail=$(( width - ${#si} - 2 ))
+            git_parts "$sess" "$avail"
+            str_width "$GIT_PLAIN"
+            gw=$STR_W
+
+            pad_str=""
+            if [ "$gw" -gt 0 ]; then
+                trunc "$sess" $(( avail - gw - 1 ))
+                name="$TRUNC"
+                str_width "$name"
+                pad=$(( avail - STR_W - gw ))
+                [ "$pad" -lt 1 ] && pad=1
+                printf -v pad_str "%${pad}s" ''
             else
-                buf="${buf}${EL}${C_FOLDER} ${si}${C_RESET}${C_DIM} ${TRUNC}${C_RESET}"$'\n'
+                trunc "$sess" $(( avail - 1 ))
+                name="$TRUNC"
+            fi
+
+            if [ "$sess" = "$CUR_SESSION" ]; then
+                buf="${buf}${EL}${C_FOLDER_CUR} ${si} ${name}${C_RESET}${pad_str}${GIT_COLORED}"$'\n'
+            else
+                buf="${buf}${EL}${C_FOLDER} ${si}${C_RESET}${C_DIM} ${name}${C_RESET}${pad_str}${GIT_COLORED}"$'\n'
             fi
             rows="${rows}${row}|s|${sess}"$'\n'
             row=$(( row + 1 ))
@@ -233,7 +382,7 @@ render() {
 
         if [ "$wid" = "$cur_window" ]; then
             buf="${buf}${EL}${C_WIN_CUR}${label}${pad_str}${C_RESET}${right}"$'\n'
-        elif [ "$sess" = "$cur_session" ]; then
+        elif [ "$sess" = "$CUR_SESSION" ]; then
             buf="${buf}${EL}${label}${C_RESET}${pad_str}${right}"$'\n'
         else
             buf="${buf}${EL}${C_DIM}${label}${C_RESET}${pad_str}${right}"$'\n'
@@ -275,7 +424,10 @@ while :; do
         if [ -n "$RENDERED" ] && [ "$RENDERED" != "$last" ]; then
             printf '%s[H%s' "$ESC" "$RENDERED"
             last="$RENDERED"
+            # 表示が動いた = Claude のステータスなどが変わった。そのついでに git を数え直す
+            GIT_DUE=1
         fi
+        maybe_update_git
         read -t 1 -n 1 _discard 2>/dev/null
     else
         # 画面に出ていないので描画しない。tmux がペインの内容を持っているので
