@@ -295,10 +295,13 @@ mark_read() {
 # （サイドバーからのフォーカス追い出しは .tmux.conf 側で tmux だけで済ませている）
 # 未読を消したときだけ描き直す。ただのペイン移動で起こすと再描画が頻繁すぎるので、
 # 表示の追従は 1 秒ポーリングに任せる
+# 既読にできなかったときも 0 で返す。run-shell は非ゼロを失敗とみなして
+# 「returned 1」をペインに出してしまう
 cmd_on_select_pane() {
     local pane="${1:-}"
     [ -n "$pane" ] || return 0
     mark_read "$pane" && refresh_sidebar
+    return 0
 }
 
 # after-select-window フック: 開いたセッション内の Claude をまとめて既読にする
