@@ -32,6 +32,8 @@ yabai -m config window_gap                   06
 
 # 管理対象から外すアプリ
 yabai -m rule --add app="^DeskStick$" manage=off
+# 末尾の " - " で Bitwarden Web Vault のタブを開いたウィンドウを巻き込まないようにする
+yabai -m rule --add app="^Google Chrome$" title="^Bitwarden - " manage=off
 
 # タイル1枚のときだけ左右に余白を作る
 yabai -m signal --add event=window_created action="$HOME/Developer/dotfiles/yabai-solo-padding.sh"
