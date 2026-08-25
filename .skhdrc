@@ -1,19 +1,15 @@
 
-# focus window
-alt - x : yabai -m window --focus recent
-alt - h : yabai -m window --focus west
-alt - j : yabai -m window --focus south
-alt - k : yabai -m window --focus north
-alt - l : yabai -m window --focus east
-alt - z : yabai -m window --focus stack.prev
-alt - c : yabai -m window --focus stack.next
+# resize window（タイルでもフロートでも同じキーで効く。hjkl が動かす辺、shift で拡大方向）
+# 指定した辺が画面端で動かせないときは、同じ結果になる向きに反対の辺を動かす
+alt - h : yabai -m window --resize left:20:0 2>/dev/null || yabai -m window --resize right:-20:0
+alt - j : yabai -m window --resize bottom:0:-20 2>/dev/null || yabai -m window --resize top:0:20
+alt - k : yabai -m window --resize top:0:20 2>/dev/null || yabai -m window --resize bottom:0:-20
+alt - l : yabai -m window --resize right:-20:0 2>/dev/null || yabai -m window --resize left:20:0
 
-# swap window
-shift + alt - x : yabai -m window --swap recent
-shift + alt - h : yabai -m window --swap west
-shift + alt - j : yabai -m window --swap south
-shift + alt - k : yabai -m window --swap north
-shift + alt - l : yabai -m window --swap east
+shift + alt - h : yabai -m window --resize left:-20:0 2>/dev/null || yabai -m window --resize right:20:0
+shift + alt - j : yabai -m window --resize bottom:0:20 2>/dev/null || yabai -m window --resize top:0:-20
+shift + alt - k : yabai -m window --resize top:0:-20 2>/dev/null || yabai -m window --resize bottom:0:20
+shift + alt - l : yabai -m window --resize right:20:0 2>/dev/null || yabai -m window --resize left:-20:0
 
 # move window
 shift + cmd - h : yabai -m window --warp west
@@ -27,18 +23,6 @@ shift + ctrl - s : yabai -m window --move rel:0:20
 shift + ctrl - w : yabai -m window --move rel:0:-20
 shift + ctrl - d : yabai -m window --move rel:20:0
 
-# increase window size
-shift + alt - a : yabai -m window --resize left:-20:0
-shift + alt - s : yabai -m window --resize bottom:0:20
-shift + alt - w : yabai -m window --resize top:0:-20
-shift + alt - d : yabai -m window --resize right:20:0
-
-# decrease window size
-shift + cmd - a : yabai -m window --resize left:20:0
-shift + cmd - s : yabai -m window --resize bottom:0:-20
-shift + cmd - w : yabai -m window --resize top:0:20
-shift + cmd - d : yabai -m window --resize right:-20:0
-
 # rotate tree
 alt - r : yabai -m space --rotate 90
 
@@ -46,7 +30,7 @@ alt - r : yabai -m space --rotate 90
 alt - y : yabai -m space --mirror y-axis
 
 # mirror tree x-axis
-alt - x : yabai -m space --mirror x-axis
+alt - m : yabai -m space --mirror x-axis
 
 # toggle desktop offset
 alt - a : yabai -m space --toggle padding && yabai -m space --toggle gap
@@ -62,5 +46,12 @@ alt - e : yabai -m window --toggle split
 
 # float / unfloat window and restore position
 # alt - t : yabai -m window --toggle float && /tmp/yabai-restore/$(yabai -m query --windows --window | jq -re '.id').restore 2>/dev/null || true
-alt - t : yabai -m window --toggle float && yabai -m window --grid 4:4:1:1:2:2
+alt - t : yabai -m window --toggle float
+
+# フロートウィンドウの大きさを整える（高さはディスプレイいっぱい、幅は12分割）
+ctrl + alt - h : ~/Developer/dotfiles/yabai-float-size.sh narrower
+ctrl + alt - l : ~/Developer/dotfiles/yabai-float-size.sh wider
+ctrl + alt - k : ~/Developer/dotfiles/yabai-float-size.sh height
+ctrl + alt - c : ~/Developer/dotfiles/yabai-float-size.sh half
+ctrl + alt - f : ~/Developer/dotfiles/yabai-float-size.sh full
 

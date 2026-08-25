@@ -42,7 +42,7 @@ sudo apt update && xargs -a ~/Developer/dotfiles/Aptfile sudo apt install -y
 - **Claude Code** (`claude/`): グローバル設定・カスタムコマンド（ask-gemini, mk-pr, x-search）・hooks（tmux未読通知, Prettier自動整形, ccusage）
 - **自動更新** (`dotfiles-update.sh`): 1日1回、ターミナル起動時に zsh-defer 経由でバックグラウンド実行。`brew update` + `brew upgrade --formula` と fzf-tab / zsh-defer の `git pull` を行う。cask は起動中アプリの差し替えを避けるため件数通知のみ。結果は次回のターミナル起動時に一度だけ表示される。`up` で即時実行でき、その場に結果を出力する。実行履歴（更新されたコミット一覧を含む）は `~/.cache/dotfiles-update/last.log` に追記される（直近500行を保持）
 - **tmux** (`.tmux.conf`): vim風キーバインド。`tmux-dev.sh`（`dev` コマンド）が開発環境を構築し、`tmux-sidebar.sh` が左端の常駐サイドバーを描画する
-- **yabai / skhd** (`.yabairc`, `.skhdrc`): macOS のタイル型ウィンドウマネージャとホットキーデーモン。macOS でのみリンクする。`.yabairc` は yabai が起動時に実行するので実行権限が必要
+- **yabai / skhd** (`.yabairc`, `.skhdrc`): macOS のタイル型ウィンドウマネージャとホットキーデーモン。macOS でのみリンクする。`.yabairc` は yabai が起動時に実行するので実行権限が必要。タイル中のウィンドウが1枚だけのときは `yabai-solo-padding.sh` が signal 経由で左右に余白を足す（上限幅は `YABAI_SOLO_MAX_WIDTH`、既定 1600）。ウィンドウのリサイズは `alt + hjkl`（shift で拡大方向）に集約してあり、タイルでもフロートでも同じキーで効く。フロート時に幅を段階で決めたいときは `ctrl + alt` のキーから `yabai-float-size.sh` を呼ぶ
 
 ### tmux × Claude Code 並列運用
 
