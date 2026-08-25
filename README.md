@@ -54,6 +54,14 @@ claude /plugin marketplace add ./claude-marketplace
 | `XAI_API_KEY`    | Claude Code の `/x-search` コマンド (Grok API) | [xAI Console](https://console.x.ai/)             |
 | `X_BEARER_TOKEN` | Claude Code の `/x-search` コマンド (X API v2) | [X Developer Portal](https://developer.x.com/)   |
 
+### 9. macOS のシステム設定（macOS のみ）
+
+```sh
+~/Developer/dotfiles/macos.sh
+```
+
+Dock・Finder・トラックパッド・スクリーンショットなどの `defaults` を一括で適用する。何度実行しても同じ結果になる。一部の設定は再ログイン後に反映される。
+
 ## 開発環境（dev コマンド）
 
 `dev` は tmux 上に「フォルダ → セッション」の2階層で開発環境を組み立てる。左端には全フォルダ・全セッションを一覧するサイドバーが常駐する。

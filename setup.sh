@@ -48,6 +48,13 @@ fi
 echo ""
 echo "Done! Dotfiles setup complete."
 
+if [[ "$OS" == "Darwin" ]]; then
+    echo ""
+    echo "=== macOS System Preferences ==="
+    echo "以下のコマンドで defaults を一括適用できます:"
+    echo "  $DOTFILES_DIR/macos.sh"
+fi
+
 if [[ "$OS" == "Linux" ]]; then
     echo ""
     echo "=== Ubuntu Package Setup ==="
