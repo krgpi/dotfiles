@@ -265,6 +265,12 @@
         "source": "github",
         "repo": "ideoj/claude-plugins"
       }
+    },
+    "karaage-dotfiles": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/yuki/Developer/dotfiles/claude-marketplace"
+      }
     }
   },
   "language": "Japanese",
