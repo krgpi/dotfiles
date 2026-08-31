@@ -1,6 +1,6 @@
 {
   "name": "karaage-tools",
-  "description": "個人用コマンド（ask-gemini, mk-pr, x-search, debug-ui, save-report, vanta, triage-review, review-pr）と通知スクリプト",
+  "description": "個人用コマンド（ask-gemini, mk-pr, x-search, debug-ui, save-report, triage-review, review-pr）と通知スクリプト",
   "author": {
     "name": "karaage"
   }
