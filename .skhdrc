@@ -48,6 +48,9 @@ alt - e : yabai -m window --toggle split
 # alt - t : yabai -m window --toggle float && /tmp/yabai-restore/$(yabai -m query --windows --window | jq -re '.id').restore 2>/dev/null || true
 alt - t : yabai -m window --toggle float
 
+# 今いるスペースのタイル表示を切り替える（既定はタイルしない）
+shift + alt - t : ~/Developer/dotfiles/yabai-toggle-tiling.sh
+
 # フロートウィンドウの大きさを整える（高さはディスプレイいっぱい、幅は12分割）
 ctrl + alt - h : ~/Developer/dotfiles/yabai-float-size.sh narrower
 ctrl + alt - l : ~/Developer/dotfiles/yabai-float-size.sh wider
