@@ -7,10 +7,9 @@
 # クリック判定用の位置情報（ペインID|開始位置|終了位置）を
 # /tmp/tmux-pane-positions に書き出す（tmux-click-pane.sh が参照する）
 
-# 対象セッションは status-format 側から #{session_name} で渡される
+# 対象ウィンドウは status-format 側から #{window_id} で渡される
 # （渡されないときは tmux の既定ターゲットにフォールバックする）
 target="${1:-}"
-[ -n "$target" ] && target="${target}:"
 
 active=$(tmux display-message -p -t "$target" '#{pane_id}' 2>/dev/null) || exit 0
 
