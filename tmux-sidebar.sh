@@ -1,27 +1,35 @@
 #!/bin/bash
 
-# tmux サイドバー: フォルダ(tmuxセッション) → セッション(tmuxウィンドウ) のツリーを左端に常駐表示する
+# tmux サイドバー: 全ウィンドウが1つの tmux セッション（GLOBAL_SESSION）に入り、
+# 各ウィンドウの「アクティブペインが今いるパス」でグルーピングしたツリーを
+# 左端に常駐表示する。「フォルダ」は tmux 上の実体ではなく、この描画時点の
+# パスでその場だけグルーピングする表示上の概念（cd すればグループも動く）。
 # 各ウィンドウの左端ペインで実行される。表示専用でフォーカスは受け取らない
 # （フォーカスが来ても .tmux.conf の after-select-pane フックが隣のペインへ追い出す）
 #
 # 再描画は 1 秒ポーリング + SIGUSR1。内容が変わらないときは描画しないのでちらつかない。
 # 非アクティブなウィンドウのサイドバーは画面に出ていないので描画をスキップする。
+# セッションが1つしかないので #{window_active} を満たすウィンドウは常に高々1つ
+# ＝同時に「アクティブ」を名乗るサイドバーは tmux サーバー全体で高々1つになる
+# （複数セッションが並立していた旧設計では、ここが競合して古い描画が残る原因だった）。
 #
-# 1 描画あたりのプロセス生成は tmux 2 回 + awk 1 回に抑えてある。
+# 1 描画あたりのプロセス生成は最小限に抑えてある。
 # 幅の計算やパディングでコマンド置換を使うと、1 文字ごとに fork が走って
 # 描画が数百 ms 単位で重くなるため、これらはグローバル変数で値を返している。
 #
-# フォルダ名の右にはそのフォルダの git 状態（ブランチと変更ファイル数）を出す。
+# グループ行の右にはそのパスの git 状態（ブランチと変更ファイル数）を出す。
 # git status を定期的に回すことはしない。Claude のステータスや未読が変われば
-# 表示が動くので、そのついでに自分のフォルダのぶんだけバックグラウンドで数え直す。
-# 結果はファイルに置き、描画側は読むだけなので status が遅くてもサイドバーは止まらない。
+# 表示が動くので、そのついでに自分のウィンドウが今いるパスのぶんだけ
+# バックグラウンドで数え直す。結果はファイルに置き、描画側は読むだけなので
+# git status が遅くてもサイドバーは止まらない。
 #
 # クリック判定用の行マップ（行番号|種別|対象）を /tmp/tmux-sidebar-rows に書き出す
 # （tmux-dev.sh sidebar-click が参照する）
 
+GLOBAL_SESSION="${TMUX_DEV_SESSION:-dev}"
 ROWS_FILE="/tmp/tmux-sidebar-rows"
 
-# フォルダごとの git 状態（"<ブランチ>|<変更ファイル数>"）を 1 ファイルずつ置く
+# パスごとの git 状態（"<ブランチ>|<変更ファイル数>"）を 1 ファイルずつ置く
 GIT_DIR="/tmp/tmux-sidebar-git"
 # 表示が続けて動くあいだ、git status を回す間隔の下限（秒）
 GIT_MIN_INTERVAL=3
@@ -75,8 +83,14 @@ GIT_AT=$(( 0 - GIT_MIN_INTERVAL ))
 GIT_PID=""
 GIT_KEYS=()
 GIT_VALS=()
+SANI=""
 
-# 以下 3 つは戻り値をグローバル変数に置く（$() を使うと 1 文字ごとに fork してしまうため）
+# 以下はいずれも戻り値をグローバル変数に置く（$() を使うと fork してしまうため）
+
+# パス文字列 → ファイル名に使える形（"/" を "_" に）。GIT_DIR のキャッシュキーに使う
+sanitize_key() {
+    SANI="${1//\//_}"
+}
 
 # 1文字の表示幅 → CHAR_W。ASCII は 1、それ以外は 2
 # bash 3.2 の printf は先頭バイトを符号付きで返すので、0-127 の外側を全角として扱う
@@ -121,8 +135,7 @@ trunc() {
     TRUNC="$s"
 }
 
-# 自分のフォルダの git 状態を数えてキャッシュへ書く（バックグラウンドで呼ぶ）
-# 各サイドバーは自分のフォルダのぶんしか見ないので、フォルダをまたいで重複実行にならない
+# 指定パスの git 状態を数えてキャッシュへ書く（バックグラウンドで呼ぶ）
 update_git() {
     local dir="$1" out="$2" line branch="" dirty=0
     while IFS= read -r line; do
@@ -151,15 +164,16 @@ update_git() {
 maybe_update_git() {
     [ "$GIT_DUE" = "1" ] || return
     [ "$WIN_ACTIVE" = "1" ] || return
-    [ -d "$SESS_PATH" ] || return
+    [ -n "$CUR_DIR" ] && [ -d "$CUR_DIR" ] || return
     # 変化が続いているあいだ毎秒走らせない
     [ $(( SECONDS - GIT_AT )) -ge "$GIT_MIN_INTERVAL" ] || return
     [ -n "$GIT_PID" ] && kill -0 "$GIT_PID" 2>/dev/null && return
 
     GIT_DUE=0
     GIT_AT=$SECONDS
+    sanitize_key "$CUR_DIR"
     # 子で EXIT トラップを外す（親のカーソル復帰がサイドバーへ流れてしまうため）
-    ( trap - EXIT; update_git "$SESS_PATH" "$GIT_DIR/${CUR_SESSION//\//_}" ) &
+    ( trap - EXIT; update_git "$CUR_DIR" "$GIT_DIR/$SANI" ) &
     GIT_PID=$!
 }
 
@@ -178,18 +192,19 @@ load_git() {
     done
 }
 
-# フォルダ行の右に出す git 表示を組む（フォルダ名と合わせて表示幅 max に収める）
+# グループ行の右に出す git 表示を組む（グループ名と合わせて表示幅 max に収める）
+# $1 はサニタイズ済みのキー（sanitize_key の結果）
 #   GIT_PLAIN   幅の計算用
 #   GIT_COLORED 実際に出す色付きの文字列
 # 幅が足りないときはブランチ名から削る。変更ファイル数は最後まで残す
 git_parts() {
-    local sess="$1" max="$2" i info branch dirty dtext dw bmax
+    local key="$1" max="$2" i info branch dirty dtext dw bmax
     GIT_PLAIN=""
     GIT_COLORED=""
 
     info=""
     for (( i = 0; i < ${#GIT_KEYS[@]}; i++ )); do
-        [ "${GIT_KEYS[i]}" = "$sess" ] || continue
+        [ "${GIT_KEYS[i]}" = "$key" ] || continue
         info="${GIT_VALS[i]}"
         break
     done
@@ -202,7 +217,7 @@ git_parts() {
     str_width "$dtext"
     dw=$STR_W
 
-    # フォルダ名に最低 8 幅は残す
+    # グループ名に最低 8 幅は残す
     max=$(( max - 9 ))
     [ "$max" -gt 16 ] && max=16
     [ "$max" -lt "$dw" ] && return
@@ -226,8 +241,8 @@ git_parts() {
     fi
 }
 
-# tmux から取ったペイン一覧を、セッション（ウィンドウ）ごとの 1 行にまとめる
-#   出力: <フォルダ名>|<window_id>|<state>|<表示ラベル>
+# tmux から取ったペイン一覧を、ウィンドウごとの 1 行にまとめる
+#   出力: <パス>|<出現順>|<window_id>|<state>|<表示ラベル>（パス→出現順でソート済み）
 #   state: ! = 未読、. = 動作中/既読、空 = Claude なし
 #
 # 表示ラベルは「そこで何が動いているか」。ウィンドウ名（claude1, sh1 …）は出さない:
@@ -239,17 +254,16 @@ git_parts() {
 summarize() {
     printf '%s\n' "$DATA" | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v waiting="$WAITING" '
     BEGIN { shell = "^(sh|bash|zsh|fish|login)$" }
-    $6 == "1" { next }   # サイドバー自身は並べない
+    $5 == "1" { next }   # サイドバー自身は並べない
     {
         title = $8
         for (i = 9; i <= NF; i++) title = title "|" $i   # タイトルに | が入っても拾えるように
 
-        wid = $2
+        wid = $1
         if (!(wid in seen)) {
             seen[wid] = 1
             order[++n] = wid
-            wsess[wid] = $1
-            wname[wid] = $3
+            wname[wid] = $2
             state[wid] = ""
             summary[wid] = ""
             acmd[wid] = ""
@@ -257,9 +271,9 @@ summarize() {
 
         # Claude を抜けたあともペインタイトルの ✳ が残ることがあるので、
         # シェルに戻っているペインは動いていないものとして扱う
-        alive = ($5 !~ shell)
+        alive = ($4 !~ shell)
 
-        if (alive && index(waiting, " " $4 " ") > 0) state[wid] = "!"
+        if (alive && index(waiting, " " $3 " ") > 0) state[wid] = "!"
 
         t = title
         if (alive && sub("^" mark " ", "", t)) {
@@ -267,7 +281,8 @@ summarize() {
             if (t != idle && summary[wid] == "") summary[wid] = t
         }
 
-        if ($7 == "1") acmd[wid] = $5
+        if (dir_fallback[wid] == "") dir_fallback[wid] = $7
+        if ($6 == "1") { acmd[wid] = $4; dir_active[wid] = $7 }
     }
     END {
         for (i = 1; i <= n; i++) {
@@ -286,18 +301,29 @@ summarize() {
             } else {
                 label = wname[wid]
             }
-            print wsess[wid] "|" wid "|" state[wid] "|" label
+            d = (dir_active[wid] != "" ? dir_active[wid] : dir_fallback[wid])
+            print d "|" i "|" wid "|" state[wid] "|" label
         }
-    }'
+    }' | sort -t'|' -k1,1 -k2,2n
+}
+
+# ALL_DIRS[i] のパスに対する表示名を DISP_NAME に置く（ALL_DISP から引く）
+disp_for() {
+    local target="$1" i
+    DISP_NAME="$target"
+    for (( i = 0; i < ${#ALL_DIRS[@]}; i++ )); do
+        if [ "${ALL_DIRS[i]}" = "$target" ]; then
+            DISP_NAME="${ALL_DISP[i]}"
+            return
+        fi
+    done
 }
 
 render() {
     local cur_window width height
-    # session_path は | を含みうるので最後に置く（read が残り全部を受ける）
-    # フォルダ名・パス・アクティブ判定は git の更新でも使うのでグローバルに置く
-    IFS='|' read -r CUR_SESSION cur_window width height WIN_ACTIVE SESS_PATH < <(
+    IFS='|' read -r cur_window width height WIN_ACTIVE < <(
         tmux display-message -p -t "$TMUX_PANE" \
-            '#{session_name}|#{window_id}|#{pane_width}|#{pane_height}|#{window_active}|#{session_path}' 2>/dev/null
+            '#{window_id}|#{pane_width}|#{pane_height}|#{window_active}' 2>/dev/null
     )
     [ -n "$cur_window" ] || return 1
     case "$width" in '' | *[!0-9]*) width=36 ;; esac
@@ -311,49 +337,90 @@ render() {
         WAITING="${WAITING}${f#/tmp/claude-waiting-} "
     done
 
+    DATA="$(tmux list-panes -s -t "=$GLOBAL_SESSION" -F \
+        '#{window_id}|#{window_name}|#{pane_id}|#{pane_current_command}|#{@sidebar}|#{pane_active}|#{pane_current_path}|#{pane_title}' 2>/dev/null)"
+
+    local SUMMARY
+    SUMMARY="$(summarize)"
+
+    # 今いるウィンドウのパス（グループ判定・git 更新に使う）
+    CUR_DIR="$(printf '%s\n' "$DATA" | awk -F'|' -v w="$cur_window" '$1 == w && $6 == "1" { print $7; exit }')"
+    [ -n "$CUR_DIR" ] || CUR_DIR="$(printf '%s\n' "$DATA" | awk -F'|' -v w="$cur_window" '$1 == w { print $7; exit }')"
+
+    # 表示中の全パスと、その表示名（basename。重複するものだけ親ディレクトリを足す）
+    local d dup existing i j parent base
+    ALL_DIRS=()
+    while IFS='|' read -r d _; do
+        [ -n "$d" ] || continue
+        dup=0
+        for existing in "${ALL_DIRS[@]}"; do [ "$existing" = "$d" ] && { dup=1; break; }; done
+        [ "$dup" = 1 ] || ALL_DIRS+=("$d")
+    done <<< "$SUMMARY"
+
+    ALL_DISP=()
+    for d in "${ALL_DIRS[@]}"; do
+        base="${d##*/}"
+        [ -n "$base" ] || base="$d"
+        ALL_DISP+=("$base")
+    done
+    for (( i = 0; i < ${#ALL_DIRS[@]}; i++ )); do
+        dup=0
+        for (( j = 0; j < ${#ALL_DIRS[@]}; j++ )); do
+            [ "$i" = "$j" ] && continue
+            [ "${ALL_DISP[i]}" = "${ALL_DISP[j]}" ] && dup=1
+        done
+        if [ "$dup" = 1 ]; then
+            parent="${ALL_DIRS[i]%/*}"
+            parent="${parent##*/}"
+            [ -n "$parent" ] && ALL_DISP[i]="${parent}/${ALL_DISP[i]}"
+        fi
+    done
+
     load_git
 
-    local buf="" rows="" row=0 si=0 wi=0 prev_sess=""
-    local sess wid state label head avail mark right pad pad_str name gw
+    local buf="" rows="" row=0 si=0 wi=0 prev_dir=""
+    local dir seq wid state label head avail mark right pad pad_str name gw
 
-    while IFS='|' read -r sess wid state label; do
+    while IFS='|' read -r dir seq wid state label; do
         [ -n "$wid" ] || continue
 
-        if [ "$sess" != "$prev_sess" ]; then
-            if [ -n "$prev_sess" ]; then
+        if [ "$dir" != "$prev_dir" ]; then
+            if [ -n "$prev_dir" ]; then
                 buf="${buf}${EL}"$'\n'
                 row=$(( row + 1 ))
             fi
-            prev_sess="$sess"
+            prev_dir="$dir"
             si=$(( si + 1 ))
             wi=0
 
-            # フォルダ名の右端に git（ブランチと変更ファイル数）を右寄せで置く。
-            # セッション行の ○ と列を揃えたいので、こちらは最終列まで使う
+            disp_for "$dir"
+            # グループ行の右端に git（ブランチと変更ファイル数）を右寄せで置く。
+            # ウィンドウ行の ○ と列を揃えたいので、こちらは最終列まで使う
             avail=$(( width - ${#si} - 2 ))
-            git_parts "$sess" "$avail"
+            sanitize_key "$dir"
+            git_parts "$SANI" "$avail"
             str_width "$GIT_PLAIN"
             gw=$STR_W
 
             pad_str=""
             if [ "$gw" -gt 0 ]; then
-                trunc "$sess" $(( avail - gw - 1 ))
+                trunc "$DISP_NAME" $(( avail - gw - 1 ))
                 name="$TRUNC"
                 str_width "$name"
                 pad=$(( avail - STR_W - gw ))
                 [ "$pad" -lt 1 ] && pad=1
                 printf -v pad_str "%${pad}s" ''
             else
-                trunc "$sess" $(( avail - 1 ))
+                trunc "$DISP_NAME" $(( avail - 1 ))
                 name="$TRUNC"
             fi
 
-            if [ "$sess" = "$CUR_SESSION" ]; then
+            if [ "$dir" = "$CUR_DIR" ]; then
                 buf="${buf}${EL}${C_FOLDER_CUR} ${si} ${name}${C_RESET}${pad_str}${GIT_COLORED}"$'\n'
             else
                 buf="${buf}${EL}${C_FOLDER} ${si}${C_RESET}${C_DIM} ${name}${C_RESET}${pad_str}${GIT_COLORED}"$'\n'
             fi
-            rows="${rows}${row}|s|${sess}"$'\n'
+            rows="${rows}${row}|s|${dir}"$'\n'
             row=$(( row + 1 ))
         fi
 
@@ -382,7 +449,7 @@ render() {
 
         if [ "$wid" = "$cur_window" ]; then
             buf="${buf}${EL}${C_WIN_CUR}${label}${pad_str}${C_RESET}${right}"$'\n'
-        elif [ "$sess" = "$CUR_SESSION" ]; then
+        elif [ "$dir" = "$CUR_DIR" ]; then
             buf="${buf}${EL}${label}${C_RESET}${pad_str}${right}"$'\n'
         else
             buf="${buf}${EL}${C_DIM}${label}${C_RESET}${pad_str}${right}"$'\n'
@@ -390,7 +457,7 @@ render() {
 
         rows="${rows}${row}|w|${wid}"$'\n'
         row=$(( row + 1 ))
-    done < <(summarize)
+    done <<< "$SUMMARY"
 
     printf '%s' "$rows" > "${ROWS_FILE}.$$" 2>/dev/null && mv -f "${ROWS_FILE}.$$" "$ROWS_FILE" 2>/dev/null
 
@@ -405,7 +472,7 @@ render() {
         buf="${buf}${ESC}[$(( height - footer_rows + 1 ));1H${EL}${C_HINT}${sep}${C_RESET}"$'\n'
         buf="${buf}${EL}${C_HINT} 1-9 folder / then N win${C_RESET}"$'\n'
         buf="${buf}${EL}${C_HINT} c claude  t term  g lg${C_RESET}"$'\n'
-        buf="${buf}${EL}${C_HINT} e editor  o open  x kill${C_RESET}"
+        buf="${buf}${EL}${C_HINT} e editor  x kill${C_RESET}"
     fi
 
     RENDERED="$buf"
@@ -417,8 +484,6 @@ while :; do
     # 空のまま置くと、そのウィンドウを初めて開いた瞬間サイドバーが真っ暗に見える
     if [ -z "$last" ] \
         || [ "$(tmux display-message -p -t "$TMUX_PANE" '#{window_active}' 2>/dev/null)" = "1" ]; then
-        DATA="$(tmux list-panes -a -F \
-            '#{session_name}|#{window_id}|#{window_name}|#{pane_id}|#{pane_current_command}|#{@sidebar}|#{pane_active}|#{pane_title}' 2>/dev/null)"
         RENDERED=""
         render
         if [ -n "$RENDERED" ] && [ "$RENDERED" != "$last" ]; then
