@@ -9,5 +9,6 @@
     "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
   },
   "language": "Japanese",
+  "awaySummaryEnabled": false,
   "remoteControlAtStartup": true
 }
