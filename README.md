@@ -64,28 +64,30 @@ Dock・Finder・トラックパッド・スクリーンショットなどの `de
 
 ## 開発環境（dev コマンド）
 
-`dev` は tmux 上に「フォルダ → セッション」の2階層で開発環境を組み立てる。左端には全フォルダ・全セッションを一覧するサイドバーが常駐する。
+`dev` は tmux 上に開発環境を組み立てる。全ウィンドウが1つの tmux セッションに入り、「フォルダ」は各ウィンドウが今いるパスで動的にグルーピングされる。一覧は常駐させず、`prefix Space` のピッカー（fzf）で必要なときだけ出す。
 
 ```sh
-dev ~/Developer/myapp   # フォルダを開く（claude1 と空のターミナル2つ）
+dev ~/Developer/myapp   # フォルダを開く（claude1 / nv / sh1 の3ウィンドウ）
 dev                     # 直近に使っていたフォルダへ戻る
-dev restart             # 全フォルダを同じ構成で作り直す
+dev restart             # tmux 設定を読み直す（作業中のペインはそのまま）
+dev restart --full      # tmux ごと落として同じ構成で作り直す
 ```
 
 | キー | 動作 |
 | --- | --- |
-| `prefix 1`〜`9` | フォルダ切り替え（続けて数字でその中のセッションへ） |
-| `prefix h` / `l` | セッションを前後に移動 |
-| `prefix c` / `t` / `g` / `e` | セッション追加（claude / シェル / lazygit / エディタ） |
-| `prefix o` | フォルダを追加（fzf-tab のディレクトリ補完。Tab で階層を辿り、Enter で開く） |
-| `prefix x` / `X` | セッションを閉じる / フォルダごと閉じる |
-| `prefix b` | サイドバーの表示切替 |
+| `prefix Space` | フォルダ/ウィンドウのピッカー（`ctrl-x` でそのウィンドウを閉じる） |
+| `prefix h` / `l` | 同じパス内でウィンドウを前後に移動 |
+| `prefix H` / `L` | フォルダを前後に移動 |
+| `prefix c` / `t` / `e` | ウィンドウ追加（claude / シェル / エディタ） |
+| `prefix x` / `X` | ウィンドウを閉じる / フォルダごと閉じる |
+| `prefix Tab` | ペインを巡回 |
+
+Claude が入力待ちになるとステータスバー右に `● <フォルダ名>` が出る。lazygit と diff は nvim 側（`<leader>lg` / `<leader>dv`）に集約してあるので専用ウィンドウは持たない。nvim からは `<leader>fp` で同じ一覧を telescope で開ける。
 
 環境変数で挙動を変えられる。
 
 | 変数名 | 既定値 | 用途 |
 | --- | --- | --- |
-| `TMUX_DEV_ROOTS` | `~/Developer` | `prefix o` で候補にするディレクトリ（`:` 区切りで複数指定可） |
-| `TMUX_DEV_CLAUDE_CMD` | `claude` | `claudeN` セッションで起動するコマンド |
-| `TMUX_DEV_EDITOR_CMD` | `nvim .` | `nv` セッションで起動するコマンド |
-| `TMUX_SIDEBAR_WIDTH` | `36` | サイドバーの幅（カラム数） |
+| `TMUX_DEV_SESSION` | `dev` | 使用する tmux セッション名 |
+| `TMUX_DEV_CLAUDE_CMD` | `claude` | `claudeN` ウィンドウで起動するコマンド |
+| `TMUX_DEV_EDITOR_CMD` | `nvim .` | `nv` ウィンドウで起動するコマンド |
