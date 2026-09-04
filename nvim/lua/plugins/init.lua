@@ -122,16 +122,14 @@ require("lazy").setup({
 		},
 	},
 	{
-		"nvim-telescope/telescope-file-browser.nvim",
-		dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
-	},
-	{
 		"williamboman/mason.nvim",
 		build = ":MasonUpdate",
+		cmd = { "Mason", "MasonUpdate", "MasonInstall", "MasonLog" },
 		opts = {},
 	},
 	{
 		"williamboman/mason-lspconfig.nvim",
+		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
 			{ "williamboman/mason.nvim" },
 			{ "neovim/nvim-lspconfig" },
@@ -250,8 +248,48 @@ require("lazy").setup({
 	},
 	{
 		"nvim-telescope/telescope.nvim",
+		cmd = "Telescope",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope-file-browser.nvim",
+			"nvim-telescope/telescope-ui-select.nvim",
+		},
+		init = function()
+			-- ui-select 拡張が vim.ui.select を差し替えるまでのつなぎ。
+			-- 初回の呼び出しで telescope を読み込ませ、素の選択 UI が出るのを防ぐ
+			vim.ui.select = function(...)
+				require("lazy").load({ plugins = { "telescope.nvim" } })
+				return vim.ui.select(...)
+			end
+		end,
+		keys = {
+			{ "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Telescope find files" },
+			{ "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Telescope live grep" },
+			{ "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Telescope buffers" },
+			{ "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Telescope help tags" },
+			{
+				"<leader>fd",
+				function()
+					require("telescope.builtin").lsp_definitions({
+						layout_strategy = "vertical",
+						layout_config = { preview_height = 0.5 },
+					})
+				end,
+				desc = "Telescope LSP definitions",
+			},
+			{
+				"<leader>fr",
+				function()
+					require("telescope.builtin").lsp_references({
+						layout_strategy = "vertical",
+						layout_config = { preview_height = 0.5 },
+						show_line = false,
+					})
+				end,
+				desc = "Telescope LSP references",
+			},
+			{ "<leader>fe", "<cmd>Telescope file_browser path=%:p:h<cr>", desc = "Telescope file browser" },
+			{ "<leader>fp", function() require("tmux_dev").windows() end, desc = "dev: tmux ウィンドウを選ぶ" },
 		},
 		config = function()
 			require("telescope").setup({
@@ -276,38 +314,8 @@ require("lazy").setup({
 				},
 			})
 			require("telescope").load_extension("file_browser")
-			local builtin = require("telescope.builtin")
-			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
-			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
-			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
-			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
-			vim.keymap.set("n", "<leader>fd", function()
-				builtin.lsp_definitions({
-					layout_strategy = "vertical",
-					layout_config = {
-						preview_height = 0.5,
-					},
-				})
-			end, { desc = "Telescope LSP definitions" })
-			vim.keymap.set("n", "<leader>fr", function()
-				builtin.lsp_references({
-					layout_strategy = "vertical",
-					layout_config = {
-						preview_height = 0.5,
-					},
-					show_line = false,
-				})
-			end, { desc = "Telescope LSP references" })
-			vim.keymap.set(
-				"n",
-				"<leader>fe",
-				":Telescope file_browser path=%:p:h<CR>",
-				{ desc = "Telescope file browser" }
-			)
+			require("telescope").load_extension("ui-select")
 		end,
-	},
-	{
-		"nvim-telescope/telescope-ui-select.nvim",
 	},
 
 	{
@@ -481,5 +489,3 @@ require("lazy").setup({
 	-- automatically check for plugin updates
 	checker = { enabled = true },
 })
-
-require("telescope").load_extension("ui-select")
