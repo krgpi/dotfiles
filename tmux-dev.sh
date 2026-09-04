@@ -4,43 +4,34 @@
 #
 # 全ウィンドウが1つの tmux セッション（GLOBAL_SESSION）に入る。
 # 「フォルダ」という概念はもう tmux 上の実体ではなく、各ウィンドウの
-# アクティブペインが今いるディレクトリ（カレントパス）で都度サイドバー側が
-# グルーピングして表示するだけ。同じパスのウィンドウが1つのグループになる。
+# アクティブペインが今いるディレクトリ（カレントパス）で都度グルーピングして
+# 見せているだけ。同じパスのウィンドウが1つのグループになる。
 #
-# 各ウィンドウの左端には常駐サイドバー（tmux-sidebar.sh）が入る。
+# 一覧は常駐させない。prefix + Space のピッカー（tmux-picker.sh）が
+# 必要なときだけグルーピングして出し、「Claude が待っている」ことに気づく役は
+# ステータス右の ●（tmux-status-waiting.sh）が担当する。
 #
 # 使い方:
 #   dev              直近のウィンドウへ戻る（tmux にアタッチ/スイッチするだけ）
 #   dev <path>       そのパスのウィンドウ群を開く（無ければ作る）
-#   dev restart      tmux 設定とサイドバーを読み直す（作業中のペインはそのまま）
+#   dev restart      tmux 設定を読み直す（作業中のペインはそのまま）
 #   dev restart --full
 #                    全ウィンドウを保存してから tmux を再起動し、同じ構成で復元する
 #
 # 以下は .tmux.conf のキーバインド/フックから呼ばれる内部サブコマンド:
-#   new <kind> / jump-folder <n> / jump-window <n> / cycle-window <prev|next>
-#   cycle-folder <prev|next> / close-window / close-folder
-#   toggle-sidebar / ensure-sidebar / fix-width / on-select-pane / on-select-window
-#   sidebar-click / jump-timeout
+#   new <kind> / cycle-window <prev|next> / cycle-folder <prev|next>
+#   close-window / close-folder / on-select-pane / on-select-window
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-SIDEBAR_SCRIPT="$DOTFILES_DIR/tmux-sidebar.sh"
-SIDEBAR_WIDTH="${TMUX_SIDEBAR_WIDTH:-36}"
 CLAUDE_CMD="${TMUX_DEV_CLAUDE_CMD:-claude}"
 EDITOR_CMD="${TMUX_DEV_EDITOR_CMD:-nvim .}"
 GLOBAL_SESSION="${TMUX_DEV_SESSION:-dev}"
-ROWS_FILE="/tmp/tmux-sidebar-rows"
 STATE_FILE="/tmp/tmux-dev-restart"
 
 # ── 共通ヘルパ ────────────────────────────────────────────────
 
-# サイドバーを即座に描き直す
-# 画面に出ているのは今いるウィンドウのサイドバーだけなので、そこにだけシグナルを送る
-# （pkill で全部に送ると裏のウィンドウのぶんまで起きて無駄に重くなる）
-refresh_sidebar() {
-    local pid
-    pid="$(tmux list-panes -t "$(current_window)" -F '#{pane_pid}|#{@sidebar}' 2>/dev/null \
-        | awk -F'|' '$2 == "1" { print $1; exit }')"
-    [ -n "$pid" ] && kill -USR1 "$pid" 2>/dev/null
+# ステータスバー（未読の ●）を即座に描き直す
+refresh_status() {
     tmux refresh-client -S 2>/dev/null || true
 }
 
@@ -54,16 +45,11 @@ current_window() {
     printf '%s' "$win"
 }
 
-# 指定ウィンドウの「所属パス」= アクティブな非サイドバーペインのカレントパス
-# （アクティブペインが見つからなければ、そのウィンドウの最初の非サイドバーペインで代用）
+# 指定ウィンドウの「所属パス」= アクティブペインのカレントパス
 window_dir() {
     local win="$1" dir
-    dir="$(tmux list-panes -t "$win" -F '#{pane_active}|#{@sidebar}|#{pane_current_path}' 2>/dev/null \
-        | awk -F'|' '$1 == "1" && $2 != "1" { print $3; exit }')"
-    if [ -z "$dir" ]; then
-        dir="$(tmux list-panes -t "$win" -F '#{@sidebar}|#{pane_current_path}' 2>/dev/null \
-            | awk -F'|' '$1 != "1" { print $2; exit }')"
-    fi
+    dir="$(tmux list-panes -t "$win" -F '#{pane_active}|#{pane_current_path}' 2>/dev/null \
+        | awk -F'|' '$1 == "1" { print $2; exit }')"
     printf '%s' "$dir"
 }
 
@@ -91,26 +77,10 @@ find_window_in_group() {
     return 1
 }
 
-sidebar_pane() {
-    tmux list-panes -t "$1" -F '#{pane_id}|#{@sidebar}' 2>/dev/null \
-        | awk -F'|' '$2 == "1" { print $1; exit }'
-}
-
-ensure_sidebar() {
-    local win="${1:-}"
-    [ -n "$win" ] || win="$(current_window)"
-    [ -n "$win" ] || return 0
-    [ -n "$(sidebar_pane "$win")" ] && return 0
-    # -f はウィンドウ全体に対する分割。これがないと「アクティブペインの左」に入ってしまい、
-    # 作業ペインが複数あるウィンドウで左端に来ない
-    tmux split-window -fhb -l "$SIDEBAR_WIDTH" -d -t "$win" "$SIDEBAR_SCRIPT" 2>/dev/null
-}
-
 # ウィンドウ名の種別からデフォルトの起動コマンドを返す
 cmd_of() {
     case "$1" in
         claude) printf '%s' "$CLAUDE_CMD" ;;
-        lg)     printf 'lazygit' ;;
         nv)     printf '%s' "$EDITOR_CMD" ;;
         *)      printf '' ;;
     esac
@@ -121,7 +91,6 @@ cmd_of() {
 kind_of() {
     case "$1" in
         claude*)       printf 'claude' ;;
-        lg)            printf 'lg' ;;
         nv)            printf 'nv' ;;
         sh | sh[0-9]*) printf 'term' ;;
         *)             printf 'unknown' ;;
@@ -151,18 +120,16 @@ name_of() {
     local dir="$1"
     case "$2" in
         claude) next_name "$dir" claude ;;
-        lg)     printf 'lg' ;;
         nv)     printf 'nv' ;;
         *)      next_name "$dir" sh ;;
     esac
 }
 
-# ウィンドウを1つ作り、サイドバーを付けてコマンドを流す（常に GLOBAL_SESSION の中）
+# ウィンドウを1つ作ってコマンドを流す（常に GLOBAL_SESSION の中）
 spawn_window() {
     local name="$1" cmd="$2" dir="$3" focus="$4" wid
     wid="$(tmux new-window -d -t "=$GLOBAL_SESSION:" -n "$name" -c "$dir" -P -F '#{window_id}' 2>/dev/null)"
     [ -n "$wid" ] || return 1
-    ensure_sidebar "$wid"
     [ -n "$cmd" ] && tmux send-keys -t "$wid" "$cmd" C-m
     [ "$focus" = "1" ] && tmux select-window -t "$wid"
     printf '%s' "$wid"
@@ -171,17 +138,17 @@ spawn_window() {
 # ── グループ（同じパスのウィンドウ群）の作成 ──────────────────
 
 # 指定したパスに、指定したウィンドウ名リストでウィンドウ群を作る
-# （リストが空ならデフォルト構成: claude1 sh1 sh2）
+# （リストが空ならデフォルト構成: claude1 nv sh1）
+# lazygit や diff は nvim 側（lazygit.nvim / diffview）に集約したので専用ウィンドウは持たない
 create_group() {
     local dir="$1" wins="${2:-}" name cmd first_win group_first=""
-    [ -z "$wins" ] && wins="claude1 sh1 sh2"
+    [ -z "$wins" ] && wins="claude1 nv sh1"
 
     for name in $wins; do
         cmd="$(cmd_of "$(kind_of "$name")")"
         if ! tmux has-session -t "=$GLOBAL_SESSION" 2>/dev/null; then
             tmux new-session -d -s "$GLOBAL_SESSION" -c "$dir" -n "$name" 2>/dev/null || return 1
             first_win="$(tmux list-windows -t "=$GLOBAL_SESSION" -F '#{window_id}' 2>/dev/null | tail -1)"
-            ensure_sidebar "$first_win"
             [ -n "$cmd" ] && tmux send-keys -t "$first_win" "$cmd" C-m
             [ -z "$group_first" ] && group_first="$first_win"
         else
@@ -217,7 +184,6 @@ open_group() {
         echo "'$dir' を開きました"
     fi
 
-    refresh_sidebar
     if [ -n "$TMUX" ]; then
         tmux switch-client -t "=$GLOBAL_SESSION"
     else
@@ -235,54 +201,17 @@ cmd_new() {
     [ -n "$dir" ] || dir="$(tmux display-message -p -t "$win" '#{pane_current_path}' 2>/dev/null)"
     [ -n "$dir" ] || return 0
 
-    # lg / nv はパスに1つあれば足りるので、既にあればそこへ移動する
-    case "$kind" in
-        lg | nv)
-            existing="$(find_window_in_group "$dir" "$kind")"
-            if [ -n "$existing" ]; then
-                tmux select-window -t "$existing"
-                refresh_sidebar
-                return 0
-            fi
-            ;;
-    esac
+    # エディタはパスに1つあれば足りるので、既にあればそこへ移動する
+    if [ "$kind" = "nv" ]; then
+        existing="$(find_window_in_group "$dir" nv)"
+        if [ -n "$existing" ]; then
+            tmux select-window -t "$existing"
+            return 0
+        fi
+    fi
 
     name="$(name_of "$dir" "$kind")"
     spawn_window "$name" "$(cmd_of "$kind")" "$dir" 1 >/dev/null
-    refresh_sidebar
-}
-
-cmd_jump_folder() {
-    local n="$1" groups dirs target wid
-    groups="$(list_groups)"
-    dirs="$(printf '%s\n' "$groups" | awk -F'|' '!seen[$1]++ { print $1 }' | sort)"
-    target="$(printf '%s\n' "$dirs" | sed -n "${n}p")"
-    [ -n "$target" ] || return 0
-    wid="$(printf '%s\n' "$groups" | awk -F'|' -v d="$target" '$1 == d { print $2; exit }')"
-    [ -n "$wid" ] || return 0
-    tmux select-window -t "$wid"
-    # 続けて数字を押せばそのパス内のウィンドウへ飛べるようにする
-    # 何も押されなければ jump-timeout が root テーブルに戻す
-    tmux switch-client -T dev-jump
-    tmux run-shell -b -d 1 "$DOTFILES_DIR/tmux-dev.sh jump-timeout"
-    refresh_sidebar
-}
-
-cmd_jump_window() {
-    local n="$1" win dir wid
-    win="$(current_window)"
-    [ -n "$win" ] || return 0
-    dir="$(window_dir "$win")"
-    [ -n "$dir" ] || return 0
-    wid="$(list_groups | awk -F'|' -v d="$dir" '$1 == d { print $2 }' | sed -n "${n}p")"
-    [ -n "$wid" ] || return 0
-    tmux select-window -t "$wid"
-    refresh_sidebar
-}
-
-# prefix + 数字のあとのウィンドウ番号待ちを一定時間で打ち切る
-cmd_jump_timeout() {
-    tmux if-shell -F '#{==:#{client_key_table},dev-jump}' 'switch-client -T root'
 }
 
 # 同じパスのウィンドウ内を前後に移動する（h / l）
@@ -310,7 +239,6 @@ cmd_cycle_window() {
         target="${wids[$(( (cur + 1) % n ))]}"
     fi
     tmux select-window -t "$target"
-    refresh_sidebar
 }
 
 # パス（グループ）を前後に切り替える（H / L）
@@ -340,30 +268,6 @@ cmd_cycle_folder() {
     wid="$(list_groups | awk -F'|' -v d="$target" '$1 == d { print $2; exit }')"
     [ -n "$wid" ] || return 0
     tmux select-window -t "$wid"
-    refresh_sidebar
-}
-
-cmd_toggle_sidebar() {
-    local win pane
-    win="$(current_window)"
-    pane="$(sidebar_pane "$win")"
-    if [ -n "$pane" ]; then
-        tmux kill-pane -t "$pane"
-    else
-        ensure_sidebar "$win"
-    fi
-}
-
-# ペイン分割やリサイズで崩れたサイドバーの幅を戻す
-cmd_fix_width() {
-    local win="${1:-}" pane width
-    [ -n "$win" ] || win="$(current_window)"
-    pane="$(sidebar_pane "$win")"
-    [ -n "$pane" ] || return 0
-    [ "$(tmux display-message -p -t "$win" '#{window_zoomed_flag}' 2>/dev/null)" = "1" ] && return 0
-    width="$(tmux display-message -p -t "$pane" '#{pane_width}' 2>/dev/null)"
-    [ "$width" = "$SIDEBAR_WIDTH" ] && return 0
-    tmux resize-pane -t "$pane" -x "$SIDEBAR_WIDTH" 2>/dev/null
 }
 
 # Claude ペインの未読を消す。既読ロックは idle_prompt の再発火を抑えるためのもので、
@@ -378,15 +282,12 @@ mark_read() {
 }
 
 # after-select-pane フック: Claude ペインを開いたら既読にする
-# （サイドバーからのフォーカス追い出しは .tmux.conf 側で tmux だけで済ませている）
-# 未読を消したときだけ描き直す。ただのペイン移動で起こすと再描画が頻繁すぎるので、
-# 表示の追従は 1 秒ポーリングに任せる
 # 既読にできなかったときも 0 で返す。run-shell は非ゼロを失敗とみなして
 # 「returned 1」をペインに出してしまう
 cmd_on_select_pane() {
     local pane="${1:-}"
     [ -n "$pane" ] || return 0
-    mark_read "$pane" && refresh_sidebar
+    mark_read "$pane" && refresh_status
     return 0
 }
 
@@ -398,35 +299,14 @@ cmd_on_select_window() {
     [ -n "$win" ] || return 0
     while IFS= read -r pane; do
         [ -n "$pane" ] && mark_read "$pane"
-    done < <(tmux list-panes -t "$win" -F '#{pane_id}|#{@sidebar}' 2>/dev/null | awk -F'|' '$2 != "1" { print $1 }')
-    # ウィンドウを移るとアクティブ表示が変わるので、こちらは常に描き直す
-    refresh_sidebar
+    done < <(tmux list-panes -t "$win" -F '#{pane_id}' 2>/dev/null)
+    refresh_status
+    return 0
 }
 
-cmd_sidebar_click() {
-    local row="${1:-}" r kind target wid
-    [ -n "$row" ] && [ -f "$ROWS_FILE" ] || return 0
-    while IFS='|' read -r r kind target; do
-        [ "$r" = "$row" ] || continue
-        case "$kind" in
-            s)
-                wid="$(list_groups | awk -F'|' -v d="$target" '$1 == d { print $2; exit }')"
-                [ -n "$wid" ] && tmux select-window -t "$wid"
-                ;;
-            w)
-                tmux select-window -t "$target"
-                ;;
-        esac
-        refresh_sidebar
-        return 0
-    done < "$ROWS_FILE"
-}
-
-# ガワ（tmux 設定とサイドバー）だけ読み直す。作業ペインには触らないので
-# Claude や nvim は動いたまま。構成から作り直したいときは --full
+# tmux 設定を読み直す。作業ペインには触らないので Claude や nvim は動いたまま。
+# 構成から作り直したいときは --full
 cmd_restart() {
-    local win pane
-
     if [ "${1:-}" = "--full" ]; then
         cmd_rebuild
         return
@@ -438,17 +318,8 @@ cmd_restart() {
     fi
 
     tmux source-file "$HOME/.tmux.conf" 2>/dev/null
-
-    # サイドバーはスクリプトを書き換えても走り続けるので、ペインごと入れ替える
-    while IFS= read -r win; do
-        pane="$(sidebar_pane "$win")"
-        [ -n "$pane" ] && tmux kill-pane -t "$pane"
-        ensure_sidebar "$win"
-    done < <(tmux list-windows -a -F '#{window_id}' 2>/dev/null)
-
-    "$DOTFILES_DIR/tmux-responsive-layout.sh" 2>/dev/null
-
-    echo "設定とサイドバーを読み直しました"
+    refresh_status
+    echo "設定を読み直しました"
 }
 
 # 同じパス（グループ）のウィンドウをすべて閉じる（X）
@@ -542,22 +413,15 @@ cmd_last() {
 # ── ディスパッチ ──────────────────────────────────────────────
 
 case "${1:-}" in
-    '')              cmd_last ;;
-    restart)         cmd_restart "$2" ;;
-    new)             cmd_new "$2" ;;
-    jump-folder)     cmd_jump_folder "$2" ;;
-    jump-window)     cmd_jump_window "$2" ;;
-    jump-timeout)    cmd_jump_timeout ;;
-    cycle-window)    cmd_cycle_window "$2" ;;
-    cycle-folder)    cmd_cycle_folder "$2" ;;
-    close-window)    tmux kill-window ;;
-    close-folder)    cmd_close_group ;;
-    toggle-sidebar)  cmd_toggle_sidebar ;;
-    ensure-sidebar)  ensure_sidebar "$2" ;;
-    fix-width)       cmd_fix_width "$2" ;;
-    on-select-pane)  cmd_on_select_pane "$2" ;;
+    '')               cmd_last ;;
+    restart)          cmd_restart "$2" ;;
+    new)              cmd_new "$2" ;;
+    cycle-window)     cmd_cycle_window "$2" ;;
+    cycle-folder)     cmd_cycle_folder "$2" ;;
+    close-window)     tmux kill-window ;;
+    close-folder)     cmd_close_group ;;
+    on-select-pane)   cmd_on_select_pane "$2" ;;
     on-select-window) cmd_on_select_window ;;
-    sidebar-click)   cmd_sidebar_click "$2" ;;
-    refresh)         refresh_sidebar ;;
-    *)               open_group "$1" ;;
+    refresh)          refresh_status ;;
+    *)                open_group "$1" ;;
 esac

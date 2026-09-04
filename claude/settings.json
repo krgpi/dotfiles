@@ -159,7 +159,7 @@
       "/tmp"
     ]
   },
-  "model": "opus[1m]",
+  "model": "sonnet",
   "hooks": {
     "Notification": [
       {
@@ -275,6 +275,11 @@
   },
   "language": "Japanese",
   "effortLevel": "xhigh",
+  "modelSettings": {
+    "claude-sonnet-5": {
+      "effortLevel": "medium"
+    }
+  },
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
   "theme": "dark",
