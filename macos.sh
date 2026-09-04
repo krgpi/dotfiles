@@ -22,10 +22,10 @@ defaults write com.apple.dock showAppExposeGestureEnabled -bool false
 defaults write com.apple.dock showMissionControlGestureEnabled -bool true
 defaults write com.apple.dock workspaces-edge-delay -int 2
 
-# ホットコーナー（1=無効, 3=アプリケーションウィンドウ）
+# ホットコーナー（1=無効）
 defaults write com.apple.dock wvous-tl-corner -int 1
 defaults write com.apple.dock wvous-tr-corner -int 1
-defaults write com.apple.dock wvous-bl-corner -int 3
+defaults write com.apple.dock wvous-bl-corner -int 1
 defaults write com.apple.dock wvous-br-corner -int 1
 defaults write com.apple.dock wvous-tl-modifier -int 0
 defaults write com.apple.dock wvous-tr-modifier -int 0
@@ -83,11 +83,11 @@ done
 
 # Finder
 defaults write com.apple.finder ShowPathbar -bool true
-defaults write com.apple.finder ShowStatusBar -bool false
+defaults write com.apple.finder ShowStatusBar -bool true
 defaults write com.apple.finder ShowSidebar -bool true
 defaults write com.apple.finder ShowPreviewPane -bool false
 defaults write com.apple.finder ShowRecentTags -bool false
-defaults write com.apple.finder FXPreferredViewStyle -string icnv
+defaults write com.apple.finder FXPreferredViewStyle -string clmv
 defaults write com.apple.finder FXPreferredGroupBy -string Kind
 defaults write com.apple.finder FXArrangeGroupViewBy -string Name
 # 検索は現在のフォルダを対象にする（SCcf）／新規ウィンドウは「最近の項目」（PfAF）
