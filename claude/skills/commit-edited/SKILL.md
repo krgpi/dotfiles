@@ -1,6 +1,7 @@
 ---
 name: commit-edited
 description: このチャットで編集したファイルだけをステージしてコミットする
+model: sonnet
 disable-model-invocation: true
 allowed-tools: Bash, Read
 ---
