@@ -62,6 +62,17 @@ claude /plugin marketplace add ./claude-marketplace
 
 Dock・Finder・トラックパッド・スクリーンショットなどの `defaults` を一括で適用する。何度実行しても同じ結果になる。一部の設定は再ログイン後に反映される。
 
+## Codex
+
+`codex` と `codex-work` は別々の `CODEX_HOME` を使う。通常用は `~/Developer/dotfiles/codex`、仕事用は `~/Developer/dotfiles/codex-work` に設定・認証・履歴を分ける。
+
+```sh
+codex login
+codex-work login
+```
+
+`config.toml` と `AGENTS.md` はこのリポジトリで管理する。`auth.json`、履歴、DB、キャッシュなどのローカルデータは gitignore 対象。
+
 ## 開発環境（dev コマンド）
 
 `dev` は tmux 上に開発環境を組み立てる。全ウィンドウが1つの tmux セッションに入り、「フォルダ」は各ウィンドウが今いるパスで動的にグルーピングされる。一覧は常駐させず、`prefix Space` のピッカー（fzf）で必要なときだけ出す。
