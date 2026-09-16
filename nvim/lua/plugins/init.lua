@@ -247,6 +247,30 @@ require("lazy").setup({
 		end,
 	},
 	{
+		"nvim-tree/nvim-tree.lua",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		lazy = false,
+		keys = {
+			{ "<C-n>", "<cmd>NvimTreeToggle<cr>", desc = "ファイルエクスプローラー" },
+		},
+		init = function()
+			-- `dev` からの `nvim .` など、引数がディレクトリのときだけツリーを自動オープン
+			vim.api.nvim_create_autocmd("VimEnter", {
+				callback = function(data)
+					if vim.fn.isdirectory(data.file) == 1 then
+						vim.cmd.cd(data.file)
+						require("nvim-tree.api").tree.open()
+					end
+				end,
+			})
+		end,
+		opts = {
+			view = { width = 32 },
+			renderer = { group_empty = true },
+			filters = { dotfiles = false },
+		},
+	},
+	{
 		"nvim-telescope/telescope.nvim",
 		cmd = "Telescope",
 		dependencies = {
@@ -310,6 +334,12 @@ require("lazy").setup({
 						hidden = true,
 						grouped = true,
 						respect_gitignore = false,
+						mappings = {
+							["i"] = {
+								["<C-j>"] = require("telescope.actions").move_selection_next,
+								["<C-k>"] = require("telescope.actions").move_selection_previous,
+							},
+						},
 					},
 				},
 			})
@@ -401,6 +431,14 @@ require("lazy").setup({
 		init = function()
 			vim.g.barbar_auto_setup = false
 		end,
+		keys = {
+			{ "<A-,>", "<cmd>BufferPrevious<cr>", desc = "前のバッファ" },
+			{ "<A-.>", "<cmd>BufferNext<cr>", desc = "次のバッファ" },
+			{ "<A-<>", "<cmd>BufferMovePrevious<cr>", desc = "バッファを左へ移動" },
+			{ "<A->>", "<cmd>BufferMoveNext<cr>", desc = "バッファを右へ移動" },
+			{ "<A-c>", "<cmd>BufferClose<cr>", desc = "バッファを閉じる" },
+			{ "<C-p>", "<cmd>BufferPick<cr>", desc = "バッファをピックして移動" },
+		},
 		opts = {
 			-- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
 			-- animation = true,
