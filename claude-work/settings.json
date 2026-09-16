@@ -3,7 +3,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "sonnet",
   "statusLine": {
     "type": "command",
     "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
