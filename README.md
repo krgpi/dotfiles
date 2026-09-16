@@ -80,7 +80,7 @@ codex-work login
 `dev` は tmux 上に開発環境を組み立てる。全ウィンドウが1つの tmux セッションに入り、「フォルダ」は各ウィンドウが今いるパスで動的にグルーピングされる。一覧は常駐させず、`prefix Space` のピッカー（fzf）で必要なときだけ出す。
 
 ```sh
-dev ~/Developer/myapp   # フォルダを開く（claude1 / nv / sh1 の3ウィンドウ）
+dev ~/Developer/myapp   # フォルダを開く（シェル1つだけ。Claude / nvim は prefix c / e で足す）
 dev                     # 直近に使っていたフォルダへ戻る
 dev restart             # tmux 設定を読み直す（作業中のペインはそのまま）
 dev restart --full      # tmux ごと落として同じ構成で作り直す
@@ -88,7 +88,7 @@ dev restart --full      # tmux ごと落として同じ構成で作り直す
 
 | キー | 動作 |
 | --- | --- |
-| `prefix Space` | フォルダ/ウィンドウのピッカー（`ctrl-x` でそのウィンドウを閉じる） |
+| `prefix Space` | フォルダ/ウィンドウのピッカー（`j`/`k` 移動、`enter`/`space` で開く、`/` 絞り込み、`ctrl-t` で同じパスに新しいターミナル、`ctrl-x` でそのウィンドウを閉じる） |
 | `prefix h` / `l` | 同じパス内でウィンドウを前後に移動 |
 | `prefix H` / `L` | フォルダを前後に移動 |
 | `prefix c` / `t` / `e` | ウィンドウ追加（claude / シェル / エディタ） |
