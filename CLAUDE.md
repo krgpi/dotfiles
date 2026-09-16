@@ -58,7 +58,7 @@ cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install -
 
 全ウィンドウ（`claude1`, `claude2`, `nv`, `sh1` ...）は `dev` 専用の**1つの tmux セッション**（既定名 `dev`、`TMUX_DEV_SESSION` で変更可）に入る。「フォルダ」は tmux 上の実体ではなく、**各ウィンドウのアクティブペインが今いるパス**でピッカーがその場でグルーピングして見せているだけの表示上の概念。同じパスにいるウィンドウが1つのグループになり、`cd` すればウィンドウはそのまま別グループへ移る。
 
-`dev <path>` の既定構成は Claude 1 つ、nvim 1 つ、空のターミナル 1 つ（`claude1` / `nv` / `sh1`）。同じパスが既に開いていれば新規に作らずそこへジャンプする。**lazygit と diff は nvim 側（`lazygit.nvim` / `diffview`）に集約しているので専用ウィンドウを持たない**。
+`dev <path>` の既定構成は空のターミナル 1 つ（`sh1`）だけ。Claude と nvim は勝手に起動せず、要るときに `prefix c` / `prefix e` で足す。同じパスが既に開いていれば新規に作らずそこへジャンプする。**lazygit と diff は nvim 側（`lazygit.nvim` / `diffview`）に集約しているので専用ウィンドウを持たない**。
 
 ウィンドウは1画面を占有し、中を `|` / `-` で自由にペイン分割できる。ウィンドウ名から起動コマンドを逆引きするので（`claude*` → Claude Code、`nv` → エディタ、それ以外 → シェル）、`dev restart --full` は同じ構成をそのまま復元できる。ただし `claude*` のウィンドウでは Claude が毎回起動し直されるので、設定を変えただけなら作業ペインに触らない `dev restart` を使う。
 
@@ -68,9 +68,12 @@ cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install -
 
 - 並ぶのはウィンドウ名ではなく**中で何が起きているか**。Claude Code は `pane_title` に出る `✳ <作業概要>`（まだ何もしていなければ `claude`）、それ以外のウィンドウはアクティブペインの `pane_current_command`（シェルのままなら `zsh`）。`claude1` や `sh1` といった dev が付けた名前は表示しない
 - **Claude の判定はペインタイトルの `✳`**。Claude Code はプロセス名がバージョン番号（例 `2.1.238`）になるため `pane_current_command` では見分けられない
+- 行頭のマークは `●`（黄）が未読、点滅する `○` が実行中、薄い `○` が起動中で入力待ち。点滅は ANSI の blink 属性なので、ターミナル側で点滅を許可していないと薄い `○` との差が出ない。nvim 側（`NO_COLOR`）では実行中と起動中の区別がない
 - ただし `✳` は Claude を抜けたあとも残ることがあるので、**そのペインがシェルに戻っていたら終了したものとして扱う**。ウィンドウ名が `claude*` かどうかは判定に使わない（使うと `/exit` したあとも `○` が残り続ける）
 - グループの表示名はパスの basename。同じ basename のパスが複数あるときだけ親ディレクトリ名を足して区別する
 - git 状態は fzf / telescope のプレビューで `git status -sb` を出すだけ。自前でキャッシュを持たない（一覧を出した瞬間にしか要らないため）
+- 操作は vim 風。fzf の入力欄は隠してあり（`--no-input`）`j` / `k` で移動、`enter` か `space` で開く、`/` で入力欄を出して絞り込む。絞り込み中は `j` / `k` / `space` を検索文字に戻し、`esc` で入力欄を畳んで全件に戻す。通常時の `esc` は中止。`esc` の振り分けは fzf の `transform` で `$FZF_INPUT_STATE` を見て決めている
+- `ctrl-t` で選択行と同じパスに新しいターミナルを開いてそこへ移動する（`tmux-dev.sh new term <path>`）
 - `ctrl-x` でそのウィンドウを閉じてリロードする
 - 出力は `<window_id> TAB <パス> TAB <表示>`。fzf には 3 列目だけ見せ、1 列目で `select-window`、2 列目でプレビューを引く。`NO_COLOR` が設定されていれば色を付けない（nvim から読むときに使う）
 
@@ -80,12 +83,13 @@ Claude Code の hooks（`claude-marketplace/karaage-tools/tmux-sidebar-notify.sh
 
 - hooks 側が最後に `tmux refresh-client -S` を叩くので、`status-interval`（2秒）を待たずに反映される
 - **既読ロック**: 確認済みのウィンドウが再通知で光り直すのを防ぐ。ウィンドウを開くと中の Claude がまとめて既読になり（`after-select-window` フック）、次のプロンプト送信時に `UserPromptSubmit` フックがロックを外す
+- **実行中フラグ** `/tmp/claude-running-<pane_id>`: `UserPromptSubmit` と `PostToolUse` で置き、`Stop`・`Notification`（人待ち）・`SessionEnd` で消す。ピッカーだけが読み、ステータスバーには出さない。`PostToolUse` で置き直すのは、承認待ちで消したあとの再開を拾うため。Esc で中断すると `Stop` が来ないので、`idle_prompt`（60秒後）まで実行中のまま残る
 
 #### キーバインド
 
 | キー | 動作 |
 | --- | --- |
-| `prefix Space` | フォルダ/ウィンドウのピッカー（`ctrl-x` でそのウィンドウを閉じる） |
+| `prefix Space` | フォルダ/ウィンドウのピッカー（`j`/`k` 移動、`enter`/`space` で開く、`/` 絞り込み、`ctrl-t` で同じパスに新しいターミナル、`ctrl-x` でそのウィンドウを閉じる） |
 | `prefix h` / `l` | 同じパス内でウィンドウを前後に移動 |
 | `prefix H` / `L` | フォルダ（パスのグループ）を前後に移動 |
 | `prefix c` / `t` / `e` | 現在のウィンドウと同じパスにウィンドウを追加（claudeN / シェル / エディタ）。`nv` は既にあればそこへ移動 |

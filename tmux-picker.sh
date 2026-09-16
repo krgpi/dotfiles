@@ -9,14 +9,21 @@
 #   tmux-picker.sh        fzf を出し、選ばれたウィンドウへ移動する
 #   tmux-picker.sh list   fzf に流す行だけを出す（ctrl-x で閉じたあとの再読み込み用）
 #
+# fzf は vim 風に使う。入力欄は隠しておき j / k で移動、enter か space で開く。
+# / で入力欄を出して絞り込む（その間 j / k / space は検索文字に戻る）。絞り込み中の
+# esc は入力欄を畳んで全件に戻し、通常時の esc は中止。
+# ctrl-t は選択行と同じパスに新しいターミナルを開いてそこへ移動する。
+#
 # 出力は「<window_id> TAB <パス> TAB <表示>」。fzf には 3 列目だけ見せ、
-# 1 列目で select-window、2 列目で git のプレビューを引く。
+# 1 列目で select-window、2 列目で git のプレビューと ctrl-t のパスを引く。
 # NO_COLOR が設定されていれば色を付けない（nvim 側の telescope から読むときに使う）。
 
 set -u
 
 GLOBAL_SESSION="${TMUX_DEV_SESSION:-dev}"
-SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+SELF="$DOTFILES_DIR/$(basename "$0")"
+DEV="$DOTFILES_DIR/tmux-dev.sh"
 
 # Claude Code がペインタイトルの頭に付けるマーク（"✳ 作業概要" の形で出る）
 CLAUDE_MARK='✳'
@@ -24,23 +31,27 @@ CLAUDE_MARK='✳'
 CLAUDE_IDLE='Claude Code'
 
 list() {
-    local waiting=" " f cur color=1
+    local waiting=" " running=" " f cur color=1
     [ -n "${NO_COLOR:-}" ] && color=0
 
-    # 未読フラグの一覧。glob なのでプロセスは起きない
+    # 未読・実行中フラグの一覧。glob なのでプロセスは起きない
     for f in /tmp/claude-waiting-*; do
         [ -e "$f" ] || continue
         waiting="${waiting}${f#/tmp/claude-waiting-} "
+    done
+    for f in /tmp/claude-running-*; do
+        [ -e "$f" ] || continue
+        running="${running}${f#/tmp/claude-running-} "
     done
 
     cur="$(tmux display-message -p -t "=$GLOBAL_SESSION:" '#{window_id}' 2>/dev/null)"
 
     tmux list-panes -s -t "=$GLOBAL_SESSION" -F \
         '#{window_id}|#{window_name}|#{pane_id}|#{pane_current_command}|#{pane_active}|#{pane_current_path}|#{pane_title}' 2>/dev/null \
-    | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v waiting="$waiting" -v cur="$cur" '
+    | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v waiting="$waiting" -v running="$running" -v cur="$cur" '
     # ペイン一覧をウィンドウごとの 1 行にまとめ、パスの表示名まで決める。
     # 出力: <パス> \t <出現順> \t <window_id> \t <state> \t <グループ名> \t <ラベル> \t <現在なら1>
-    #   state: ! = 未読、. = 動作中、空 = Claude なし
+    #   state: ! = 未読、+ = 実行中、. = 起動中（入力待ち）、空 = Claude なし
     BEGIN { shell = "^(sh|bash|zsh|fish|login)$"; OFS = "\t" }
     {
         title = $7
@@ -58,10 +69,11 @@ list() {
         alive = ($4 !~ shell)
 
         if (alive && index(waiting, " " $3 " ") > 0) state[wid] = "!"
+        else if (alive && index(running, " " $3 " ") > 0 && state[wid] != "!") state[wid] = "+"
 
         t = title
         if (alive && sub("^" mark " ", "", t)) {
-            if (state[wid] != "!") state[wid] = "."
+            if (state[wid] == "") state[wid] = "."
             if (t != idle && summary[wid] == "") summary[wid] = t
         }
 
@@ -109,7 +121,7 @@ list() {
     | awk -F'\t' -v color="$color" '
     BEGIN {
         if (color == "1") {
-            R = "\033[0m"; YEL = "\033[33;1m"; DIM = "\033[2m"
+            R = "\033[0m"; YEL = "\033[33;1m"; DIM = "\033[2m"; BLINK = "\033[5m"
             CYA = "\033[36;1m"; WHT = "\033[37;1m"
         }
     }
@@ -122,6 +134,7 @@ list() {
         else           { head = " ";       grp = WHT grp R }
 
         if (st == "!")      m = YEL "●" R
+        else if (st == "+") m = BLINK "○" R
         else if (st == ".") m = DIM "○" R
         else                m = " "
 
@@ -145,12 +158,17 @@ case "${1:-}" in
             --ansi \
             --layout=reverse \
             --cycle \
+            --no-input \
             --delimiter=$'\t' \
             --with-nth=3 \
-            --prompt='dev ❯ ' \
-            --header='enter 移動 / ctrl-x 閉じる / esc 中止' \
+            --prompt='/ ' \
+            --header='j/k 移動  / 検索  enter/space 開く  ctrl-t 新しいターミナル  ctrl-x 閉じる  esc 中止' \
             --preview='git -C {2} -c color.status=always --no-optional-locks status -sb 2>/dev/null || echo "(git 管理外)"' \
             --preview-window='down,5,border-top' \
+            --bind='j:down,k:up,space:accept' \
+            --bind='/:show-input+clear-query+unbind(j,k,space)' \
+            --bind='esc:transform:[ "$FZF_INPUT_STATE" = enabled ] && echo "rebind(j,k,space)+hide-input+search()" || echo abort' \
+            --bind="ctrl-t:execute-silent($DEV new term {2})+abort" \
             --bind="ctrl-x:execute-silent(tmux kill-window -t {1})+reload($SELF list)")"
 
         [ -n "$sel" ] || exit 0

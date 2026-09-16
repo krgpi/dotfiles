@@ -90,6 +90,26 @@
         ]
       }
     ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh clear-running"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-running"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "hooks": [

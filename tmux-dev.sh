@@ -18,9 +18,10 @@
 #   dev restart --full
 #                    全ウィンドウを保存してから tmux を再起動し、同じ構成で復元する
 #
-# 以下は .tmux.conf のキーバインド/フックから呼ばれる内部サブコマンド:
-#   new <kind> / cycle-window <prev|next> / cycle-folder <prev|next>
+# 以下は .tmux.conf のキーバインド/フック、ピッカーから呼ばれる内部サブコマンド:
+#   new <kind> [path] / cycle-window <prev|next> / cycle-folder <prev|next>
 #   close-window / close-folder / on-select-pane / on-select-window
+#   new の path を省略すると今いるウィンドウのパスに開く
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_CMD="${TMUX_DEV_CLAUDE_CMD:-claude}"
@@ -138,11 +139,11 @@ spawn_window() {
 # ── グループ（同じパスのウィンドウ群）の作成 ──────────────────
 
 # 指定したパスに、指定したウィンドウ名リストでウィンドウ群を作る
-# （リストが空ならデフォルト構成: claude1 nv sh1）
+# （リストが空ならデフォルト構成: sh1 だけ。Claude と nvim は勝手に起動せず prefix c / e で足す）
 # lazygit や diff は nvim 側（lazygit.nvim / diffview）に集約したので専用ウィンドウは持たない
 create_group() {
     local dir="$1" wins="${2:-}" name cmd first_win group_first=""
-    [ -z "$wins" ] && wins="claude1 nv sh1"
+    [ -z "$wins" ] && wins="sh1"
 
     for name in $wins; do
         cmd="$(cmd_of "$(kind_of "$name")")"
@@ -194,11 +195,13 @@ open_group() {
 # ── サブコマンド ──────────────────────────────────────────────
 
 cmd_new() {
-    local kind="${1:-term}" win dir name existing
-    win="$(current_window)"
-    [ -n "$win" ] || return 0
-    dir="$(window_dir "$win")"
-    [ -n "$dir" ] || dir="$(tmux display-message -p -t "$win" '#{pane_current_path}' 2>/dev/null)"
+    local kind="${1:-term}" dir="${2:-}" win name existing
+    if [ -z "$dir" ]; then
+        win="$(current_window)"
+        [ -n "$win" ] || return 0
+        dir="$(window_dir "$win")"
+        [ -n "$dir" ] || dir="$(tmux display-message -p -t "$win" '#{pane_current_path}' 2>/dev/null)"
+    fi
     [ -n "$dir" ] || return 0
 
     # エディタはパスに1つあれば足りるので、既にあればそこへ移動する
@@ -415,7 +418,7 @@ cmd_last() {
 case "${1:-}" in
     '')               cmd_last ;;
     restart)          cmd_restart "$2" ;;
-    new)              cmd_new "$2" ;;
+    new)              cmd_new "$2" "$3" ;;
     cycle-window)     cmd_cycle_window "$2" ;;
     cycle-folder)     cmd_cycle_folder "$2" ;;
     close-window)     tmux kill-window ;;
