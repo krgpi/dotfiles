@@ -26,6 +26,9 @@ brew bundle dump --file=~/Developer/dotfiles/Brewfile --force
 
 # Ubuntu: aptパッケージの一括インストール
 sudo apt update && xargs -a ~/Developer/dotfiles/Aptfile sudo apt install -y
+
+# npmグローバルパッケージの一括インストール（mise管理のnodeに入れる。PATH順に依存しないようフルパス指定）
+cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install --ignore-scripts -g
 ```
 
 ## アーキテクチャ

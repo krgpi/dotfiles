@@ -64,6 +64,12 @@ if [[ "$OS" == "Linux" ]]; then
 fi
 
 echo ""
+echo "=== npm グローバルパッケージのセットアップ ==="
+echo "以下の順で mise 管理下の node に一括インストールできます:"
+echo "  mise install"
+echo "  cat $DOTFILES_DIR/Npmfile | xargs \$(mise where node@24)/bin/npm install --ignore-scripts -g"
+
+echo ""
 echo "=== Claude Code Plugin Setup ==="
 echo "Claude Code を起動して以下を実行してください:"
 echo "  /plugin add $DOTFILES_DIR/claude-marketplace"
