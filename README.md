@@ -73,6 +73,8 @@ codex-work login
 
 `config.toml` と `AGENTS.md` はこのリポジトリで管理する。`auth.json`、履歴、DB、キャッシュなどのローカルデータは gitignore 対象。
 
+カスタムスキルは `codex/skills/<name>/` に直接置けばリポジトリで管理される（`skills/.system/` はCodexが自動生成するシステムスキルなので除外）。
+
 ## 開発環境（dev コマンド）
 
 `dev` は tmux 上に開発環境を組み立てる。全ウィンドウが1つの tmux セッションに入り、「フォルダ」は各ウィンドウが今いるパスで動的にグルーピングされる。一覧は常駐させず、`prefix Space` のピッカー（fzf）で必要なときだけ出す。
