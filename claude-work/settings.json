@@ -8,6 +8,25 @@
     "type": "command",
     "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
   },
+  "enabledPlugins": {
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "karaage-tools@karaage-dotfiles": true,
+    "slack@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "notion@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "karaage-dotfiles": {
+      "source": {
+        "source": "directory",
+        "path": "~/Developer/dotfiles/claude-marketplace"
+      }
+    }
+  },
   "language": "Japanese",
   "sandbox": {
     "excludedCommands": [
