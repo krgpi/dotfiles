@@ -9,6 +9,11 @@
     "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh"
   },
   "language": "Japanese",
+  "sandbox": {
+    "excludedCommands": [
+      "gh *"
+    ]
+  },
   "awaySummaryEnabled": false,
   "remoteControlAtStartup": true
 }
