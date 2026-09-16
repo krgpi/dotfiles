@@ -3,6 +3,15 @@ vim.keymap.set("x", "<M-j>", ":move '>+1<CR>gv=gv")
 vim.keymap.set("n", "<M-k>", "<Cmd>move .-2<CR>==")
 vim.keymap.set("x", "<M-k>", ":move '<-2<CR>gv=gv")
 
+-- <C-w>無しでウィンドウ間を移動（LSPのsignature help等はバッファローカルなので優先される）
+vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-j>", "<C-w>j")
+vim.keymap.set("n", "<C-k>", "<C-w>k")
+vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+-- 単体で完結するキーも含めて、今押せる全キーマップ一覧を表示する
+vim.keymap.set("n", "<leader>?", "<cmd>WhichKey<cr>", { desc = "キーマップ一覧" })
+
 -- 外部でファイルが変更されたときにバッファを自動更新
 vim.opt.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
