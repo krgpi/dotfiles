@@ -73,6 +73,13 @@
       "codex": {
         "enabled": false
       },
+      "codex-work": {
+        "extends": "codex",
+        "label": "Codex (Work)",
+        "env": {
+          "CODEX_HOME": "~/.codex-work"
+        }
+      },
       "copilot": {
         "enabled": false
       },
