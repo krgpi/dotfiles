@@ -2,20 +2,21 @@
 
 # dev ピッカー
 #
-# prefix + Space から tmux display-popup 越しに呼ばれ、開いているウィンドウを
+# prefix + Space（または prefix なしの Alt-Space）から tmux display-popup 越しに呼ばれ、開いているウィンドウを
 # パスでグルーピングして fzf に出す。常駐サイドバーの代わりに「押したときだけ」
 # 一覧を出すのが役割で、グルーピング・未読マーク・git 状態はここに集約している。
 #
 #   tmux-picker.sh        fzf を出し、選ばれたウィンドウへ移動する
-#   tmux-picker.sh list   fzf に流す行だけを出す（ctrl-x で閉じたあとの再読み込み用）
+#   tmux-picker.sh list   fzf に流す行だけを出す（x で閉じたあとの再読み込み用）
 #
 # fzf は vim 風に使う。入力欄は隠しておき j / k で移動、enter か space で開く。
-# / で入力欄を出して絞り込む（その間 j / k / space は検索文字に戻る）。絞り込み中の
-# esc は入力欄を畳んで全件に戻し、通常時の esc は中止。
-# ctrl-t は選択行と同じパスに新しいターミナルを開いてそこへ移動する。
+# / で入力欄を出して絞り込む（その間 j / k / space / t / x は検索文字に戻る）。
+# 絞り込み中の esc は入力欄を畳んで全件に戻し、通常時の esc は中止。
+# ポップアップ自体がフォーカスを持つので t / x に ctrl は要らない。
+# t は選択行と同じパスに新しいターミナルを開いてそこへ移動する。
 #
 # 出力は「<window_id> TAB <パス> TAB <表示>」。fzf には 3 列目だけ見せ、
-# 1 列目で select-window、2 列目で git のプレビューと ctrl-t のパスを引く。
+# 1 列目で select-window、2 列目で git のプレビューと t のパスを引く。
 # NO_COLOR が設定されていれば色を付けない（nvim 側の telescope から読むときに使う）。
 
 set -u
@@ -29,10 +30,14 @@ DEV="$DOTFILES_DIR/tmux-dev.sh"
 CLAUDE_MARK='✳'
 # 作業中でないときのタイトル。これは概要として扱わない
 CLAUDE_IDLE='Claude Code'
+# Codex CLI はプロセス名がそのまま "codex" になる（Claude と違いバージョン番号化しない）
+CODEX_CMD='^codex$'
 
-list() {
-    local waiting=" " running=" " f cur color=1
-    [ -n "${NO_COLOR:-}" ] && color=0
+# ウィンドウごとのデータを集める共通部分。出力: <パス> \t <window_id> \t <state> \t
+# <グループ名> \t <ラベル> \t <現在なら1> \t <ブランチ名> \t <staged:1|空> \t
+# <unstaged:1|空> \t <ahead数|空> \t <behind数|空>（state は list() 冒頭のコメント参照）
+collect_rows() {
+    local waiting=" " running=" " f cur
 
     # 未読・実行中フラグの一覧。glob なのでプロセスは起きない
     for f in /tmp/claude-waiting-*; do
@@ -48,10 +53,10 @@ list() {
 
     tmux list-panes -s -t "=$GLOBAL_SESSION" -F \
         '#{window_id}|#{window_name}|#{pane_id}|#{pane_current_command}|#{pane_active}|#{pane_current_path}|#{pane_title}' 2>/dev/null \
-    | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v waiting="$waiting" -v running="$running" -v cur="$cur" '
+    | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v codex_cmd="$CODEX_CMD" -v waiting="$waiting" -v running="$running" -v cur="$cur" '
     # ペイン一覧をウィンドウごとの 1 行にまとめ、パスの表示名まで決める。
     # 出力: <パス> \t <出現順> \t <window_id> \t <state> \t <グループ名> \t <ラベル> \t <現在なら1>
-    #   state: ! = 未読、+ = 実行中、. = 起動中（入力待ち）、空 = Claude なし
+    #   state: ! = 未読、+ = 実行中、. = 起動中（入力待ち）、c = Codex、空 = 何もなし
     BEGIN { shell = "^(sh|bash|zsh|fish|login)$"; OFS = "\t" }
     {
         title = $7
@@ -107,38 +112,85 @@ list() {
             wid = order[i]
             # 起動直後などタイトルがまだ出ていないこともあるので、dev が付けた名前も見る
             if (state[wid] == "" && wname[wid] ~ /^claude/ && acmd[wid] != "" && acmd[wid] !~ shell) state[wid] = "."
+            # Codex には未読・実行中フックが無いので、プロセス名だけで動作中とみなす
+            if (state[wid] == "" && acmd[wid] ~ codex_cmd) state[wid] = "c"
 
-            if (summary[wid] != "")   label = summary[wid]
+            if (summary[wid] != "")    label = summary[wid]
+            else if (state[wid] == "c") label = "codex"
             # Claude Code はプロセス名がバージョン番号になるので名前で出す
-            else if (state[wid] != "") label = "claude"
-            else if (acmd[wid] != "")  label = acmd[wid]
-            else                       label = wname[wid]
+            else if (state[wid] != "")  label = "claude"
+            else if (acmd[wid] != "")   label = acmd[wid]
+            else                        label = wname[wid]
 
             print wdir[wid], i, wid, state[wid], base[wdir[wid]], label, (wid == cur ? "1" : "0")
         }
     }' \
     | sort -t"$(printf '\t')" -k1,1 -k2,2n \
-    | awk -F'\t' -v color="$color" '
+    | while IFS=$'\t' read -r dir ord wid state grp label cur; do
+        if [ "$dir" != "${prev_dir:-}" ]; then
+            branch="$(git -C "$dir" branch --show-current 2>/dev/null)"
+            staged=""; unstaged=""; ahead=""; behind=""
+            if [ -n "$branch" ]; then
+                git -C "$dir" diff --cached --quiet 2>/dev/null || staged=1
+                git -C "$dir" diff --quiet 2>/dev/null || unstaged=1
+                upstream="$(git -C "$dir" rev-parse --abbrev-ref '@{upstream}' 2>/dev/null)"
+                if [ -n "$upstream" ]; then
+                    counts="$(git -C "$dir" rev-list --count --left-right "$upstream...HEAD" 2>/dev/null)"
+                    behind="${counts%%$'\t'*}"; [ "$behind" = "0" ] && behind=""
+                    ahead="${counts##*$'\t'}"; [ "$ahead" = "0" ] && ahead=""
+                fi
+            fi
+            prev_dir="$dir"
+        fi
+        printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+            "$dir" "$wid" "$state" "$grp" "$label" "$cur" "$branch" "$staged" "$unstaged" "$ahead" "$behind"
+    done
+}
+
+# fzf に渡す ANSI 色付きの一覧。NO_COLOR が設定されていれば色を付けない
+list() {
+    local color=1
+    [ -n "${NO_COLOR:-}" ] && color=0
+
+    collect_rows | awk -F'\t' -v color="$color" '
     BEGIN {
+        BRANCH_NAME_W = 12
+        BRANCH_W = 20
         if (color == "1") {
             R = "\033[0m"; YEL = "\033[33;1m"; DIM = "\033[2m"; BLINK = "\033[5m"
-            CYA = "\033[36;1m"; WHT = "\033[37;1m"
+            CYA = "\033[36;1m"; WHT = "\033[37;1m"; MAG = "\033[35;1m"; GRN = "\033[32;1m"; RED = "\033[31;1m"
         }
     }
     {
-        wid = $3; st = $4; grp = $5; label = $6
+        wid = $2; st = $3; grp = $4; label = $5
+        branch = $7; staged = $8; unstaged = $9; ahead = $10; behind = $11
         if (length(grp) > 18) grp = substr(grp, 1, 17) "~"
         grp = sprintf("%-18s", grp)
 
-        if ($7 == "1") { head = CYA ">" R; grp = CYA grp R }
+        if ($6 == "1") { head = CYA ">" R; grp = CYA grp R }
         else           { head = " ";       grp = WHT grp R }
 
         if (st == "!")      m = YEL "●" R
         else if (st == "+") m = BLINK "○" R
         else if (st == ".") m = DIM "○" R
+        else if (st == "c") m = MAG "◆" R
         else                m = " "
 
-        printf "%s\t%s\t%s%s %s %s\n", wid, $1, head, m, grp, label
+        # ブランチ列: 緑の名前 + 黄(staged)/赤(unstaged) + マゼンタの ahead/behind。
+        # ⇡/⇣ は UTF-8 3バイトだが awk の length() はバイト単位なので、
+        # パッド幅は文字ではなく見た目の桁数を自前で積み上げて計算する。
+        # 名前自体は固定幅に切り詰めて、この列の幅が常に揃うようにする
+        if (length(branch) > BRANCH_NAME_W) branch = substr(branch, 1, BRANCH_NAME_W - 1) "~"
+        vis = length(branch)
+        b = GRN branch R
+        if (staged == "1")   { b = b YEL "+" R; vis++ }
+        if (unstaged == "1") { b = b RED "*" R; vis++ }
+        if (ahead != "")     { b = b MAG "⇡" ahead R; vis += 1 + length(ahead) }
+        if (behind != "")    { b = b MAG "⇣" behind R; vis += 1 + length(behind) }
+        if (branch != "" && vis < BRANCH_W) b = b sprintf("%*s", BRANCH_W - vis, "")
+        else if (branch == "") b = sprintf("%*s", BRANCH_W, "")
+
+        printf "%s\t%s\t%s%s %s %s %s\n", wid, $1, head, m, grp, b, label
     }'
 }
 
@@ -162,14 +214,14 @@ case "${1:-}" in
             --delimiter=$'\t' \
             --with-nth=3 \
             --prompt='/ ' \
-            --header='j/k 移動  / 検索  enter/space 開く  ctrl-t 新しいターミナル  ctrl-x 閉じる  esc 中止' \
+            --header='j/k 移動  / 検索  enter/space 開く  t 新しいターミナル  x 閉じる  esc 中止' \
             --preview='git -C {2} -c color.status=always --no-optional-locks status -sb 2>/dev/null || echo "(git 管理外)"' \
             --preview-window='down,5,border-top' \
             --bind='j:down,k:up,space:accept' \
-            --bind='/:show-input+clear-query+unbind(j,k,space)' \
-            --bind='esc:transform:[ "$FZF_INPUT_STATE" = enabled ] && echo "rebind(j,k,space)+hide-input+search()" || echo abort' \
-            --bind="ctrl-t:execute-silent($DEV new term {2})+abort" \
-            --bind="ctrl-x:execute-silent(tmux kill-window -t {1})+reload($SELF list)")"
+            --bind='/:show-input+clear-query+unbind(j,k,space,t,x)' \
+            --bind='esc:transform:[ "$FZF_INPUT_STATE" = enabled ] && echo "rebind(j,k,space,t,x)+hide-input+search()" || echo abort' \
+            --bind="t:execute-silent($DEV new term {2})+abort" \
+            --bind="x:execute-silent(tmux kill-window -t {1})+reload($SELF list)")"
 
         [ -n "$sel" ] || exit 0
         tmux select-window -t "${sel%%$'\t'*}"
