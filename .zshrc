@@ -88,7 +88,7 @@ deferred_settings() {
     fi
 
     [[ -f ~/Developer/fzf-tab/fzf-tab.plugin.zsh ]] && source ~/Developer/fzf-tab/fzf-tab.plugin.zsh
-    eval "$(mise activate zsh)"    
+    eval "$(mise activate zsh)"
 
     ~/Developer/dotfiles/dotfiles-update.sh &>/dev/null &!
 }
@@ -110,6 +110,14 @@ fi
 alias up='~/Developer/dotfiles/dotfiles-update.sh --force'
 dev() {
     ~/Developer/dotfiles/tmux-dev.sh "$@"
+}
+kgsr() {
+    ~/Developer/dotfiles/kgsr.sh "$@"
+}
+# esaはグローバルCLIなので、プロジェクト側 .mise.toml の node バージョン固定に
+# 影響されないようフルパスで呼ぶ（mise管理の latest シンボリックリンクを使う）
+esa() {
+    "$HOME/.local/share/mise/installs/node/latest/bin/esa" "$@"
 }
 
 cd() {
