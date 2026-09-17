@@ -34,6 +34,7 @@ create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude/skills
 create_symlink "$DOTFILES_DIR/claude/skills/fix-gh-ci-error" "$HOME/.claude/skills/fix-gh-ci-error"
 create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
+create_symlink "$DOTFILES_DIR/paseo/config.json" "$HOME/.paseo/config.json"
 
 if [[ "$OS" == "Darwin" ]]; then
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
