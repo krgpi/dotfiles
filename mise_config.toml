@@ -3,4 +3,4 @@
 _.file = "~/Developer/dotfiles/.env"
 
 [tools]
-node = '24'
+node = "latest"
