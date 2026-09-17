@@ -1,12 +1,21 @@
 model = "gpt-5.6-sol"
 model_reasoning_effort = "low"
-sandbox_mode = "workspace-write"
 approval_policy = "never"
 approvals_reviewer = "auto_review"
+default_permissions = "workspace-write-git"
 
-[sandbox_workspace_write]
-network_access = true
-writable_roots = [".git"]
+[permissions.workspace-write-git]
+extends = ":workspace"
+
+[permissions.workspace-write-git.filesystem.":workspace_roots"]
+"." = "write"
+".git" = "write"
+
+[permissions.workspace-write-git.network]
+enabled = true
+
+[permissions.workspace-write-git.network.domains]
+"*" = "allow"
 
 [tui]
 status_line = ["model-with-reasoning", "context-remaining", "current-dir", "git-branch"]
