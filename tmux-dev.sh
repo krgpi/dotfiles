@@ -29,6 +29,10 @@ EDITOR_CMD="${TMUX_DEV_EDITOR_CMD:-nvim .}"
 GLOBAL_SESSION="${TMUX_DEV_SESSION:-dev}"
 STATE_FILE="/tmp/tmux-dev-restart"
 
+# iTerm2 の tmux -CC（ネイティブウィンドウ統合）対応。iTerm 上でのみ有効にする
+TMUX_ATTACH_FLAGS=()
+[ "$TERM_PROGRAM" = "iTerm.app" ] && TMUX_ATTACH_FLAGS=(-CC)
+
 # ── 共通ヘルパ ────────────────────────────────────────────────
 
 # ステータスバー（未読の ●）を即座に描き直す
@@ -188,7 +192,7 @@ open_group() {
     if [ -n "$TMUX" ]; then
         tmux switch-client -t "=$GLOBAL_SESSION"
     else
-        tmux attach-session -t "=$GLOBAL_SESSION"
+        tmux "${TMUX_ATTACH_FLAGS[@]}" attach-session -t "=$GLOBAL_SESSION"
     fi
 }
 
@@ -396,7 +400,7 @@ cmd_rebuild() {
     flush_group "$prev_dir" "$wins"
     rm -f "$STATE_FILE"
 
-    tmux attach-session -t "=$GLOBAL_SESSION"
+    tmux "${TMUX_ATTACH_FLAGS[@]}" attach-session -t "=$GLOBAL_SESSION"
 }
 
 # 引数なし: 新規作成せず、tmux（GLOBAL_SESSION）へ戻る
@@ -409,7 +413,7 @@ cmd_last() {
     if [ -n "$TMUX" ]; then
         tmux switch-client -t "=$GLOBAL_SESSION"
     else
-        tmux attach-session -t "=$GLOBAL_SESSION"
+        tmux "${TMUX_ATTACH_FLAGS[@]}" attach-session -t "=$GLOBAL_SESSION"
     fi
 }
 
