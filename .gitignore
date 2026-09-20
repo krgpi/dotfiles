@@ -17,7 +17,9 @@
 .env
 claude/.env
 codex/auth.json
+codex/config.toml
 codex-work/auth.json
+codex-work/config.toml
 
 # Codex runtime data
 codex/.app-server-state-reconciled-v1
