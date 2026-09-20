@@ -39,6 +39,13 @@
       "/tmp"
     ]
   },
+  "sandbox": {
+    "network": {
+      "allowUnixSockets": [
+        "/var/run/docker.sock"
+      ]
+    }
+  },
   "model": "sonnet",
   "hooks": {
     "Notification": [
