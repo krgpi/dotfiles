@@ -31,6 +31,15 @@ gh pr view <N> --repo <owner>/<repo> --json title,body,headRefName,baseRefName
 
 指摘を項目ごとに分解する。レビューレポート形式（番号付き・重大さ付き・「対応する／対応しない」チェックボックス表を持つもの）の場合は、その表の各行を1項目として扱う。
 
+各項目について、元になったレビューコメントが**インラインコメント（差分の特定行に付くコメント）か通常の PR コメントか**を確認し、インラインなら `comment_id` を控えておく（Step 8 で返信先として使う）。
+
+```sh
+# PR 上のインラインレビューコメント一覧（id・対象ファイル・行・本文）
+gh api repos/<owner>/<repo>/pulls/<N>/comments --jq '.[] | {id, path, line, body}'
+```
+
+URL に `#discussion_r<ID>` が含まれる、または上記一覧に本文が一致する指摘はインラインコメント起源。`#issuecomment-<ID>` のみで一覧に対応が無い指摘は通常の PR コメント起源として扱う。
+
 ### Step 2: 各項目を実コードと照合して推奨を作る
 
 項目ごとに参照ファイル・行を `Read` し、次の観点で**対応可否の推奨を決める**。
@@ -94,15 +103,22 @@ gh api repos/<owner>/<repo>/issues/comments/<ID> -X PATCH -F body=@<新本文フ
 
 ### Step 8: 説明返信コメントの投稿
 
-PR に返信コメントを投稿する。内容は:
+各項目について、Step 1 で控えた起源に応じて投稿先を分ける。
+
+- **インラインコメント起源の項目**: そのインラインコメントへの返信として投稿する（スレッドを維持する）。
+  ```sh
+  gh api repos/<owner>/<repo>/pulls/<N>/comments -F body=@<返信本文ファイル> -F in_reply_to=<comment_id> --jq '.html_url'
+  ```
+- **通常の PR コメント起源の項目・複数項目のまとめ**: 従来どおり PR 全体への通常コメントとして投稿する。
+  ```sh
+  gh api repos/<owner>/<repo>/issues/<N>/comments -F body=@<返信本文ファイル> --jq '.html_url'
+  ```
+
+内容は:
 
 - **対応した項目**: 何を・なぜそう直したか、追加テストが旧コードで FAIL することの確認結果、コミット SHA。
 - **見送った項目**: 見送り理由を明確に（例: 現状すでに正しい／到達不能／恒真の死んだ条件／コスト過大）。
 - 末尾に「防御的に明示したい等の要望があれば追加対応する」旨を一言添える。
-
-```sh
-gh api repos/<owner>/<repo>/issues/<N>/comments -F body=@<返信本文ファイル> --jq '.html_url'
-```
 
 ## 注意事項
 
