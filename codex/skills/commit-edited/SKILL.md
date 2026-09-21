@@ -16,7 +16,8 @@ metadata:
 ### ロック取得
 
 ```sh
-LOCK_DIR="/tmp/codex-commit$(git rev-parse --show-toplevel | tr '/' '-').lock"
+LOCK_DIR="/tmp/codex/commit$(pwd -P | tr '/' '-').lock"
+mkdir -p "$(dirname "$LOCK_DIR")"
 ACQUIRED=""
 for i in $(seq 1 12); do
   mkdir "$LOCK_DIR" 2>/dev/null && ACQUIRED=1 && break
@@ -38,7 +39,7 @@ done
 Git 操作がすべて完了したら（成功・エラーを問わず）、必ず以下を実行する。
 
 ```sh
-rmdir "/tmp/codex-commit$(git rev-parse --show-toplevel | tr '/' '-').lock" 2>/dev/null
+rmdir "/tmp/codex/commit$(pwd -P | tr '/' '-').lock" 2>/dev/null
 ```
 
 ## コミット手順
