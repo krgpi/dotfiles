@@ -75,6 +75,14 @@
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-waiting-silent"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
       }
     ],
     "SessionEnd": [
@@ -83,6 +91,14 @@
           {
             "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh clear-waiting-log 'End(Session)'"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
           }
         ]
       }
@@ -95,6 +111,14 @@
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh reset-lock"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -105,6 +129,14 @@
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh clear-running"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -113,6 +145,14 @@
           {
             "type": "command",
             "command": "$HOME/Developer/dotfiles/claude-marketplace/karaage-tools/tmux-sidebar-notify.sh set-running"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
           }
         ]
       }
@@ -129,6 +169,54 @@
             "type": "command",
             "command": "jq -r '.tool_name' | { read -r t; case \"$t\" in *authenticate|*complete_authentication) ;; *) printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"Notion書き込み操作は承認が必要です\"}}' ;; esac; }",
             "if": "mcp__claude_ai_Notion__*"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.config/iterm2/cc-status"
           }
         ]
       }
