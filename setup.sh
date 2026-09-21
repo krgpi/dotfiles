@@ -34,6 +34,7 @@ create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude/skills
 create_symlink "$DOTFILES_DIR/claude/skills/fix-gh-ci-error" "$HOME/.claude/skills/fix-gh-ci-error"
 create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude-work/skills/commit-edited"
 create_symlink "$DOTFILES_DIR/claude/skills/fix-gh-ci-error" "$HOME/.claude-work/skills/fix-gh-ci-error"
+create_symlink "$DOTFILES_DIR/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
 create_symlink "$DOTFILES_DIR/codex-work/AGENTS.md" "$HOME/.codex-work/AGENTS.md"
 create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
