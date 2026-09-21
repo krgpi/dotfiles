@@ -56,3 +56,4 @@
 ## 外部サービスへの書き込み
 
 - Esa の記事を編集するときは `esa` CLI を使う
+- GitHub にコメント・レビューを投稿するときは、本文末尾に空行を挟んで署名を付ける: `<img src="https://chatgpt.com/favicon.ico" width="12" height="12"/> Codex`
