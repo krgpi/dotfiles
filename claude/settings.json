@@ -40,6 +40,9 @@
     ]
   },
   "sandbox": {
+    "excludedCommands": [
+      "gh *"
+    ],
     "network": {
       "allowUnixSockets": [
         "/var/run/docker.sock"
