@@ -94,6 +94,7 @@ gh api repos/<owner>/<repo>/pulls/<番号>/files --jq '.[] | {filename, patch}'
 
 - インラインコメントはdiffに含まれる行にしか打てない。対象ファイルがPRの差分に含まれない場合はreviewの`body`（全体コメント）に回す。
 - コメント本文の冒頭に確信度タグ（`[must]`等）を付ける。
+- コメント本文の末尾に空行を挟んで署名を付ける: `<img src="https://claude.ai/favicon.ico" width="12" height="12"/> Claude Code`
 - 一時JSONファイルに書き出し、以下で投稿する（シェルエスケープでの直書きは避ける）。
 
 ```sh

@@ -119,6 +119,7 @@ gh api repos/<owner>/<repo>/issues/comments/<ID> -X PATCH -F body=@<新本文フ
 - **対応した項目**: 何を・なぜそう直したか、追加テストが旧コードで FAIL することの確認結果、コミット SHA。
 - **見送った項目**: 見送り理由を明確に（例: 現状すでに正しい／到達不能／恒真の死んだ条件／コスト過大）。
 - 末尾に「防御的に明示したい等の要望があれば追加対応する」旨を一言添える。
+- さらにその下に空行を挟んで署名を付ける: `<img src="https://claude.ai/favicon.ico" width="12" height="12"/> Claude Code`
 
 ## 注意事項
 
