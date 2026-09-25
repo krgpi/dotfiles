@@ -39,16 +39,6 @@
       "/tmp"
     ]
   },
-  "sandbox": {
-    "excludedCommands": [
-      "gh *"
-    ],
-    "network": {
-      "allowUnixSockets": [
-        "/var/run/docker.sock"
-      ]
-    }
-  },
   "model": "sonnet",
   "hooks": {
     "Notification": [
@@ -237,18 +227,17 @@
     "code-simplifier@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
     "karaage-tools@karaage-dotfiles": true,
-    "slack@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
+    "slack@claude-plugins-official": false,
+    "feature-dev@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "Notion@claude-plugins-official": false,
     "gopls-lsp@claude-plugins-official": false,
     "notion@claude-plugins-official": true,
-    "searchfit-seo@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
     "stripe@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "bento-slides@bento": true,
+    "rust-analyzer-lsp@claude-plugins-official": false,
+    "bento-slides@bento": false,
     "kagisuru-tools@ideoj": true
   },
   "extraKnownMarketplaces": {
@@ -272,6 +261,16 @@
     }
   },
   "language": "Japanese",
+  "sandbox": {
+    "network": {
+      "allowUnixSockets": [
+        "/var/run/docker.sock"
+      ]
+    },
+    "excludedCommands": [
+      "gh *"
+    ]
+  },
   "effortLevel": "xhigh",
   "modelSettings": {
     "claude-sonnet-5": {
