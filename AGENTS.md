@@ -64,7 +64,7 @@ cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install -
 
 #### 一覧（ピッカー）
 
-`prefix Space` で `tmux-picker.sh` を `display-popup` に出す。パスでグルーピングした一覧の作り方はここに集約してあり、tmux 側（fzf）と nvim 側（telescope、`<leader>fp`）が同じ `list` を読む。
+`prefix Space` で `tmux-picker.sh` を `new-window` で一時ウィンドウとして開く（`display-popup` ではない。iTerm2 の tmux -CC 統合が popup のレンダリングに対応していないため）。選択・中止と同時にそのウィンドウは自動で閉じ、直前のウィンドウへ戻る。パスでグルーピングした一覧の作り方はここに集約してあり、tmux 側（fzf）と nvim 側（telescope、`<leader>fp`）が同じ `list` を読む。
 
 - 並ぶのはウィンドウ名ではなく**中で何が起きているか**。Claude Code は `pane_title` に出る `✳ <作業概要>`（まだ何もしていなければ `claude`）、それ以外のウィンドウはアクティブペインの `pane_current_command`（シェルのままなら `zsh`）。`claude1` や `sh1` といった dev が付けた名前は表示しない
 - **Claude の判定はペインタイトルの `✳`**。Claude Code はプロセス名がバージョン番号（例 `2.1.238`）になるため `pane_current_command` では見分けられない
