@@ -36,11 +36,15 @@ gh pr diff <番号>
 
 diffが小さくても、`pr-review-toolkit` プラグインの専門エージェントを `Agent` ツール（`subagent_type` 指定）で並列に投げる。汎用エージェントで代替しない。
 
-- **常時**: `pr-review-toolkit:code-reviewer`
-- テストファイルの変更があれば: `pr-review-toolkit:pr-test-analyzer`
-- エラーハンドリング（catch/フォールバック/リトライ等）の変更があれば: `pr-review-toolkit:silent-failure-hunter`
-- 新規/変更された型があれば: `pr-review-toolkit:type-design-analyzer`
-- コメント・docstringの追加/変更があれば: `pr-review-toolkit:comment-analyzer`
+以下の5つを**既定ですべて起動し、1つのメッセージで同時に投げる**。外してよいのは、diff に該当するコードが1行も無いと言い切れるときだけ。迷ったら起動する。後述の code-reviewer 向け追加観点は専門エージェントの代わりにならないので、それを理由に他を省かない。
+
+- `pr-review-toolkit:code-reviewer`（常に起動）
+- `pr-review-toolkit:pr-test-analyzer`: テストの追加/変更に加え、テストが要りそうなロジック変更なのにテストが無いケースも見る
+- `pr-review-toolkit:silent-failure-hunter`: catch/フォールバック/リトライ/デフォルト値による握りつぶし、外部呼び出しの失敗経路
+- `pr-review-toolkit:type-design-analyzer`: 型・interface・スキーマ・DTO・関数シグネチャの追加/変更
+- `pr-review-toolkit:comment-analyzer`: コメント・docstring・README等のドキュメントの追加/変更
+
+省いたエージェントがあれば、Step 4 の冒頭にその名前と理由を1行ずつ書く。
 
 `pr-review-toolkit:code-reviewer` への指示には、以下の追加観点（プロジェクトの規約があれば併せて確認）も明記する。該当しない観点は無理に指摘を作らせない。
 
