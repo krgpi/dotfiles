@@ -2,17 +2,25 @@
 
 # dev ピッカー
 #
-# prefix + Space（または prefix なしの Alt-Space）から tmux display-popup 越しに呼ばれ、開いているウィンドウを
+# prefix + Space（または prefix なしの Alt-Space）から tmux new-window 越しに呼ばれ、開いているウィンドウを
 # パスでグルーピングして fzf に出す。常駐サイドバーの代わりに「押したときだけ」
 # 一覧を出すのが役割で、グルーピング・未読マーク・git 状態はここに集約している。
+# display-popup ではなく new-window なのは、iTerm2 の tmux -CC 統合が popup の
+# レンダリングに対応していないため（tmux-dev.sh の TMUX_ATTACH_FLAGS 参照）。
+# コマンド終了と同時にこのウィンドウ自体が自動で閉じ、直前のウィンドウへ戻る
 #
-#   tmux-picker.sh        fzf を出し、選ばれたウィンドウへ移動する
-#   tmux-picker.sh list   fzf に流す行だけを出す（x で閉じたあとの再読み込み用）
+#   tmux-picker.sh              fzf を出し、選ばれたウィンドウへ移動する
+#   tmux-picker.sh list         fzf に流す行だけを出す（x で閉じたあとの再読み込み用）
+#
+# 環境変数 TMUX_PICKER_ORIGIN には呼び出し元（ピッカーを開く前にいた）ウィンドウの
+# window_id が入る（.tmux.conf 側で new-window -e により #{window_id} を渡す）。
+# ピッカー自身のウィンドウは一覧から除外し、この呼び出し元ウィンドウを
+# 「現在地」として扱う
 #
 # fzf は vim 風に使う。入力欄は隠しておき j / k で移動、enter か space で開く。
 # / で入力欄を出して絞り込む（その間 j / k / space / t / x は検索文字に戻る）。
 # 絞り込み中の esc は入力欄を畳んで全件に戻し、通常時の esc は中止。
-# ポップアップ自体がフォーカスを持つので t / x に ctrl は要らない。
+# ウィンドウ自体がフォーカスを持つので t / x に ctrl は要らない。
 # t は選択行と同じパスに新しいターミナルを開いてそこへ移動する。
 #
 # 出力は「<window_id> TAB <パス> TAB <表示>」。fzf には 3 列目だけ見せ、
@@ -25,6 +33,7 @@ GLOBAL_SESSION="${TMUX_DEV_SESSION:-dev}"
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 SELF="$DOTFILES_DIR/$(basename "$0")"
 DEV="$DOTFILES_DIR/tmux-dev.sh"
+ORIGIN_WID="${TMUX_PICKER_ORIGIN:-}"
 
 # Claude Code がペインタイトルの頭に付けるマーク（"✳ 作業概要" の形で出る）
 CLAUDE_MARK='✳'
@@ -49,15 +58,17 @@ collect_rows() {
         running="${running}${f#/tmp/claude-running-} "
     done
 
-    cur="$(tmux display-message -p -t "=$GLOBAL_SESSION:" '#{window_id}' 2>/dev/null)"
+    self_wid="$(tmux display-message -p -t "=$GLOBAL_SESSION:" '#{window_id}' 2>/dev/null)"
+    cur="${ORIGIN_WID:-$self_wid}"
 
     tmux list-panes -s -t "=$GLOBAL_SESSION" -F \
         '#{window_id}|#{window_name}|#{pane_id}|#{pane_current_command}|#{pane_active}|#{pane_current_path}|#{pane_title}' 2>/dev/null \
-    | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v codex_cmd="$CODEX_CMD" -v waiting="$waiting" -v running="$running" -v cur="$cur" '
+    | awk -F'|' -v mark="$CLAUDE_MARK" -v idle="$CLAUDE_IDLE" -v codex_cmd="$CODEX_CMD" -v waiting="$waiting" -v running="$running" -v cur="$cur" -v self="$self_wid" '
     # ペイン一覧をウィンドウごとの 1 行にまとめ、パスの表示名まで決める。
     # 出力: <パス> \t <出現順> \t <window_id> \t <state> \t <グループ名> \t <ラベル> \t <現在なら1>
     #   state: ! = 未読、+ = 実行中、. = 起動中（入力待ち）、c = Codex、空 = 何もなし
     BEGIN { shell = "^(sh|bash|zsh|fish|login)$"; OFS = "\t" }
+    $1 == self { next }  # ピッカー自身の一時ウィンドウは一覧に出さない
     {
         title = $7
         for (i = 8; i <= NF; i++) title = title "|" $i   # タイトルに | が入っても拾えるように
