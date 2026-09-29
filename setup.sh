@@ -44,7 +44,6 @@ if [[ "$OS" == "Darwin" ]]; then
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
     create_symlink "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
     create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
-    create_symlink "$DOTFILES_DIR/.yabairc" "$HOME/.yabairc"
     create_symlink "$DOTFILES_DIR/paseo/com.yuki.paseo-daemon.plist" "$HOME/Library/LaunchAgents/com.yuki.paseo-daemon.plist"
 else
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
