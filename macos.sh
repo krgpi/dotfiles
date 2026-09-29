@@ -99,7 +99,6 @@ defaults write com.apple.finder FinderSpawnTab -bool true
 defaults write com.apple.finder _FXSortFoldersFirst -bool true
 defaults write com.apple.finder _FXSortFoldersFirstOnDesktop -bool true
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 
 # デスクトップに出すアイコン
 defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
