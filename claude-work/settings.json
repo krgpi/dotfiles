@@ -125,7 +125,8 @@
     "feature-dev@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "github@claude-plugins-official": true,
-    "notion@claude-plugins-official": true
+    "notion@claude-plugins-official": true,
+    "crit@crit": true
   },
   "extraKnownMarketplaces": {
     "karaage-dotfiles": {
@@ -133,10 +134,21 @@
         "source": "directory",
         "path": "~/Developer/dotfiles/claude-marketplace"
       }
+    },
+    "crit": {
+      "source": {
+        "source": "github",
+        "repo": "tomasz-tomczyk/crit"
+      }
     }
   },
   "language": "Japanese",
   "sandbox": {
+    "filesystem": {
+      "allowWrite": [
+        "~/.crit"
+      ]
+    },
     "excludedCommands": [
       "gh *"
     ]
