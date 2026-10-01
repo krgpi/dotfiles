@@ -136,7 +136,6 @@ require("lazy").setup({
 			{ "echasnovski/mini.completion", version = false },
 		},
 		config = function()
-			local lspconfig = require("lspconfig")
 			require("mini.completion").setup({})
 
 			-- 診断記号の設定
@@ -205,44 +204,28 @@ require("lazy").setup({
 				vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
 			end
 
-			-- TSサーバーとDenoの設定
-			local servers = {
-				denols = {
-					on_attach = on_attach,
-					root_dir = lspconfig.util.root_pattern({ "deno.json", "deno.jsonc" }),
-					single_file_support = false,
-					settings = {},
-				},
-				vtsls = {
-					on_attach = function(client, bufnr)
-						-- LSPのフォーマットを無効化（Prettierを使用）
+			-- LSPのアタッチ時にキーマップを設定（vtslsはフォーマットをPrettierに任せる）
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(ev)
+					local client = vim.lsp.get_client_by_id(ev.data.client_id)
+					if client and client.name == "vtsls" then
 						client.server_capabilities.documentFormattingProvider = false
 						client.server_capabilities.documentRangeFormattingProvider = false
-						on_attach(client, bufnr)
-					end,
-					root_dir = lspconfig.util.root_pattern({ "package.json", "tsconfig.json" }),
-					single_file_support = false,
-					settings = {},
-				},
-				}
+					end
+					on_attach(client, ev.buf)
+				end,
+			})
 
-			-- Masonで自動インストールするLSPサーバーのリスト
+			-- deno.json がある時だけ denols を使う
+			vim.lsp.config("denols", {
+				root_markers = { "deno.json", "deno.jsonc" },
+				workspace_required = true,
+			})
+
+			-- Masonで自動インストールし、ts_lsは無効化（vtslsに一本化）
 			require("mason-lspconfig").setup({
 				ensure_installed = { "vtsls" },
-				automatic_installation = true,
-				handlers = {
-					function(server_name)
-						if servers[server_name] then
-							lspconfig[server_name].setup(servers[server_name])
-						else
-							lspconfig[server_name].setup({
-								on_attach = on_attach,
-							})
-						end
-					end,
-					-- ts_lsを無効化（vtslsに一本化）
-					ts_ls = function() end,
-				},
+				automatic_enable = { exclude = { "ts_ls" } },
 			})
 		end,
 	},
