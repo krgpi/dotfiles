@@ -11,6 +11,7 @@ five_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empt
 seven_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 five_resets=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 seven_resets=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
+vim_mode=$(echo "$input" | jq -r '.vim.mode // empty')
 
 now=$(date +%s)
 
@@ -32,12 +33,19 @@ fmt_remaining() {
 
 out=""
 
+case "$vim_mode" in
+    NORMAL) out="\033[48;2;89;192;255m\033[38;2;44;48;57;1m NORMAL \033[0m" ;;
+    INSERT) out="\033[48;2;167;209;111m\033[38;2;44;48;57;1m INSERT \033[0m" ;;
+    VISUAL*) out="\033[48;2;185;177;247m\033[38;2;44;48;57;1m ${vim_mode} \033[0m" ;;
+esac
+
 if [ -n "$model" ]; then
     if [ "$CLAUDE_CONFIG_DIR" = "$HOME/.claude-work" ]; then
-        out="\033[48;2;150;115;57m\033[97;1m WORK \033[0m \033[36m${model}\033[0m"
+        model_str="\033[48;2;150;115;57m\033[97;1m WORK \033[0m \033[36m${model}\033[0m"
     else
-        out="\033[48;2;80;80;80m\033[97;1m DEFAULT \033[0m \033[36m${model}\033[0m"
+        model_str="\033[48;2;80;80;80m\033[97;1m DEFAULT \033[0m \033[36m${model}\033[0m"
     fi
+    [ -n "$out" ] && out="${out} ${model_str}" || out="${model_str}"
 fi
 
 if [ -n "$branch" ]; then
