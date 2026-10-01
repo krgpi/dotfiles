@@ -155,5 +155,6 @@
     ]
   },
   "awaySummaryEnabled": false,
+  "editorMode": "vim",
   "remoteControlAtStartup": true
 }
