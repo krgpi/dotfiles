@@ -234,7 +234,7 @@
     "slack@claude-plugins-official": false,
     "feature-dev@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
+    "github@claude-plugins-official": false,
     "Notion@claude-plugins-official": false,
     "gopls-lsp@claude-plugins-official": false,
     "notion@claude-plugins-official": true,
