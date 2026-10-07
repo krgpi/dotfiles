@@ -239,9 +239,29 @@
     "gopls-lsp@claude-plugins-official": false,
     "notion@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "stripe@claude-plugins-official": true,
+    "stripe@claude-plugins-official": false,
     "rust-analyzer-lsp@claude-plugins-official": false,
     "bento-slides@bento": false
+  },
+  "skillOverrides": {
+    "agents-sdk": "off",
+    "amazon-bedrock": "off",
+    "cloudflare": "off",
+    "cloudflare-email-service": "off",
+    "cloudflare-one": "off",
+    "cloudflare-one-migrations": "off",
+    "durable-objects": "off",
+    "sandbox-sdk": "off",
+    "turnstile-spin": "off",
+    "web-perf": "off",
+    "workers-best-practices": "off",
+    "wrangler": "off",
+    "paseo-advisor": "off",
+    "paseo-committee": "off",
+    "paseo-handoff": "off",
+    "paseo-loop": "off",
+    "paseo-plugin": "off",
+    "find-skills": "off"
   },
   "extraKnownMarketplaces": {
     "bento": {
