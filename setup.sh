@@ -38,6 +38,8 @@ create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude-work/s
 create_symlink "$DOTFILES_DIR/claude/skills/fix-gh-ci-error" "$HOME/.claude-work/skills/fix-gh-ci-error"
 create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
+create_symlink "$DOTFILES_DIR/hooks/pre-commit" "$DOTFILES_DIR/.git/hooks/pre-commit"
+create_symlink "$DOTFILES_DIR/hooks/commit-msg" "$DOTFILES_DIR/.git/hooks/commit-msg"
 create_symlink "$DOTFILES_DIR/paseo/config.json" "$HOME/.paseo/config.json"
 
 if [[ "$OS" == "Darwin" ]]; then
