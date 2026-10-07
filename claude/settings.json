@@ -109,7 +109,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.config/iterm2/cc-status"
+            "command": "$HOME/.config/iterm2/cc-status",
+            "async": true
           }
         ]
       }
@@ -145,7 +146,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.config/iterm2/cc-status"
+            "command": "$HOME/.config/iterm2/cc-status",
+            "async": true
           }
         ]
       }
@@ -169,7 +171,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.config/iterm2/cc-status"
+            "command": "$HOME/.config/iterm2/cc-status",
+            "async": true
           }
         ]
       }
