@@ -42,7 +42,6 @@ cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install -
 
 - **zsh** (`.zshrc`): zsh-deferによる遅延読み込みでパフォーマンス最適化。compinit は1日1回のみ実行。環境変数は `.env` から読み込み（gitignore対象）
 - **Neovim** (`nvim/`): lazy.nvim でプラグイン管理。エントリポイントは `nvim/init.lua`、設定は `nvim/lua/options/`、プラグインは `nvim/lua/plugins/`。telescope と mason は起動時に読まず、キーマップ（`keys`）とバッファを開いたとき（`event`）まで遅らせている。`nvim/lua/tmux_dev.lua` は `tmux-picker.sh` の一覧を telescope に流すだけのモジュール（`<leader>fp`）
-- **Claude Code** (`claude/`): グローバル設定・カスタムコマンド（mk-pr, x-search）・hooks（tmux未読通知, Prettier自動整形, ccusage）
 - **macOS のシステム設定** (`macos.sh`): Dock・Finder・トラックパッド・スクリーンショット・メニューバーなどの `defaults` を一括適用する。`setup.sh` からは実行せず手動で叩く。ウィンドウ位置やマシン固有の識別子など環境依存の値は持たない
 - **自動更新** (`dotfiles-update.sh`): 1日1回、ターミナル起動時に zsh-defer 経由でバックグラウンド実行。`brew update` + `brew upgrade --formula` と fzf-tab / zsh-defer の `git pull` を行う。cask は起動中アプリの差し替えを避けるため件数通知のみ。結果は次回のターミナル起動時に一度だけ表示される。`up` で即時実行でき、その場に結果を出力する。実行履歴（更新されたコミット一覧を含む）は `~/.cache/dotfiles-update/last.log` に追記される（直近500行を保持）
 - **tmux** (`.tmux.conf`): vim風キーバインド。`tmux-dev.sh`（`dev` コマンド）が開発環境を構築し、`tmux-picker.sh` が `prefix Space` の一覧を、`tmux-status-waiting.sh` がステータス右の未読表示を担当する
@@ -83,17 +82,6 @@ Claude Code の hooks（`claude-marketplace/karaage-tools/tmux-sidebar-notify.sh
 - hooks 側が最後に `tmux refresh-client -S` を叩くので、`status-interval`（2秒）を待たずに反映される
 - **既読ロック**: 確認済みのウィンドウが再通知で光り直すのを防ぐ。ウィンドウを開くと中の Claude がまとめて既読になり（`after-select-window` フック）、次のプロンプト送信時に `UserPromptSubmit` フックがロックを外す
 - **実行中フラグ** `/tmp/claude-running-<pane_id>`: `UserPromptSubmit` と `PostToolUse` で置き、`Stop`・`Notification`（人待ち）・`SessionEnd` で消す。ピッカーだけが読み、ステータスバーには出さない。`PostToolUse` で置き直すのは、承認待ちで消したあとの再開を拾うため。Esc で中断すると `Stop` が来ないので、`idle_prompt`（60秒後）まで実行中のまま残る
-
-#### キーバインド
-
-| キー | 動作 |
-| --- | --- |
-| `prefix Space` | フォルダ/ウィンドウのピッカー（`j`/`k` 移動、`enter`/`space` で開く、`/` 絞り込み、`ctrl-t` で同じパスに新しいターミナル、`ctrl-x` でそのウィンドウを閉じる） |
-| `prefix h` / `l` | 同じパス内でウィンドウを前後に移動 |
-| `prefix H` / `L` | フォルダ（パスのグループ）を前後に移動 |
-| `prefix c` / `t` / `e` | 現在のウィンドウと同じパスにウィンドウを追加（claudeN / シェル / エディタ）。`nv` は既にあればそこへ移動 |
-| `prefix x` / `X` | ウィンドウを閉じる / 同じパスのウィンドウをまとめて閉じる |
-| `prefix Tab` | ペインを巡回 |
 
 新しいパスを開くのに専用の操作はなく、どのシェルからでも `dev <path>` を打てばそのまま開く（既に開いていればジャンプするだけ）。
 
