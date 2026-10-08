@@ -103,6 +103,31 @@ alias clt='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 codex() { CODEX_HOME="$HOME/Developer/dotfiles/codex" command codex "$@"; }
 codex-work() { CODEX_HOME="$HOME/Developer/dotfiles/codex-work" command codex "$@"; }
 paseo-work() { paseo run --env "CLAUDE_CONFIG_DIR=$HOME/.claude-work" "$@"; }
+gh() {
+    local -a args
+    if [[ "$1" == "co" ]]; then
+        args=("${@:2}")
+    elif [[ "$1 $2" == "pr checkout" ]]; then
+        args=("${@:3}")
+    else
+        command gh "$@"
+        return
+    fi
+    local branch root dir
+    branch=$(command gh pr view "$args[1]" --json headRefName -q .headRefName) || return
+    dir=$(git worktree list --porcelain | awk -v b="branch refs/heads/$branch" '/^worktree /{w=substr($0,10)} $0==b{print w; exit}')
+    if [[ -z "$dir" ]]; then
+        root=$(git rev-parse --path-format=absolute --git-common-dir) || return
+        root=${root:h}
+        dir="${root:h}/${root:t}-worktrees/${branch//\//-}"
+        git worktree add --detach "$dir" || return
+        if ! (builtin cd "$dir" && command gh pr checkout "${args[@]}"); then
+            git worktree remove --force "$dir"
+            return 1
+        fi
+    fi
+    builtin cd "$dir" && echo "→ $dir"
+}
 alias nv='nvim'
 if (( $+commands[brew] )); then
     alias bu='brew upgrade'
