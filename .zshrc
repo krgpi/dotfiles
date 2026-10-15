@@ -43,12 +43,25 @@ _git_fetch_bg() {
     fi
 }
 
+_short_pwd() {
+    local p=${(%):-%~}
+    local -a parts=(${(s:/:)p})
+    local out= i
+    [[ $p == /* ]] && out=/
+    for (( i = 1; i < $#parts; i++ )); do
+        [[ ${parts[i]} == .* ]] && out+=${parts[i][1,2]}/ || out+=${parts[i][1]}/
+    done
+    out+=${parts[-1]}
+    _SHORT_PWD=${out//\%/%%}
+}
+
 precmd() {
     vcs_info
     _git_fetch_bg
     _GIT_REMOTE_STATUS=$(_git_remote_status)
+    _short_pwd
 }
-PROMPT='%F{red}%*%f %F{cyan}%1~%f ${vcs_info_msg_0_}${_GIT_REMOTE_STATUS} %F{yellow}%m%f
+PROMPT='%F{red}%*%f %F{cyan}${_SHORT_PWD}%f ${vcs_info_msg_0_}${_GIT_REMOTE_STATUS} %F{yellow}%m%f
  > '
 RPROMPT=''
 
