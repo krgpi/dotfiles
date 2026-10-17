@@ -1,6 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
+    "allow": [
+      "WebFetch(domain:registry.npmjs.org)"
+    ],
     "ask": [
       "Bash(git push:*)",
       "Bash(gh pr comment:*)",
@@ -112,6 +115,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "bash $HOME/Developer/dotfiles/claude/statusline-command.sh",
@@ -145,13 +151,19 @@
   },
   "language": "Japanese",
   "sandbox": {
+    "network": {
+      "allowUnixSockets": [
+        "/private/tmp/phi-cdp-501.31e9d348/agent.sock"
+      ]
+    },
     "filesystem": {
       "allowWrite": [
         "~/.crit"
       ]
     },
     "excludedCommands": [
-      "gh *"
+      "gh *",
+      "/Users/yuki/Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-arm64/chrome-headless-shell"
     ]
   },
   "awaySummaryEnabled": false,
