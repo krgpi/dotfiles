@@ -5,7 +5,10 @@ argument-hint: "<問題の説明 or URL or CSSセレクタ>"
 
 # debug-ui
 
-Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レイアウト問題を診断する。
+Orca の組み込みブラウザを `orca` CLI で操作し、UIのスタイリング・レイアウト問題を診断する。
+
+以降のコマンドには Phase 0 で決めたページ ID を `--page <id>` で必ず付ける（ユーザーがタブを切り替えても対象がずれないようにするため）。
+`orca eval` に渡す複数行のスクリプトは scratchpad にファイルとして書き、`--expression "$(cat <file>)"` で渡す。戻り値は JSON の `result` に文字列で入る。
 
 ## 引数の解釈
 
@@ -19,26 +22,27 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
 
 ### Phase 0: タブ準備
 
-1. `tabs_context_mcp` でMCPタブグループの情報を取得する
-2. 引数がURLの場合: タブに `navigate` でそのURLに遷移する
-3. URLでない場合: 現在のアクティブタブを使用する
-4. タブが存在しない場合: ユーザーにデバッグ対象のページをChromeで開くよう案内して中断する
+1. `orca status` で Orca が起動しているか確認する。起動していなければユーザーに Orca を開くよう案内して中断する
+2. 引数がURLの場合: `orca tab create --url <URL> --json` で新しいタブを開き、`result.browserPageId` をページ ID として使う
+3. URLでない場合: `orca tab list` の `*` が付いた現在のタブのページ ID を使う
+4. タブが存在しない場合: ユーザーにデバッグ対象のページを Orca のブラウザで開くよう案内して中断する
+5. `orca exec --command "console --clear"` で以前のコンソール出力を消してから `orca reload` する（Phase 5 で読むログを今回の表示分に絞るため）
 
 ### Phase 1: 現状の記録
 
 1. **スクリーンショット撮影**
-   `computer` で `action: "screenshot"` を実行し、現在の状態を視覚的に記録する。
+   `orca exec --command "screenshot <scratchpad>/<名前>.png"` で保存し、`Read` で画像を見て現在の状態を記録する。
 
 2. **DOM構造の取得**
-   `read_page` で `depth: 8` でページの要素階層を取得する。
+   `orca snapshot` でアクセシビリティツリーを取得する。各要素には `@e1` のような ref が付く。
 
 3. **問題箇所の特定**
-   - 引数がCSSセレクタの場合: `find` または `javascript_tool` でその要素を特定し `ref_id` を得る
-   - 問題の説明の場合: スクリーンショットとDOM構造から該当箇所を推定し、`find` で対象要素の `ref_id` を取得する
+   - 引数がCSSセレクタの場合: `orca eval` で `document.querySelector` を使ってその要素が存在するか確かめる
+   - 問題の説明の場合: スクリーンショットと snapshot から該当箇所を推定し、`orca eval` で候補のセレクタを当てて `tagName` やテキストを返させ、対象要素の CSS セレクタを特定する
 
 ### Phase 2: スタイル詳細分析
 
-対象要素とその親要素に対して `javascript_tool` で以下のスクリプトを実行する。
+対象要素とその親要素に対して `orca eval` で以下のスクリプトを実行する。
 `<SELECTOR>` は Phase 1 で特定した要素のセレクタに置き換える。
 
 ```js
@@ -87,7 +91,7 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
 
 ### Phase 3: アンチパターン検出
 
-`javascript_tool` で以下のスクリプトを実行し、ページ全体の一般的なCSS問題を検出する:
+`orca eval` で以下のスクリプトを実行し、ページ全体の一般的なCSS問題を検出する:
 
 ```js
 (function() {
@@ -127,11 +131,10 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
 
 以下の手順でテストする:
 
-1. **元のウィンドウサイズを記録**
-   `javascript_tool` で `({ width: window.outerWidth, height: window.outerHeight })` を実行して保存する。
+ビューポートはウィンドウを動かさずエミュレーションで変える。設定はリロードすると外れるので、途中で `orca reload` しない。
 
-2. **各ブレークポイントでテスト**
-   以下の順に `resize_window` → `computer(screenshot)` を繰り返す:
+1. **各ブレークポイントでテスト**
+   以下の順に `orca exec --command "set viewport <幅> <高さ>"` → Phase 1 と同じ方法でスクリーンショット、を繰り返す:
 
    | 名前 | 幅 | 高さ |
    |------|------|------|
@@ -143,13 +146,13 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
 
    各サイズで視覚的に問題が見つかった場合は、Phase 3 のアンチパターン検出スクリプトを再実行する。
 
-3. **元のサイズに復元**
-   手順1で記録したサイズに `resize_window` で戻す。
+2. **エミュレーションを解除**
+   `orca exec --command "set viewport 0 0"` で元のビューポートに戻す。
 
 ### Phase 5: ソースコード相関
 
 1. **Reactコンポーネント名の取得**
-   `javascript_tool` で以下を実行:
+   `orca eval` で以下を実行:
 
    ```js
    (function() {
@@ -171,7 +174,7 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
    ```
 
 2. **Tailwindクラスの分類**
-   `javascript_tool` で以下を実行:
+   `orca eval` で以下を実行:
 
    ```js
    (function() {
@@ -197,7 +200,7 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
    - 見つかったファイルを `Read` で読み、問題の原因となるスタイル定義（className, style prop, CSS Modules）を特定する
 
 4. **Hydrationエラーの確認**
-   `read_console_messages` で `pattern: "hydrat|mismatch|Warning.*did not match"` を検索し、Next.js固有のスタイル不一致を確認する。
+   `orca exec --command "console" --json` の出力から `hydrat|mismatch|Warning.*did not match` に当たる `text` を探し、Next.js固有のスタイル不一致を確認する。
 
 ### Phase 6: 診断レポート
 
@@ -235,7 +238,7 @@ Chrome拡張のMCPブラウザツールを使い、UIのスタイリング・レ
 ## 注意事項
 
 - **診断のみ行い、ファイルの変更は行わない**。修正案は提案として提示し、ユーザーの確認後に別途実施する
-- コンソールのエラー・警告も `read_console_messages` で確認し、CSS関連のものがあれば報告する
+- コンソールのエラー・警告も `orca exec --command "console"`（`type` が `error` / `warning` のもの）と `orca exec --command "errors"` で確認し、CSS関連のものがあれば報告する
 - SSR/CSR の差異に注意: hydration mismatch はスタイル問題の原因になりうる
 - Tailwind の `tailwind.config.js` / `tailwind.config.ts` のカスタマイズも必要に応じて調査する
 - 要素数が非常に多いページ（5000以上）ではPhase 3のスキャンを問題箇所周辺に絞る

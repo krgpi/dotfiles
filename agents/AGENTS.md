@@ -26,7 +26,7 @@
 - UIのスタイリング・レイアウト問題をブラウザ上で診断したいとき
 - CSSのレイアウト崩れ、レスポンシブ対応の確認が必要なとき
 - ユーザーが「レイアウトがおかしい」「崩れている」「はみ出す」「スタイルが当たらない」などの表現を使ったとき
-- ブラウザ操作は phi-browser スキルがあればそれを使い、無ければ Chrome拡張の MCP ツールが利用可能な場合のみ使う
+- ブラウザ操作は Orca の組み込みブラウザを `orca` CLI（orca-cli スキル）で行う。phi-browser スキルや Chrome拡張の MCP ツールは使わない
 - 使い方: `Skill` ツールで `skill: "karaage-tools:debug-ui"`, `args: "<問題の説明 or URL or CSSセレクタ>"` を呼び出す
 
 ### save-report
