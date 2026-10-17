@@ -30,6 +30,8 @@ create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json
 create_symlink "$DOTFILES_DIR/claude-work/settings.json" "$HOME/.claude-work/settings.json"
 create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/AGENTS.md"
 create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude-work/AGENTS.md"
+create_symlink "$DOTFILES_DIR/agents/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+create_symlink "$DOTFILES_DIR/agents/CLAUDE.md" "$HOME/.claude-work/CLAUDE.md"
 create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
 create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.codex-work/AGENTS.md"
 create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude/skills/commit-edited"
