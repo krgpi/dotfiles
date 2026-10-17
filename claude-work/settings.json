@@ -151,11 +151,6 @@
   },
   "language": "Japanese",
   "sandbox": {
-    "network": {
-      "allowUnixSockets": [
-        "/private/tmp/phi-cdp-501.31e9d348/agent.sock"
-      ]
-    },
     "filesystem": {
       "allowWrite": [
         "~/.crit"
