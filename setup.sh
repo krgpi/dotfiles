@@ -1,81 +1,24 @@
 #!/bin/bash
+set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SETUP_DIR="$DOTFILES_DIR/setup"
 OS="$(uname -s)"
 
-echo "Setting up dotfiles from $DOTFILES_DIR (OS: $OS)"
-
-create_symlink() {
-    local source="$1"
-    local target="$2"
-
-    if [ -e "$target" ] || [ -L "$target" ]; then
-        if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
-            echo "$target is already linked"
-            return
-        fi
-
-        echo "Backing up existing $target to ${target}.backup"
-        mv "$target" "${target}.backup"
-    fi
-
-    mkdir -p "$(dirname "$target")"
-    ln -s "$source" "$target"
-    echo "Created symlink: $target -> $source"
+run_step() {
+    echo ""
+    echo "=== $1 ==="
+    bash "$SETUP_DIR/$1"
 }
 
-create_symlink "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-create_symlink "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
-create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
-create_symlink "$DOTFILES_DIR/claude-work/settings.json" "$HOME/.claude-work/settings.json"
-create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/AGENTS.md"
-create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude-work/AGENTS.md"
-create_symlink "$DOTFILES_DIR/agents/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-create_symlink "$DOTFILES_DIR/agents/CLAUDE.md" "$HOME/.claude-work/CLAUDE.md"
-create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
-create_symlink "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.codex-work/AGENTS.md"
-create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude/skills/commit-edited"
-create_symlink "$DOTFILES_DIR/claude/skills/fix-gh-ci-error" "$HOME/.claude/skills/fix-gh-ci-error"
-create_symlink "$DOTFILES_DIR/claude/skills/commit-edited" "$HOME/.claude-work/skills/commit-edited"
-create_symlink "$DOTFILES_DIR/claude/skills/fix-gh-ci-error" "$HOME/.claude-work/skills/fix-gh-ci-error"
-create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
-create_symlink "$DOTFILES_DIR/hooks/pre-commit" "$DOTFILES_DIR/.git/hooks/pre-commit"
-create_symlink "$DOTFILES_DIR/hooks/commit-msg" "$DOTFILES_DIR/.git/hooks/commit-msg"
-
-if [[ "$OS" == "Darwin" ]]; then
-    create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
-    create_symlink "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
-    create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
-else
-    create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
-    create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
-fi
+run_step packages.sh
+[[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+run_step zsh-plugins.sh
+run_step symlinks.sh
+run_step npm.sh
+run_step claude-plugins.sh
+run_step env.sh
+[[ "$OS" == "Darwin" ]] && run_step macos.sh
 
 echo ""
 echo "Done! Dotfiles setup complete."
-
-if [[ "$OS" == "Darwin" ]]; then
-    echo ""
-    echo "=== macOS System Preferences ==="
-    echo "以下のコマンドで defaults を一括適用できます:"
-    echo "  $DOTFILES_DIR/macos.sh"
-fi
-
-if [[ "$OS" == "Linux" ]]; then
-    echo ""
-    echo "=== Ubuntu Package Setup ==="
-    echo "以下のコマンドでパッケージをインストールできます:"
-    echo "  sudo apt update && xargs -a $DOTFILES_DIR/Aptfile sudo apt install -y"
-fi
-
-echo ""
-echo "=== npm グローバルパッケージのセットアップ ==="
-echo "以下の順で mise 管理下の node に一括インストールできます:"
-echo "  mise install"
-echo "  cat $DOTFILES_DIR/Npmfile | xargs \$(mise where node@24)/bin/npm install --ignore-scripts -g"
-
-echo ""
-echo "=== Claude Code Plugin Setup ==="
-echo "Claude Code を起動して以下を実行してください:"
-echo "  /plugin add $DOTFILES_DIR/claude-marketplace"
-echo "auto-update を有効にすると、変更が自動で同期されます。"
