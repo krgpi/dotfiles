@@ -115,7 +115,6 @@ alias cl='claude'
 alias clt='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 codex() { CODEX_HOME="$HOME/Developer/dotfiles/codex" command codex "$@"; }
 codex-work() { CODEX_HOME="$HOME/Developer/dotfiles/codex-work" command codex "$@"; }
-paseo-work() { paseo run --env "CLAUDE_CONFIG_DIR=$HOME/.claude-work" "$@"; }
 gh() {
     local -a args
     if [[ "$1" == "co" ]]; then

@@ -42,13 +42,11 @@ create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 create_symlink "$DOTFILES_DIR/mise_config.toml" "$HOME/.config/mise/config.toml"
 create_symlink "$DOTFILES_DIR/hooks/pre-commit" "$DOTFILES_DIR/.git/hooks/pre-commit"
 create_symlink "$DOTFILES_DIR/hooks/commit-msg" "$DOTFILES_DIR/.git/hooks/commit-msg"
-create_symlink "$DOTFILES_DIR/paseo/config.json" "$HOME/.paseo/config.json"
 
 if [[ "$OS" == "Darwin" ]]; then
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
     create_symlink "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
     create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
-    create_symlink "$DOTFILES_DIR/paseo/com.yuki.paseo-daemon.plist" "$HOME/Library/LaunchAgents/com.yuki.paseo-daemon.plist"
 else
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
     create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"

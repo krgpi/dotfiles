@@ -256,11 +256,6 @@
     "web-perf": "off",
     "workers-best-practices": "off",
     "wrangler": "off",
-    "paseo-advisor": "off",
-    "paseo-committee": "off",
-    "paseo-handoff": "off",
-    "paseo-loop": "off",
-    "paseo-plugin": "off",
     "find-skills": "off"
   },
   "extraKnownMarketplaces": {
