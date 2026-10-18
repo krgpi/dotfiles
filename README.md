@@ -35,16 +35,3 @@ git clone https://github.com/<your-username>/dotfiles.git ~/Developer/dotfiles
 ### 3. 再ログイン（macOS のみ）
 
 `setup/macos.sh` で適用した `defaults` の一部は再ログイン後に反映される。
-
-## Codex
-
-`codex` と `codex-work` は別々の `CODEX_HOME` を使う。通常用は `~/Developer/dotfiles/codex`、仕事用は `~/Developer/dotfiles/codex-work` に設定・認証・履歴を分ける。
-
-```sh
-codex login
-codex-work login
-```
-
-`config.toml` と `AGENTS.md` はこのリポジトリで管理する。`auth.json`、履歴、DB、キャッシュなどのローカルデータは gitignore 対象。
-
-カスタムスキルは `codex/skills/<name>/` に直接置けばリポジトリで管理される（`skills/.system/` はCodexが自動生成するシステムスキルなので除外）。

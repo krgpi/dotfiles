@@ -113,8 +113,6 @@ alias ll='ls -l'
 alias lg='lazygit'
 alias cl='claude'
 alias clt='CLAUDE_CONFIG_DIR=~/.claude-work claude'
-codex() { CODEX_HOME="$HOME/Developer/dotfiles/codex" command codex "$@"; }
-codex-work() { CODEX_HOME="$HOME/Developer/dotfiles/codex-work" command codex "$@"; }
 gh() {
     local -a args
     if [[ "$1" == "co" ]]; then
