@@ -2,17 +2,3 @@ os:
   edit: 'nvim {{filename}}'
   editAtLine: 'nvim +{{line}} {{filename}}'
   editAtLineAndWait: 'nvim +{{line}} {{filename}}'
-customCommands:
-  - key: '<c-a>'
-    description: 'Claude でコミットメッセージを生成'
-    context: 'files'
-    loadingText: 'Claude がコミットメッセージを生成中...'
-    prompts:
-      - type: 'menuFromCommand'
-        title: 'コミットメッセージを選択:'
-        key: 'Message'
-        command: 'bash -c "$HOME/Developer/dotfiles/lazygit/gen-commit-msg.sh"'
-        filter: '(?P<msg>.*)'
-        valueFormat: '{{ .msg }}'
-        labelFormat: '{{ .msg }}'
-    command: 'git commit -m "{{.Form.Message}}"'
