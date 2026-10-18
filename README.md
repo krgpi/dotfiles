@@ -74,33 +74,3 @@ codex-work login
 `config.toml` と `AGENTS.md` はこのリポジトリで管理する。`auth.json`、履歴、DB、キャッシュなどのローカルデータは gitignore 対象。
 
 カスタムスキルは `codex/skills/<name>/` に直接置けばリポジトリで管理される（`skills/.system/` はCodexが自動生成するシステムスキルなので除外）。
-
-## 開発環境（dev コマンド）
-
-`dev` は tmux 上に開発環境を組み立てる。全ウィンドウが1つの tmux セッションに入り、「フォルダ」は各ウィンドウが今いるパスで動的にグルーピングされる。一覧は常駐させず、`prefix Space` のピッカー（fzf）で必要なときだけ出す。
-
-```sh
-dev ~/Developer/myapp   # フォルダを開く（シェル1つだけ。Claude / nvim は prefix c / e で足す）
-dev                     # 直近に使っていたフォルダへ戻る
-dev restart             # tmux 設定を読み直す（作業中のペインはそのまま）
-dev restart --full      # tmux ごと落として同じ構成で作り直す
-```
-
-| キー | 動作 |
-| --- | --- |
-| `prefix Space` | フォルダ/ウィンドウのピッカー（`j`/`k` 移動、`enter`/`space` で開く、`/` 絞り込み、`ctrl-t` で同じパスに新しいターミナル、`ctrl-x` でそのウィンドウを閉じる） |
-| `prefix h` / `l` | 同じパス内でウィンドウを前後に移動 |
-| `prefix H` / `L` | フォルダを前後に移動 |
-| `prefix c` / `t` / `e` | ウィンドウ追加（claude / シェル / エディタ） |
-| `prefix x` / `X` | ウィンドウを閉じる / フォルダごと閉じる |
-| `prefix Tab` | ペインを巡回 |
-
-Claude が入力待ちになるとステータスバー右に `● <フォルダ名>` が出る。lazygit と diff は nvim 側（`<leader>lg` / `<leader>dv`）に集約してあるので専用ウィンドウは持たない。nvim からは `<leader>fp` で同じ一覧を telescope で開ける。
-
-環境変数で挙動を変えられる。
-
-| 変数名 | 既定値 | 用途 |
-| --- | --- | --- |
-| `TMUX_DEV_SESSION` | `dev` | 使用する tmux セッション名 |
-| `TMUX_DEV_CLAUDE_CMD` | `claude` | `claudeN` ウィンドウで起動するコマンド |
-| `TMUX_DEV_EDITOR_CMD` | `nvim .` | `nv` ウィンドウで起動するコマンド |

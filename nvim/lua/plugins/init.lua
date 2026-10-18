@@ -295,9 +295,7 @@ require("lazy").setup({
 				end,
 				desc = "Telescope LSP references",
 			},
-			{ "<leader>fe", "<cmd>Telescope file_browser path=%:p:h<cr>", desc = "Telescope file browser" },
-			{ "<leader>fp", function() require("tmux_dev").windows() end, desc = "dev: tmux ウィンドウを選ぶ" },
-		},
+			{ "<leader>fe", "<cmd>Telescope file_browser path=%:p:h<cr>", desc = "Telescope file browser" },		},
 		config = function()
 			require("telescope").setup({
 				defaults = {

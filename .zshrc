@@ -145,9 +145,6 @@ if (( $+commands[brew] )); then
     alias bu='brew upgrade'
 fi
 alias up='~/Developer/dotfiles/dotfiles-update.sh --force'
-dev() {
-    ~/Developer/dotfiles/tmux-dev.sh "$@"
-}
 # esaはグローバルCLIなので、プロジェクト側 .mise.toml の node バージョン固定に
 # 影響されないようフルパスで呼ぶ（mise管理の latest シンボリックリンクを使う）
 esa() {
