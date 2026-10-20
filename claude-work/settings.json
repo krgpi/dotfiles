@@ -43,7 +43,9 @@
   "language": "Japanese",
   "sandbox": {
     "excludedCommands": [
-      "docker *",
+      "docker compose *",
+      "docker ps *",
+      "docker logs *",
       "gh *",
       "git *",
       "orca *"
