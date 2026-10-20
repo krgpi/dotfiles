@@ -28,6 +28,7 @@ PRテンプレートが存在しない場合、下記を基本構成とする。
 - 動作確認は、コマンド・アクセス先・操作手順・期待結果まで具体的に書く。実施していない確認を実施済みとして書かない。
 - ADR・Design Doc・Issueなど根拠資料があれば関連資料にリンクする。
 - PR作成直前のdiffとコミットに合わせ、古い構成の説明を残さない。
+- 画像・動画を添付するときは `gh pr create` の `--attach` を使う（[Attaching files with GitHub CLI](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli)）。本文中にローカルパスで `![代替テキスト](path/to/image.png)` と書き、同じパスを `--attach` に渡すと、アップロード先のURLに置き換わる。
 
 HEADのブランチがリモートに未プッシュの場合、プッシュの前にローカルブランチ名を変更内容に合った名前へ変える。
 
@@ -65,4 +66,10 @@ git diff <ベースブランチ名>..HEAD
 
 ```sh
 gh pr create -d -a @me -B <ベースブランチ名> -t <PRタイトル> -b <PR本文>
+```
+
+下記で画像付きのドラフトPRを作成できる。`--attach` は複数回指定できる。
+
+```sh
+gh pr create -d -a @me -B <ベースブランチ名> -t <PRタイトル> --body-file <PR本文ファイル> --attach <画像パス>
 ```

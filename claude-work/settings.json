@@ -43,6 +43,7 @@
   "language": "Japanese",
   "sandbox": {
     "excludedCommands": [
+      "docker *",
       "gh *",
       "git *",
       "orca *"
