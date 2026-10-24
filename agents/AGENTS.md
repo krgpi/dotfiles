@@ -96,6 +96,7 @@ auto mode 中などに「Bash で済む作業は Bash でやれ、Read/Edit/Writ
 - Esa の記事を編集するときは `esa` CLI を使う
 - `git push` は毎回ユーザーの許可を取ってから実行する。一度許可を得ても、そのセッション内の以降の push には及ばない
 - GitHub の PR・Issue へのコメント投稿も同様に、毎回許可を取る
+- コードの修正によって PR のタイトルや Description の更新が必要になった場合は、許可を取らずに更新してよい。更新したことはユーザーへの報告に書く
 - GitHub にコメント・レビューを投稿するときは、本文末尾に空行を挟んで署名を付ける。Claude Codeなら `<img src="https://claude.ai/favicon.ico" width="12" height="12"/> Claude Code`、Codexなら `<img src="https://chatgpt.com/favicon.ico" width="12" height="12"/> Codex`
 
 ## 回答スタイルの使い分け
