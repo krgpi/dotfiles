@@ -112,22 +112,32 @@ fi
 
 npm_bin="$(mise where node@24 2>/dev/null)/bin/npm"
 if [[ -x "$npm_bin" && -f "$NPMFILE" ]]; then
-    say "  npm: updating..."
-    echo "--- npm install -g ---" >> "$LOG"
-    before_list="$("$npm_bin" ls -g --depth=0 --parseable --long 2>/dev/null)"
-    if xargs "$npm_bin" install --ignore-scripts -g < "$NPMFILE" >> "$LOG" 2>&1; then
-        after_list="$("$npm_bin" ls -g --depth=0 --parseable --long 2>/dev/null)"
-        npm_changed=$(comm -13 <(sort <<< "$before_list") <(sort <<< "$after_list") | grep -c .)
-        if (( npm_changed > 0 )); then
-            parts+=("npm ${npm_changed} updated")
-            say "  npm: ${npm_changed} packages updated"
+    say "  npm: checking..."
+    npm_root="$("$npm_bin" root -g 2>/dev/null)"
+    installed="$("$npm_bin" ls -g --depth=0 --parseable 2>/dev/null | sed -n "s#^$npm_root/##p")"
+    outdated="$("$npm_bin" outdated -g --parseable 2>/dev/null | cut -d: -f1 | sed -n "s#^$npm_root/##p")"
+
+    # 全件を install -g すると更新がなくても依存ごと入れ直すため、未インストールか古いものだけに絞る
+    npm_targets=()
+    while read -r pkg; do
+        [[ -z "$pkg" ]] && continue
+        if ! grep -qFx "$pkg" <<< "$installed" || grep -qFx "$pkg" <<< "$outdated"; then
+            npm_targets+=("$pkg")
+        fi
+    done < "$NPMFILE"
+
+    if (( ${#npm_targets[@]} > 0 )); then
+        echo "--- npm install -g ${npm_targets[*]} ---" >> "$LOG"
+        if "$npm_bin" install --ignore-scripts -g "${npm_targets[@]}" >> "$LOG" 2>&1; then
+            parts+=("npm ${#npm_targets[@]} updated")
+            say "  npm: ${#npm_targets[@]} packages updated (${npm_targets[*]})"
         else
-            say "  npm: up to date"
+            parts+=("npm failed")
+            failed=1
+            say "  npm: FAILED"
         fi
     else
-        parts+=("npm failed")
-        failed=1
-        say "  npm: FAILED"
+        say "  npm: up to date"
     fi
 fi
 
