@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 日次の自動アップデート（brew と zshプラグインリポジトリの git pull）
+# 日次の自動アップデート（brew・Npmfile の npm グローバルパッケージと zshプラグインリポジトリの git pull）
 # .zshrc から zsh-defer 経由でバックグラウンド実行される
 # 結果は summary に書き出し、次回ターミナル起動時に一度だけ表示される
 # 手動で即実行したい場合は --force を付ける
@@ -11,6 +11,7 @@ LOCK="$CACHE_DIR/lock"
 LOG="$CACHE_DIR/last.log"
 SUMMARY="$CACHE_DIR/summary"
 INTERVAL=86400
+NPMFILE="$HOME/Developer/dotfiles/Npmfile"
 
 REPOS=(
     "$HOME/Developer/fzf-tab"
@@ -107,6 +108,27 @@ if command -v brew >/dev/null 2>&1; then
     cask_count=$(brew outdated --cask --quiet 2>/dev/null | grep -c .)
     (( cask_count > 0 )) && parts+=("cask ${cask_count} outdated")
     (( cask_count > 0 )) && say "  cask: ${cask_count} outdated (run: brew upgrade --cask)"
+fi
+
+npm_bin="$(mise where node@24 2>/dev/null)/bin/npm"
+if [[ -x "$npm_bin" && -f "$NPMFILE" ]]; then
+    say "  npm: updating..."
+    echo "--- npm install -g ---" >> "$LOG"
+    before_list="$("$npm_bin" ls -g --depth=0 --parseable --long 2>/dev/null)"
+    if xargs "$npm_bin" install --ignore-scripts -g < "$NPMFILE" >> "$LOG" 2>&1; then
+        after_list="$("$npm_bin" ls -g --depth=0 --parseable --long 2>/dev/null)"
+        npm_changed=$(comm -13 <(sort <<< "$before_list") <(sort <<< "$after_list") | grep -c .)
+        if (( npm_changed > 0 )); then
+            parts+=("npm ${npm_changed} updated")
+            say "  npm: ${npm_changed} packages updated"
+        else
+            say "  npm: up to date"
+        fi
+    else
+        parts+=("npm failed")
+        failed=1
+        say "  npm: FAILED"
+    fi
 fi
 
 if (( ${#parts[@]} == 0 )); then

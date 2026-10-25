@@ -42,7 +42,7 @@ cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install -
 - **zsh** (`.zshrc`): zsh-deferによる遅延読み込みでパフォーマンス最適化。compinit は1日1回のみ実行。環境変数は `.env` から読み込み（gitignore対象）
 - **Neovim** (`nvim/`): lazy.nvim でプラグイン管理。エントリポイントは `nvim/init.lua`、設定は `nvim/lua/options/`、プラグインは `nvim/lua/plugins/`。telescope と mason は起動時に読まず、キーマップ（`keys`）とバッファを開いたとき（`event`）まで遅らせている
 - **macOS のシステム設定** (`setup/macos.sh`): Dock・Finder・トラックパッド・スクリーンショット・メニューバーなどの `defaults` を一括適用する。macOS では `setup.sh` から実行される。ウィンドウ位置やマシン固有の識別子など環境依存の値は持たない
-- **自動更新** (`dotfiles-update.sh`): 1日1回、ターミナル起動時に zsh-defer 経由でバックグラウンド実行。`brew update` + `brew upgrade --formula` と fzf-tab / zsh-defer の `git pull` を行う。cask は起動中アプリの差し替えを避けるため件数通知のみ。結果は次回のターミナル起動時に一度だけ表示される。`up` で即時実行でき、その場に結果を出力する。実行履歴（更新されたコミット一覧を含む）は `~/.cache/dotfiles-update/last.log` に追記される（直近500行を保持）
+- **自動更新** (`dotfiles-update.sh`): 1日1回、ターミナル起動時に zsh-defer 経由でバックグラウンド実行。`brew update` + `brew upgrade --formula`、Npmfile のパッケージの `npm install -g`（mise 管理の node@24）と fzf-tab / zsh-defer の `git pull` を行う。cask は起動中アプリの差し替えを避けるため件数通知のみ。結果は次回のターミナル起動時に一度だけ表示される。`up` で即時実行でき、その場に結果を出力する。実行履歴（更新されたコミット一覧を含む）は `~/.cache/dotfiles-update/last.log` に追記される（直近500行を保持）
 
 ### セキュリティ
 
