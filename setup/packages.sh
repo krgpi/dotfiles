@@ -10,6 +10,9 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
     fi
     eval "$(/opt/homebrew/bin/brew shellenv)"
 
+    echo "Tapping Homebrew repositories"
+    grep '^tap ' "$DOTFILES_DIR/Brewfile" | cut -d'"' -f2 | xargs -n1 brew tap
+
     echo "Installing Homebrew packages"
     brew bundle --file="$DOTFILES_DIR/Brewfile"
 else

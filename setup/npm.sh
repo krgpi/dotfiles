@@ -10,6 +10,7 @@ fi
 
 echo "Installing mise tools"
 mise install
+mise install node@24
 
 echo "Installing npm global packages"
 xargs "$(mise where node@24)/bin/npm" install --ignore-scripts -g < "$DOTFILES_DIR/Npmfile"
