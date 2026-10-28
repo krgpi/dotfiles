@@ -32,7 +32,7 @@ cat ~/Developer/dotfiles/Npmfile | xargs $(mise where node@24)/bin/npm install -
 
 ### デプロイ方式
 
-`setup.sh` がエントリポイントで、`setup/` 配下のスクリプト（パッケージ・zsh プラグイン・シンボリックリンク・npm・Claude Code プラグイン・`.env`・macOS defaults）を順に実行する。各スクリプトは冪等で、単独でも実行できる。
+`setup.sh` がエントリポイントで、`setup/` 配下のスクリプト（パッケージ・zsh プラグイン・シンボリックリンク・npm・Claude Code 本体とプラグイン・`.env`・macOS defaults）を順に実行する。各スクリプトは冪等で、単独でも実行できる。
 
 `setup/symlinks.sh` がすべての設定ファイルをホームディレクトリ等へシンボリックリンクする。既存ファイルは `.backup` 付きでバックアップされる。
 
