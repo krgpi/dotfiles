@@ -55,5 +55,6 @@
   },
   "awaySummaryEnabled": false,
   "editorMode": "vim",
-  "remoteControlAtStartup": true
+  "remoteControlAtStartup": true,
+  "theme": "auto"
 }
