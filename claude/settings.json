@@ -261,11 +261,15 @@
   "sandbox": {
     "network": {
       "allowUnixSockets": [
-        "/var/run/docker.sock"
+        "/var/run/docker.sock",
+        "~/.orbstack/run/docker.sock"
       ]
     },
     "excludedCommands": [
-      "gh *"
+      "gh *",
+      "git *",
+      "orca *",
+      "docker *"
     ]
   },
   "effortLevel": "xhigh",
