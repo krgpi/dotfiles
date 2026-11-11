@@ -123,8 +123,23 @@ gh api repos/<owner>/<repo>/issues/comments/<ID> -X PATCH -F body=@<新本文フ
 - 末尾に「防御的に明示したい等の要望があれば追加対応する」旨を一言添える。
 - さらにその下に空行を挟んで署名を付ける: `<img src="https://claude.ai/favicon.ico" width="12" height="12"/> Claude Code`
 
+### Step 9: AI レビューのスレッドを Resolve
+
+Step 6 のプッシュで解決した項目のうち、**AI によるインラインレビューコメント起源のもの**だけ、そのレビュースレッドを Resolve する。
+
+- 対象: 「対応する」と確定し、プッシュ済みのコミットで指摘内容が解消された項目。見送った項目・部分対応の項目は Resolve しない。
+- AI レビューの判定: スレッド先頭コメントの `author.__typename` が `Bot`（`coderabbitai[bot]`・`copilot-pull-request-reviewer` 等）、または本文末尾に AI の署名（`Claude Code`・`Codex` の favicon 署名）が付いているもの。人間のレビュアーの指摘は Resolve せず、レビュアー本人に委ねる。
+- 通常の PR コメント起源の項目はスレッドを持たないため対象外。
+
+```sh
+# スレッド ID と先頭コメントの comment_id・作成者・本文を取得
+gh api graphql -F owner=<owner> -F repo=<repo> -F n=<N> -f query='query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$n){reviewThreads(first:100){nodes{id isResolved comments(first:1){nodes{databaseId author{__typename login} body}}}}}}}' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | {id, isResolved, comment: .comments.nodes[0]}'
+# Step 1 で控えた comment_id と databaseId が一致するスレッドを Resolve
+gh api graphql -F id=<thread_id> -f query='mutation($id:ID!){resolveReviewThread(input:{threadId:$id}){thread{isResolved}}}'
+```
+
 ## 注意事項
 
-- コミット・プッシュ・コメント投稿・チェックボックス更新といった外向きの副作用を伴う操作は、判断結果を提示して合意を得てから実施する（ユーザーが「やっといて」と明示した場合はそのまま進めてよい）。
+- コミット・プッシュ・コメント投稿・チェックボックス更新・スレッドの Resolve といった外向きの副作用を伴う操作は、判断結果を提示して合意を得てから実施する（ユーザーが「やっといて」と明示した場合はそのまま進めてよい）。
 - 日本語・改行・記号を含む本文は一時ファイル（`mktemp`）に書いてから `-F body=@<file>` で渡す（シェル経由のエスケープ崩れを避ける）。
 - 判断は是々非々で行い、「レビュアーを満足させるため」だけの無価値な変更（恒真の死んだ条件追加・機能的に等価な書き換え）はしない。見送る場合は理由で説得する。
