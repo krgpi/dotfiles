@@ -113,6 +113,18 @@ alias ll='ls -l'
 alias lg='lazygit'
 alias cl='claude'
 alias clt='CLAUDE_CONFIG_DIR=~/.claude-work claude'
+claude() {
+    local p
+    if [[ -z "$CLAUDE_CONFIG_DIR" ]]; then
+        for p in $CLAUDE_WORK_DIR_PATTERNS; do
+            if [[ "$PWD" == ${~p} ]]; then
+                CLAUDE_CONFIG_DIR=~/.claude-work command claude "$@"
+                return
+            fi
+        done
+    fi
+    command claude "$@"
+}
 gh() {
     local -a args
     if [[ "$1" == "co" ]]; then
