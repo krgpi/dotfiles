@@ -4,7 +4,7 @@
   "doom-one.nvim": { "branch": "main", "commit": "beae92173315c7282f6897e666cfd67fbf0f3ac9" },
   "gitsigns.nvim": { "branch": "main", "commit": "070a5d7b985546cc57e1fc61e5bc507fecac6045" },
   "indent-blankline.nvim": { "branch": "master", "commit": "f1e186e44d3b7f9ae918008e2c28ce37c6023d2d" },
-  "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
+  "lazy.nvim": { "branch": "main", "commit": "85c7ff3711b730b4030d03144f6db6375044ae82" },
   "lazygit.nvim": { "branch": "main", "commit": "9ffc6103926718f7070fb4017694543cd7dc9718" },
   "lualine.nvim": { "branch": "master", "commit": "221ce6b2d999187044529f49da6554a92f740a96" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "137bd0feba2c1885545b6934d36f5e5aa6adb486" },
