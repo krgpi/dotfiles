@@ -47,6 +47,7 @@
       "docker compose logs *",
       "docker ps *",
       "docker logs *",
+      "docker *",
       "gh *",
       "git *",
       "orca *"
