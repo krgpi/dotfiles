@@ -18,16 +18,20 @@ echo "=== $(date '+%Y-%m-%d %H:%M:%S') ==="
 
 source "$HOME/Developer/dotfiles/zsh/gh.zsh"
 
-prs=$(command gh search prs --review-requested=@me --state=open --json url,repository --jq '.[] | "\(.repository.name) \(.url)"') || exit 1
+prs=$(command gh search prs --review-requested=@me --state=open --json url,repository --jq '.[] | "\(.repository.nameWithOwner) \(.url)"') || exit 1
 
 for line in "${(@f)prs}"; do
     [[ -z "$line" ]] && continue
     repo=${line%% *}
     url=${line#* }
     grep -qFx "$url" "$SEEN" && continue
-    dir="$HOME/Developer/$repo"
+    dir="$HOME/Developer/${repo#*/}"
     if [[ ! -d "$dir/.git" ]]; then
         echo "skip (no clone): $url"
+        continue
+    fi
+    if [[ "$(git -C "$dir" remote get-url origin)" != (https://github.com/|git@github.com:)${repo}(.git|) ]]; then
+        echo "skip (owner mismatch): $url"
         continue
     fi
     if (builtin cd "$dir" && gh co "$url" < /dev/null); then
