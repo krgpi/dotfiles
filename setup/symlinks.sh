@@ -46,6 +46,7 @@ if [[ "$OS" == "Darwin" ]]; then
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
     create_symlink "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
     create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+    create_symlink "$DOTFILES_DIR/launchd/com.karaage.gh-review-checkout.plist" "$HOME/Library/LaunchAgents/com.karaage.gh-review-checkout.plist"
 else
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
     create_symlink "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
